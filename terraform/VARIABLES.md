@@ -22,7 +22,7 @@
 | `worker_subnet2_id` | "" | In case of existing VPC and SUBNETS, Subnet Id for worker subnet in zone 2. |
 | `worker_subnet3_id` | "" | In case of existing VPC and SUBNETS, Subnet Id for worker subnet in zone 3. |
 | `enable_permission_quota_check` | Requires input | To enable permission and resource quota check for aws account. |
-| `openshift_version` | 4.10.39 | Openshift Cluster version |
+| `openshift_version` | 4.10 | Openshift Cluster version |
 | `cluster_name` | ibmrosa | All resources created by the Openshift Installer will have this name as prefix. |
 | `worker_machine_type` | m5.4xlarge | The EC2 instance type for the OpenShift worker instances. Make sure your region supports the selected instance type.  Supported worker instance types [here](./INSTANCE-TYPES.md) |
 | `worker_machine_count` | 3 | The desired capacity for the OpenShift worker node instances. Minimum of `3` nodes required. To decide on the number of worker nodes needed check `Resource Requirements for each service` section in [here](../README.md) |

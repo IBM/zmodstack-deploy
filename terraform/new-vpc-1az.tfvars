@@ -76,4 +76,4 @@ external_registry_password      = "<required>"
 
 #external_registry             = "cp.icr.io"
 #external_registry_username    = "cp"
-#openshift_version             = "4.10.39"
+#openshift_version             = "4.10"
