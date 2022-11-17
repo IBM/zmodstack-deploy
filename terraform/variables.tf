@@ -284,5 +284,5 @@ variable "external_registry_password" {
 
 variable "openshift_version" {
   description = "Version >= 4.9.0"
-  default     = "4.10.37"
+  default     = "4.10.39"
 }
