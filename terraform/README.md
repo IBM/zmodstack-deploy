@@ -57,7 +57,7 @@ The deployment sets up the following as shown in the diagram.
     ```
     cd terraform
     ```
-* Read the license [here](#todo) and accept it by setting variable `accept_license` to `accept`.
+* Read the [license](https://ibm.biz/z-and-cloud-modernization-stack-license) and accept it by setting variable `accept_license` to `accept`.
 * If you want to hide sensitive data such as access_key_id or secret_access_key, create a `aws.tfvars` file and write all the sensitive variables.
 * You can use the `new-vpc.tfvars` file in this folder with preset values for an OCP cluster inn a new VPC cluster. Note that the `<required>` parameters need to be set. 
     ```bash

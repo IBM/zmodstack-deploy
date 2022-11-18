@@ -53,7 +53,7 @@
 | `cluster_network_cidr` | 172.20.0.0/14 | The CIDR block for the Openshift cluster overlay network cidr to be created. |
 | `cluster_network_host_prefix` | 23 | Host prefix for the cluster network. |
 | `service_network_cidr` | 172.30.0.0/16 | The CIDR cidr block for Openshift cluster  services |
-| `private_cluster` | public | Public or Private. Set `public` to `private` to deploy a cluster which cannot be accessed from the internet. See [documentation](https://docs.openshift.com/container-platform/4.3/installing/installing_aws/installing-aws-private.html) for more details. |
+| `private_cluster` | public | Public or Private. Set `public` to `private` to deploy a cluster which cannot be accessed from the internet. See [documentation](https://docs.openshift.com/container-platform/4.10/installing/installing_aws/installing-aws-private.html) for more details. |
 | `openshift_pull_secret_file_path` | Requires input | The pull secret that you obtained from the [Pull Secret](https://cloud.redhat.com/openshift/install/pull-secret) page on the Red Hat OpenShift Cluster Manager site. You use this pull secret to authenticate with the services that are provided by the included authorities, including Quay.io, which serves the container images for OpenShift Container Platform components. |
 | `public_ssh_key` | Requires input | ssh Public key to be included in the bootnode and all the nodes in the cluster. Example: "ssh-rsa AAAAB3Nza..." |
 | `enable_fips` | true | If FIPS mode is enabled, the Red Hat Enterprise Linux CoreOS (RHCOS) machines that OpenShift Container Platform runs on bypass the default Kubernetes cryptography suite and use the cryptography modules that are provided with RHCOS instead. Allowed values `true / false` |
@@ -63,5 +63,5 @@
 | `enable_autoscaler` | Requires input | Enable or disable autoscaler. |
 | `configure_openshift_nodes` | Requires input | Setting machineconfig parameters on worker nodes. |
 | IBM Z & Cloud Modernization Stack |
-| `accept_license` | reject | Read and accept license [here]#todo). Allowed values `accept / reject`. |
+| `accept_license` | reject | Read and accept license [here](https://ibm.biz/z-and-cloud-modernization-stack-license). Allowed values `accept / reject`. |
 | `external_registry_password` | Requires input | Enter the API Key. To generate API Key select [Entitlement Key](https://myibm.ibm.com/products-services/containerlibrary). For external registries, enter password here |

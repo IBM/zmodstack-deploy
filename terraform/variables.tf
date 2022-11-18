@@ -264,7 +264,7 @@ variable "enable_autoscaler" {
 
 ##########################################################
 variable "accept_license" {
-  description = "Read and accept license at https://www14.software.ibm.com/cgi-bin/weblap/lap.pl?li_formnum=L-DNAA-BZTPEW, (accept / reject)"
+  description = "Read and accept license at https://ibm.biz/z-and-cloud-modernization-stack-license, (accept / reject)"
   default     = "reject"
 }
 
