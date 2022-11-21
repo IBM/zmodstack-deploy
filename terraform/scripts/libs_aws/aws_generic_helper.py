@@ -63,7 +63,7 @@ class AWSGenericHelper():
                 }
     }
 
-    # IBM Z & Cloud Modernization Stack services required vCPUs according to:
+    # IBM Z and Cloud Modernization Stack services required vCPUs according to:
     # TODO
     zmodstack_services_vcpu = {
         'wazi_analyze': 1,

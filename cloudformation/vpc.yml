@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: IBM Z & Cloud Modernization Stack - VPC
+Description: IBM Z and Cloud Modernization Stack - VPC
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:

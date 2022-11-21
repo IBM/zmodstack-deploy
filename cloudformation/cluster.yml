@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: IBM Z & Cloud Modernization Stack - OCP Cluster
+Description: IBM Z and Cloud Modernization Stack - OCP Cluster
 Metadata:
   QuickStartDocumentation:
     EntrypointName: "Parameters for deploying into an new VPC"
@@ -7,7 +7,7 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
-          default: IBM Z & Cloud Modernization Stack configuration
+          default: IBM Z and Cloud Modernization Stack configuration
         Parameters:
           - LicenseAgreement
           - APIKey
@@ -122,7 +122,7 @@ Parameters:
     Description: The CIDR IP range that is permitted to access boot node instance. We recommend that you set this value to a trusted IP range. The value `0.0.0.0/0` permits all IP addresses to access. Additional values can be added post-deployment from the Amazon EC2 console.
     Type: String
   S3BucketName: 
-    Description: The S3 bucket name that will have the RedHat Pull Secret and the deploy logs generated will be stored
+    Description: The name of the S3 bucket containing the OpenShift pull secret (zmodstack/ocp/pull-secret.json) and where deployment logs will be written (zmodstack/logs). Reference the IBM Z and Cloud Modernization Stack on AWS Deployment Guide for more details.
     Type: String
     AllowedPattern: ^[0-9a-z-]*$
     Default: ""
@@ -204,7 +204,7 @@ Parameters:
     NoEcho: 'true'
   LicenseAgreement:
     Description: >-
-      I have read and agreed to the license terms for IBM Z & Cloud Modernization Stack that were provided to me at time of purchase.
+      I have read and agreed to the license terms for IBM Z and Cloud Modernization Stack that were provided to me at time of purchase.
     Type: String
     Default: '-'
     AllowedValues:

@@ -174,15 +174,15 @@ variable "vpc_id" {
 }
 
 variable "external_registry" {
-  description = "URL to external registry containing IBM Z & Cloud Modernization Stack images"
+  description = "URL to external registry containing IBM Z and Cloud Modernization Stack images"
   default     = "cp.icr.io"
 }
 
 variable "external_registry_username" {
-  description = "Username for external registry containing IBM Z & Cloud Modernization Stack images"
+  description = "Username for external registry containing IBM Z and Cloud Modernization Stack images"
   default     = "cp"
 }
 
 variable "external_registry_password" {
-  description = "Password or API Key for external registry containing IBM Z & Cloud Modernization Stack images"
+  description = "Password or API Key for external registry containing IBM Z and Cloud Modernization Stack images"
 }
