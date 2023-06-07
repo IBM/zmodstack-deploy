@@ -1,0 +1,881 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Region where the resources should be created"
+      },
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "aadApplicationId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Azure AD Client ID"
+      }
+    },
+    "aadApplicationSecret": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Azure AD Client Secret"
+      }
+    },
+    "bootstrapAdminUsername": {
+      "type": "string",
+      "minLength": 4,
+      "metadata": {
+        "description": "Administrator username on Bootstrap VM"
+      }
+    },
+    "bootstrapVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D4s_v3",
+      "metadata": {
+        "description": "Bootstrap Host VM size"
+      }
+    },
+    "bootstrapSshPublicKey": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "SSH public key for all VMs"
+      }
+    },
+    "controlplaneInstanceCount": {
+      "type": "int",
+      "defaultValue": 3,
+      "allowedValues": [
+        3,
+        5
+      ],
+      "metadata": {
+        "description": "Number of OpenShift Controlplane nodes."
+      }
+    },
+    "controlplaneVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D4s_v3",
+      "metadata": {
+        "description": "Size of the VM to serve as a Controlplane node"
+      }
+    },
+    "controlplaneDiskSize": {
+      "type": "int",
+      "defaultValue": 100,
+      "metadata": {
+        "description": "Size of controlplane VM OSdisk in GB"
+      }
+    },
+    "controlplaneDiskType": {
+      "type": "string",
+      "defaultValue": "StandardSSD_LRS",
+      "metadata": {
+        "description": "Controlplane Host VM storage"
+      }
+    },
+    "computeInstanceCount": {
+      "type": "int",
+      "defaultValue": 3,
+      "allowedValues": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "metadata": {
+        "description": "Number of OpenShift Compute nodes"
+      }
+    },
+    "computeVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2s_v3",
+      "metadata": {
+        "description": "Size of the VM to serve as a Compute node"
+      }
+    },
+    "computeDiskSize": {
+      "type": "int",
+      "defaultValue": 100,
+      "metadata": {
+        "description": "Size of compute VM OSdisk in GB"
+      }
+    },
+    "computeDiskType": {
+      "type": "string",
+      "defaultValue": "StandardSSD_LRS",
+      "metadata": {
+        "description": "Compute Host VM storage"
+      }
+    },
+    "virtualNetworkNewOrExisting": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "Deploy in new Virtual Network or in existing cluster. If existing Virtual Network, make sure the new resources are in the same zone."
+      }
+    },
+    "virtualNetworkResourceGroup": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Resource Group for Virtual Network ."
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "myVNet",
+      "metadata": {
+        "description": "Name of new or existing Virtual Network"
+      }
+    },
+    "virtualNetworkCIDR": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "VNet Address Prefix. Minimum address prefix is /24"
+      }
+    },
+    "controlplaneSubnetCIDR": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24",
+      "metadata": {
+        "description": "Controlplane subnet address prefix"
+      }
+    },
+    "computeSubnetCIDR": {
+      "type": "string",
+      "defaultValue": "10.0.2.0/24",
+      "metadata": {
+        "description": "Compute subnet address prefix"
+      }
+    },
+    "bootstrapSubnetCIDR": {
+      "type": "string",
+      "defaultValue": "10.0.3.0/27",
+      "metadata": {
+        "description": "Bootstrap subnet address prefix"
+      }
+    },
+    "singleZoneOrMultiZone": {
+      "type": "string",
+      "defaultValue": "az",
+      "allowedValues": [
+        "az",
+        "noha"
+      ],
+      "metadata": {
+        "description": "Deploy to a Single AZ or multiple AZs"
+      }
+    },
+    "dnsZoneName": {
+      "type": "string",
+      "metadata": {
+        "description": "Domain name created with the App Service"
+      }
+    },
+    "dnsZoneResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource Group that contains the Domain name"
+      }
+    },
+    "pullSecret": {
+      "type": "securestring",
+      "minLength": 1,
+      "metadata": {
+        "description": "Openshift PullSecret JSON Blob"
+      }
+    },
+    "clusterName": {
+      "type": "string",
+      "metadata": {
+        "description": "Cluster resources prefix"
+      }
+    },
+    "openshiftUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "OpenShift console login Username"
+      }
+    },
+    "openshiftPassword": {
+      "type": "securestring",
+      "minLength": 8,
+      "metadata": {
+        "description": "OpenShift console login Password"
+      }
+    },
+    "clusterResourceGroupName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "ResourceGroup for the Cluster. An empty resource group should be created before and the name has to be passed here. If no value passed, then the openshift installer will create a Resource Group based on the Cluster name."
+      }
+    },
+    "apiKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "IBM Container Registry API Key"
+      }
+    },
+    "openshiftVersion": {
+      "type": "string",
+      "defaultValue": "4.12",
+      "allowedValues": [
+        "4.10",
+        "4.11",
+        "4.12",
+        "4.13"
+      ],
+      "metadata": {
+        "description": "OpenShift Version"
+      }
+    },
+    "zModStackLicenseAgreement": {
+      "type": "string",
+      "defaultValue": "reject",
+      "allowedValues": [
+        "accept",
+        "reject"
+      ],
+      "metadata": {
+        "description": "Accept License Agreement"
+      }
+    },
+    "managedIdName": {
+      "type": "string",
+      "defaultValue": "[concat('zmodmgdid',substring(uniqueString(resourceGroup().id),1,7))]",
+      "metadata": {
+        "description": "Name of the managed identity that will run the container (and create storage if necessary)"
+      }
+    }
+  },
+  "variables": {
+    "contributorRole": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+    "userAccessAdminRole": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9')]",
+    "_contributorRole": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+    "_userAccessAdminRole": "[resourceId('Microsoft.Authorization/roleDefinitions', '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9')]",
+    "redHatTags": {
+      "app": "OpenshiftContainerPlatform",
+      "version": "4.10.x",
+      "platform": "AzurePublic"
+    },
+    "imageReference": {
+      "publisher": "RedHat",
+      "offer": "RHEL",
+      "sku": "86-gen2",
+      "version": "latest"
+    },
+    "bootstrapHostname": "bootstrap",
+    "role": "bootstrap",
+    "bootstrapDiskSize": 100,
+    "bootstrapDiskType": "StandardSSD_LRS",
+    "publicBootstrapIP": true,
+    "computeSecurityGroupName": "compute-nsg",
+    "controlplaneSecurityGroupName": "controlplane-nsg",
+    "bootstrapSecurityGroupName": "bootstrap-nsg",
+    "bootstrapDataDiskSize": 100,
+    "controlplaneSubnetName": "controlplaneSubnet",
+    "computeSubnetName": "computeSubnet",
+    "bootstrapSubnetName": "bootstrapSubnet",
+    "networkResourceGroup": "[parameters('virtualNetworkResourceGroup')]",
+    "enableFips": false,
+    "enableAutoscaler": false,
+    "outboundType": "Loadbalancer",
+    "privateOrPublicEndpoints": "public",
+    "vTrue": true,
+    "bootstrapPublicIpDnsLabel": "[concat('bootstrapdns', uniqueString(resourceGroup().id))]",
+    "sshKeyPath": "[concat('/home/', parameters('bootstrapAdminUsername'), '/.ssh/authorized_keys')]",
+    "openshiftDeploymentScriptFileName": "deployOpenShift.sh",
+    "subscriptionId": "[subscription().subscriptionId]",
+    "tenantId": "[subscription().tenantId]",
+    "resourceGroupName": "[resourceGroup().name]",
+    "clusterNetworkCidr": "172.20.0.0/14",
+    "hostAddressPrefix": 23,
+    "serviceNetworkCidr": "172.30.0.0/16",
+    "privateOrPublic": "[if(equals(variables('privateOrPublicEndpoints'), 'private'), 'Internal', 'External')]",
+    "publicIpId": {
+      "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('bootstrapPublicIpDnsLabel'))]"
+    },
+    "openshiftConsoleURL": "[uri(concat('https://console-openshift-console.apps.', parameters('clusterName'), '.', parameters('dnsZoneName')),'/')]",
+    "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+    "roleDefinitionName": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName')), variables('roleDefinitionId'), resourceGroup().id)]",
+    "verboseOutput": false
+  },
+  "resources": [
+    {
+      "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'new')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2021-08-01",
+      "name": "[parameters('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "VirtualNetwork",
+        "app": "[variables('redHatTags').app]",
+        "version": "[variables('redHatTags').version]",
+        "platform": "[variables('redHatTags').platform]"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('virtualNetworkCIDR')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('bootstrapSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('bootstrapSubnetCIDR')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('bootstrapSecurityGroupName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('controlplaneSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('controlplaneSubnetCIDR')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('controlplaneSecurityGroupName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('computeSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('computeSubnetCIDR')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('computeSecurityGroupName'))]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[variables('bootstrapSecurityGroupName')]",
+        "[variables('controlplaneSecurityGroupName')]",
+        "[variables('computeSecurityGroupName')]"
+      ]
+    },
+    {
+      "condition": "[equals(variables('publicBootstrapIP'), variables('vTrue'))]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2021-08-01",
+      "name": "[variables('bootstrapPublicIpDnsLabel')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "tags": {
+        "displayName": "BootstrapPublicIP",
+        "app": "[variables('redHatTags').app]",
+        "version": "[variables('redHatTags').version]",
+        "platform": "[variables('redHatTags').platform]"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('bootstrapPublicIpDnsLabel')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2021-08-01",
+      "name": "[concat(variables('bootstrapHostname'), '-nic')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('bootstrapSecurityGroupName'))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('bootstrapPublicIpDnsLabel'))]"
+      ],
+      "tags": {
+        "displayName": "BootstrapNetworkInterface",
+        "app": "[variables('redHatTags').app]",
+        "version": "[variables('redHatTags').version]",
+        "platform": "[variables('redHatTags').platform]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "[concat(variables('bootstrapHostname'), 'ipconfig')]",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[resourceId(variables('networkResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('bootstrapSubnetName'))]"
+              },
+              "publicIPAddress": "[if(equals(variables('publicBootstrapIP'), variables('vTrue')), variables('publicIpId'), json('null'))]"
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bootstrapSecurityGroupName'))]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2021-08-01",
+      "name": "[variables('bootstrapSecurityGroupName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "BootstrapNSG",
+        "app": "[variables('redHatTags').app]",
+        "version": "[variables('redHatTags').version]",
+        "platform": "[variables('redHatTags').platform]"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "allowSSHin_all",
+            "properties": {
+              "description": "Allow SSH in from all locations",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "name": "[parameters('managedIdName')]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[variables('roleDefinitionName')]",
+      "dependsOn": [
+        "[parameters('managedIdName')]"
+      ],
+      "properties": {
+        "roleDefinitionId": "[variables('roleDefinitionId')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities',parameters('managedIdName')), '2018-11-30').principalId]",
+        "scope": "[resourceGroup().id]",
+        "principalType": "ServicePrincipal"
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('bootstrapHostname')]",
+      "location": "[parameters('location')]",
+      "apiVersion": "2021-11-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('bootstrapHostname'), '-nic'))]"
+      ],
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName'))]": {}
+        }
+      },
+      "tags": {
+        "displayName": "BootstrapVM",
+        "Role": "[variables('role')]",
+        "app": "[variables('redHatTags').app]",
+        "version": "[variables('redHatTags').version]",
+        "platform": "[variables('redHatTags').platform]"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('bootstrapVmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('bootstrapHostname')]",
+          "adminUsername": "[parameters('bootstrapAdminUsername')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": true,
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[variables('sshKeyPath')]",
+                  "keyData": "[parameters('bootstrapSshPublicKey')]"
+                }
+              ]
+            }
+          }
+        },
+        "storageProfile": {
+          "imageReference": "[variables('imageReference')]",
+          "osDisk": {
+            "name": "[concat(variables('bootstrapHostname'), '-osDisk')]",
+            "managedDisk": {
+              "storageAccountType": "[variables('bootstrapDiskType')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
+            "diskSizeGB": "[variables('bootstrapDiskSize')]",
+            "osType": "Linux"
+          },
+          "dataDisks": "[if(equals(variables('bootstrapHostname'), 'bootstrap'), json('null'), variables('bootstrapDataDiskSize'))]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('bootstrapHostname'), '-nic'))]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2021-08-01",
+      "name": "[variables('controlplaneSecurityGroupName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "ControlplaneNSG",
+        "app": "[variables('redHatTags').app]",
+        "version": "[variables('redHatTags').version]",
+        "platform": "[variables('redHatTags').platform]"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "allowHTTPS_all",
+            "properties": {
+              "description": "Allow HTTPS connections from all locations",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "6443",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 200,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2021-08-01",
+      "name": "[variables('computeSecurityGroupName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "ComputeNSG",
+        "app": "[variables('redHatTags').app]",
+        "version": "[variables('redHatTags').version]",
+        "platform": "[variables('redHatTags').platform]"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "allowHTTPS_all",
+            "properties": {
+              "description": "Allow HTTPS connections from all locations",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 200,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "allowHTTPIn_all",
+            "properties": {
+              "description": "Allow HTTP connections from all locations",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 300,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "condition": "[equals(parameters('zModStackLicenseAgreement'), 'accept')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('bootstrapHostname'), '/init.sh')]",
+      "location": "[parameters('location')]",
+      "apiVersion": "2022-11-01",
+      "dependsOn": [
+        "[variables('bootstrapHostname')]"
+      ],
+      "tags": {
+        "displayName": "OpenShift",
+        "app": "[variables('redHatTags').app]",
+        "version": "[variables('redHatTags').version]",
+        "platform": "[variables('redHatTags').platform]"
+      },
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.1",
+        "autoUpgradeMinorVersion": true,
+        "protectedSettings": {
+          "script": "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"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2022-07-01",
+      "name": "[parameters('clusterName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "accessPolicies": [
+          {
+            "objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities',parameters('managedIdName')), '2018-11-30').principalId]",
+            "permissions": {
+              "secrets": [
+                "get"
+              ]
+            },
+            "tenantId": "[subscription().tenantId]"
+          }
+        ],
+        "createMode": "default",
+        "enabledForDeployment": false,
+        "enabledForDiskEncryption": false,
+        "enabledForTemplateDeployment": true,
+        "enableRbacAuthorization": false,
+        "enableSoftDelete": false,
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "defaultAction": "Allow"
+        },
+        "sku": {
+          "family": "A",
+          "name": "standard"
+        },
+        "softDeleteRetentionInDays": 30,
+        "tenantId": "[subscription().tenantId]"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2022-07-01",
+      "name": "[format('{0}/{1}', parameters('clusterName'), 'pullSecret')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
+      ],
+      "properties": {
+        "contentType": "string",
+        "value": "[parameters('pullSecret')]"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2022-07-01",
+      "name": "[format('{0}/{1}', parameters('clusterName'), 'openshiftPassword')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
+      ],
+      "properties": {
+        "contentType": "string",
+        "value": "[parameters('openshiftPassword')]"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2022-07-01",
+      "name": "[format('{0}/{1}', parameters('clusterName'), 'apiKey')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
+      ],
+      "properties": {
+        "contentType": "string",
+        "value": "[parameters('apiKey')]"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2022-07-01",
+      "name": "[format('{0}/{1}', parameters('clusterName'), 'aadApplicationSecret')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
+      ],
+      "properties": {
+        "contentType": "string",
+        "value": "[parameters('aadApplicationSecret')]"
+      }
+    }
+  ],
+  "outputs": {
+    "bootstrap Public IP": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('bootstrapPublicIpDnsLabel'))).IpAddress]"
+    },
+    "bootstrap Username": {
+      "type": "string",
+      "value": "[parameters('bootstrapAdminUsername')]"
+    },
+    "openshift Console URL": {
+      "type": "string",
+      "value": "[variables('openshiftConsoleURL')]"
+    },
+    "openshift Console Username": {
+      "type": "string",
+      "value": "[parameters('openshiftUsername')]"
+    },
+    "aad Application Id": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[parameters('aadApplicationId')]"
+    },
+    "controlplane Instance Count": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[parameters('controlplaneInstanceCount')]"
+    },
+    "controlplane Vm Size": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[parameters('controlplaneVmSize')]"
+    },
+    "controlplane Disk Size": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[parameters('controlplaneDiskSize')]"
+    },
+    "controlplane Disk Type": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[parameters('controlplaneDiskType')]"
+    },
+    "compute Instance Count": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[parameters('computeInstanceCount')]"
+    },
+    "compute Vm Size": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[parameters('computeVmSize')]"
+    },
+    "compute Disk Size": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[parameters('computeDiskSize')]"
+    },
+    "compute Disk Type": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[parameters('computeDiskType')]"
+    },
+    "single Zone Or Multi Zone": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[parameters('singleZoneOrMultiZone')]"
+    },
+    "dns Zone Resource Group": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[parameters('dnsZoneResourceGroup')]"
+    },
+    "cluster Resource Group Name": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[parameters('clusterResourceGroupName')]"
+    },
+    "openshift Version": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[parameters('openshiftVersion')]"
+    },
+    "contributor Role": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[variables('contributorRole')]"
+    },
+    "user Access Admin Role": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[variables('userAccessAdminRole')]"
+    },
+    "_contributor Role": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[variables('_contributorRole')]"
+    },
+    "_user Access Admin Role": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[variables('_userAccessAdminRole')]"
+    },
+    "enable Fips": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[variables('enableFips')]"
+    },
+    "enable Autoscaler": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[variables('enableAutoscaler')]"
+    },
+    "outbound Type": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[variables('outboundType')]"
+    },
+    "openshift Deployment Script File Name": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[variables('openshiftDeploymentScriptFileName')]"
+    },
+    "subscription Id": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[variables('subscriptionId')]"
+    },
+    "tenant Id": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[variables('tenantId')]"
+    },
+    "resource Group Name": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[variables('resourceGroupName')]"
+    },
+    "cluster Network Cidr": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[variables('clusterNetworkCidr')]"
+    },
+    "host Address Prefix": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[variables('hostAddressPrefix')]"
+    },
+    "service Network Cidr": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[variables('serviceNetworkCidr')]"
+    },
+    "private Or Public": {
+      "condition": "[equals(variables('verboseOutput'), 'true')]",
+      "type": "string",
+      "value": "[variables('privateOrPublic')]"
+    }
+  }
+}

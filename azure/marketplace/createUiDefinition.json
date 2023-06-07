@@ -1,0 +1,475 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "basics": [
+      {
+        "name": "aadApplicationId",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Azure Active Directory Application ID",
+        "toolTip": "Azure Active Directory Application ID",
+        "constraints": {
+          "required": true,
+          "regex": "^[a-z0-9]{8,}-[a-z0-9]{4,}-[a-z0-9]{4,}-[a-z0-9]{4,}-[a-z0-9]{12,}$",
+          "validationMessage": "Must be a of format xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        }
+      },
+      {
+        "name": "aadApplicationSecret",
+        "type": "Microsoft.Common.PasswordBox",
+        "label": {
+          "password": "Azure Active Directory Application Secret",
+          "confirmPassword": "Confirm Azure Active Directory Application Secret"
+        },
+        "toolTip": "Azure Active Directory Application Secret",
+        "constraints": {
+          "required": true
+        },
+        "options": {
+          "hideConfirmation": false
+        }
+      }
+    ],
+    "steps": [
+      {
+        "name": "zModStackConfig",
+        "label": "IBM Z and Cloud Modernization Stack Settings",
+        "subLabel": {
+          "preValidation": "Configure the Z Mod Stack settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Z Mod Stack Settings",
+        "elements": [
+          {
+            "name": "zModStackLicenseAgreement",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Z Mod Stack License Agreement",
+            "defaultValue": "Reject",
+            "toolTip": "Z Mod Stack License Agreement",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Reject",
+                  "value": "reject"
+                },
+                {
+                  "label": "Accept",
+                  "value": "accept"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "apiKey",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "API Key",
+              "confirmPassword": "Confirm API Key"
+            },
+            "toolTip": "API Key for Registry Entitlement of Cloud Pak Images",
+            "options": {
+              "hideConfirmation": false
+            },
+            "constraints": {
+              "required": true
+            }
+          }
+        ]
+      },
+      {
+        "name": "DnsConfig",
+        "label": "DNS Settings",
+        "subLabel": {
+          "preValidation": "Configure the DNS",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "DNS Settings",
+        "elements": [
+          {
+            "name": "dnsZoneName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "DNS Zone",
+            "toolTip": "DNS Zone authoritative for Domain Name",
+            "constraints": {
+              "regex": "^[a-zA-Z0-9][a-zA-Z0-9-.]{0,61}[a-zA-Z0-9].[a-zA-Z]{2,}$",
+              "required": true,
+              "validationMessage": "Must be a valid domain name"
+            }
+          },
+          {
+            "name": "dnsZoneResourceGroup",
+            "type": "Microsoft.Common.TextBox",
+            "label": "DNS Zone Resource Group",
+            "toolTip": "Resource Group containing the DNS Zone",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-zA-Z0-9-.(_]{1,}$",
+              "validationMessage": "Must be a valid DNS Zone Resource Group"
+            }
+          }
+        ]
+      },
+      {
+        "name": "InfrastructureConfig",
+        "label": "Infrastructure Settings",
+        "subLabel": {
+          "preValidation": "Configure the cluster resources and settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Infrastructure Settings",
+        "elements": [
+          {
+            "name": "bootstrapAdminUsername",
+            "type": "Microsoft.Compute.UserNameTextBox",
+            "label": "Bootstrap VM Username",
+            "toolTip": "Admin username for the bootstrap VM",
+            "osPlatform": "Linux",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "bootstrapVmSize",
+            "type": "Microsoft.Compute.SizeSelector",
+            "label": "Bootstrap Node VM Size",
+            "toolTip": "Size of the VM to serve as the Bootstrap host",
+            "recommendedSizes": [
+              "Standard_D4s_v3"
+            ],
+            "constraints": {
+              "allowedSizes": [
+                "Standard_D2s_v3",
+                "Standard_D4s_v3",
+                "Standard_D8s_v3"
+              ]
+            },
+            "osPlatform": "Linux",
+            "count": 1
+          },
+          {
+            "name": "SSHCredentials",
+            "type": "Microsoft.Compute.CredentialsCombo",
+            "label": {
+              "authenticationType": "Authentication Type",
+              "password": "Password",
+              "confirmPassword": "Confirm Password",
+              "sshPublicKey": "SSH public key"
+            },
+            "toolTip": {
+              "authenticationType": "Authentication Type for the Virtual Machine",
+              "sshPublicKey": "SSH Public Key for the Virtual Machine"
+            },
+            "constraints": {
+              "required": true
+            },
+            "options": {
+              "hideConfirmation": false,
+              "hidePassword": true
+            },
+            "osPlatform": "Linux"
+          },
+          {
+            "name": "controlplaneInstanceCount",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Number of Controlplane Nodes",
+            "defaultValue": "3",
+            "toolTip": "Number of Controlplane Nodes in OCP Cluster",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "3",
+                  "value": 3
+                },
+                {
+                  "label": "5",
+                  "value": 5
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "controlplaneVmSize",
+            "type": "Microsoft.Compute.SizeSelector",
+            "label": "Controlplane Node VM size",
+            "toolTip": "Size of the VM to serve as a Controlplane node",
+            "recommendedSizes": [
+              "Standard_D4s_v3"
+            ],
+            "constraints": {
+              "allowedSizes": [
+                "Standard_D2s_v3",
+                "Standard_D4s_v3",
+                "Standard_D8s_v3"
+              ]
+            },
+            "osPlatform": "Linux",
+            "count": "[steps('InfrastructureConfig').masterNodeCount]"
+          },
+          {
+            "name": "computeInstanceCount",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Number of Compute Nodes",
+            "defaultValue": "3",
+            "toolTip": "Number of Compute Nodes in OCP Cluster",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "3",
+                  "value": 3
+                },
+                {
+                  "label": "4",
+                  "value": 4
+                },
+                {
+                  "label": "5",
+                  "value": 5
+                },
+                {
+                  "label": "6",
+                  "value": 6
+                },
+                {
+                  "label": "7",
+                  "value": 7
+                },
+                {
+                  "label": "8",
+                  "value": 8
+                },
+                {
+                  "label": "9",
+                  "value": 9
+                },
+                {
+                  "label": "10",
+                  "value": 10
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "computeVmSize",
+            "type": "Microsoft.Compute.SizeSelector",
+            "label": "Compute Node VM Size",
+            "toolTip": "Size of the VM to serve as a Compute node",
+            "recommendedSizes": [
+              "Standard_D2s_v3"
+            ],
+            "constraints": {
+              "allowedSizes": [
+                "Standard_D2s_v3",
+                "Standard_D4s_v3",
+                "Standard_D8s_v3"
+              ]
+            },
+            "osPlatform": "Linux",
+            "count": "[steps('InfrastructureConfig').workerNodeCount]"
+          },
+          {
+            "name": "virtualNetwork",
+            "type": "Microsoft.Network.VirtualNetworkCombo",
+            "label": {
+              "virtualNetwork": "Virtual Network",
+              "subnets": "Subnets"
+            },
+            "toolTip": {
+              "virtualNetwork": "Name of the virtual Network. Minimum of a /26 prefix size",
+              "subnets": "Subnets for the virtual Network"
+            },
+            "defaultValue": {
+              "name": "openshift-vnet",
+              "addressPrefixSize": "/16"
+            },
+            "constraints": {
+              "minAddressPrefixSize": "/24"
+            },
+            "subnets": {
+              "controlplaneSubnet": {
+                "label": "Controlplane Subnet",
+                "defaultValue": {
+                  "name": "controlplane-subnet",
+                  "addressPrefixSize": "/24"
+                },
+                "constraints": {
+                  "minAddressPrefixSize": "/28",
+                  "requireContiguousAddresses": false
+                }
+              },
+              "computeSubnet": {
+                "label": "Compute Subnet",
+                "defaultValue": {
+                  "name": "compute-subnet",
+                  "addressPrefixSize": "/24"
+                },
+                "constraints": {
+                  "minAddressPrefixSize": "/28",
+                  "requireContiguousAddresses": false
+                }
+              },
+              "bootstrapSubnet": {
+                "label": "Bootstrap Subnet",
+                "defaultValue": {
+                  "name": "bootstrap-subnet",
+                  "addressPrefixSize": "/27"
+                },
+                "constraints": {
+                  "minAddressPrefixSize": "/29",
+                  "requireContiguousAddresses": false
+                }
+              }
+            }
+          },
+          {
+            "name": "singleZoneOrMultiZone",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Single Zone or Multi Zone",
+            "defaultValue": "AvailabilityZones",
+            "toolTip": "Deploy VMs to Single Availability Sets or Multi Availability Zones",
+            "constraints": {
+                "allowedValues": [
+                    {
+                        "label": "AvailabilityZones",
+                        "value": "az"
+                    },
+                    {
+                        "label": "NoHA",
+                        "value": "noha"
+                    }
+                ],
+                "required": true
+            },
+            "visible": true
+        }
+        ]
+      },
+      {
+        "name": "OpenshiftConfig",
+        "label": "Openshift Settings",
+        "subLabel": {
+          "preValidation": "Configure the virtual machine's resources and settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Openshift Settings",
+        "elements": [
+          {
+            "name": "pullSecret",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Openshift Pull Secret",
+              "confirmPassword": "Confirm Openshift Pull Secret"
+            },
+            "toolTip": "Openshift Pull Secret JSON Blob",
+            "options": {
+              "hideConfirmation": false
+            },
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "clusterName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Cluster Name",
+            "toolTip": "Openshift Cluster name for prefixing Azure resources",
+            "defaultValue": "z-mod-stack",
+            "constraints": {
+              "regex": "^[a-zA-Z0-9-]{3,}$",
+              "required": true,
+              "validationMessage": "Must be characters and more than 3 characters"
+            }
+          },
+          {
+            "name": "openshiftUsername",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Openshift Username",
+            "toolTip": "Openshift Username to login after deployment",
+            "defaultValue": "admin",
+            "constraints": {
+              "regex": "^[a-zA-Z0-9]{4,}$",
+              "required": true,
+              "validationMessage": "Must be characters and more than 4 characters"
+            }
+          },
+          {
+            "name": "openshiftPassword",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Openshift Password",
+              "confirmPassword": "Confirm Openshift Password"
+            },
+            "toolTip": "Openshift Password",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "openshiftVersion",
+            "type": "Microsoft.Common.DropDown",
+            "label": "OpenShift Version",
+            "defaultValue": "4.12",
+            "toolTip": "Version of OpenShift",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "4.10",
+                  "value": "4.10"
+                },
+                {
+                  "label": "4.11",
+                  "value": "4.11"
+                },
+                {
+                  "label": "4.12",
+                  "value": "4.12"
+                },
+                {
+                  "label": "4.13",
+                  "value": "4.13"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "location": "[location()]",
+      "aadApplicationId": "[basics('aadApplicationId')]",
+      "aadApplicationSecret": "[basics('aadApplicationSecret')]",
+      "bootstrapAdminUsername": "[steps('InfrastructureConfig').bootstrapAdminUsername]",
+      "bootstrapVmSize": "[steps('InfrastructureConfig').bootstrapVmSize]",
+      "bootstrapSshPublicKey": "[steps('InfrastructureConfig').SSHCredentials.sshPublicKey]",
+      "controlplaneInstanceCount": "[steps('InfrastructureConfig').controlplaneInstanceCount]",
+      "controlplaneVmSize": "[steps('InfrastructureConfig').controlplaneVmSize]",
+      "computeInstanceCount": "[steps('InfrastructureConfig').computeInstanceCount]",
+      "computeVmSize": "[steps('InfrastructureConfig').computeVmSize]",
+      "virtualNetworkNewOrExisting": "[steps('InfrastructureConfig').virtualNetwork.newOrExisting]",
+      "virtualNetworkResourceGroup": "[steps('InfrastructureConfig').virtualNetwork.resourceGroup]",
+      "virtualNetworkName": "[steps('InfrastructureConfig').virtualNetwork.name]",
+      "virtualNetworkCIDR": "[steps('InfrastructureConfig').virtualNetwork.addressPrefix]",
+      "controlplaneSubnetCIDR": "[steps('InfrastructureConfig').virtualNetwork.subnets.controlplaneSubnet.addressPrefix]",
+      "computeSubnetCIDR": "[steps('InfrastructureConfig').virtualNetwork.subnets.computeSubnet.addressPrefix]",
+      "bootstrapSubnetCIDR": "[steps('InfrastructureConfig').virtualNetwork.subnets.bootstrapSubnet.addressPrefix]",
+      "singleZoneOrMultiZone": "[steps('InfrastructureConfig').singleZoneOrMultiZone]",
+      "dnsZoneName": "[steps('DnsConfig').dnsZoneName]",
+      "dnsZoneResourceGroup": "[steps('DnsConfig').dnsZoneResourceGroup]",
+      "pullSecret": "[steps('OpenshiftConfig').pullSecret]",
+      "clusterName": "[steps('OpenshiftConfig').clusterName]",
+      "openshiftUsername": "[steps('OpenshiftConfig').openshiftUsername]",
+      "openshiftPassword": "[steps('OpenshiftConfig').openshiftPassword]",
+      "openshiftVersion": "[steps('OpenshiftConfig').openshiftVersion]",
+      "apiKey": "[steps('zModStackConfig').apiKey]",
+      "zModStackLicenseAgreement": "[steps('zModStackConfig').zModStackLicenseAgreement]"
+    }
+  }
+}

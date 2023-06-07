@@ -1,0 +1,106 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "value": "eastus"
+    },
+    "aadApplicationId": {
+      "value": "977157b0-2a6f-47ea-9b15-5b770b170a15"
+    },
+    "aadApplicationSecret": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
+        },
+        "secretName": "aadClientSecret"
+      }
+    },
+    "bootstrapAdminUsername": {
+      "value": "vmadmin"
+    },
+    "bootstrapVmSize": {
+      "value": "Standard_D4s_v3"
+    },
+    "bootstrapSshPublicKey": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
+        },
+        "secretName": "sshPublicKey"
+      }
+    },
+    "controlplaneInstanceCount": {
+      "value": 3
+    },
+    "controlplaneVmSize": {
+      "value": "Standard_D4s_v3"
+    },
+    "computeInstanceCount": {
+      "value": 3
+    },
+    "computeVmSize": {
+      "value": "Standard_D2s_v3"
+    },
+    "virtualNetworkName": {
+      "value": "openshift-vnet"
+    },
+    "virtualNetworkCIDR": {
+      "value": "10.0.0.0/16"
+    },
+    "controlplaneSubnetCIDR": {
+      "value": "10.0.1.0/24"
+    },
+    "computeSubnetCIDR": {
+      "value": "10.0.2.0/24"
+    },
+    "bootstrapSubnetCIDR": {
+      "value": "10.0.3.0/27"
+    },
+    "singleZoneOrMultiZone": {
+      "value": "az"
+    },
+    "dnsZoneName": {
+      "value": "ibmzsw.com"
+    },
+    "dnsZoneResourceGroup": {
+      "value": "z-mod-stack-rg"
+    },
+    "pullSecret": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
+        },
+        "secretName": "pullSecret"
+      }
+    },
+    "clusterName": {
+      "value": "z-mod-stack"
+    },
+    "openshiftUsername": {
+      "value": "ocpadmin"
+    },
+    "openshiftPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
+        },
+        "secretName": "openshiftPassword"
+      }
+    },
+    "apiKey": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
+        },
+        "secretName": "apiKey"
+      }
+    },
+    "openshiftVersion": {
+      "value": "4.12"
+    },
+    "zModStackLicenseAgreement": {
+      "value": "accept"
+    }
+  }
+}
