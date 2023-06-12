@@ -7,8 +7,8 @@
       {
         "name": "aadApplicationId",
         "type": "Microsoft.Common.TextBox",
-        "label": "Azure Active Directory Application ID",
-        "toolTip": "Azure Active Directory Application ID",
+        "label": "Service Principal Azure App ID",
+        "toolTip": "The Azure Active Directory (AD) Application ID created with Contributor and User Access Admin authorities at the subscription-scope. Reference deployment guide for more details.",
         "constraints": {
           "required": true,
           "regex": "^[a-z0-9]{8,}-[a-z0-9]{4,}-[a-z0-9]{4,}-[a-z0-9]{4,}-[a-z0-9]{12,}$",
@@ -19,10 +19,10 @@
         "name": "aadApplicationSecret",
         "type": "Microsoft.Common.PasswordBox",
         "label": {
-          "password": "Azure Active Directory Application Secret",
-          "confirmPassword": "Confirm Azure Active Directory Application Secret"
+          "password": "Azure AD App Secret",
+          "confirmPassword": "Confirm App Secret"
         },
-        "toolTip": "Azure Active Directory Application Secret",
+        "toolTip": "Azure Active Directory Application Secret. This was provided to you when you created the Service Principal that was used in the App ID field. Reference deployment guide for more details.",
         "constraints": {
           "required": true
         },
@@ -36,17 +36,17 @@
         "name": "zModStackConfig",
         "label": "IBM Z and Cloud Modernization Stack Settings",
         "subLabel": {
-          "preValidation": "Configure the Z Mod Stack settings",
+          "preValidation": "Configure the IBM Z and Cloud Modernization Stack settings",
           "postValidation": "Done"
         },
-        "bladeTitle": "Z Mod Stack Settings",
+        "bladeTitle": "IBM Z and Cloud Modernization Stack Settings",
         "elements": [
           {
             "name": "zModStackLicenseAgreement",
             "type": "Microsoft.Common.OptionsGroup",
-            "label": "Z Mod Stack License Agreement",
+            "label": "IBM Z and Cloud Modernization Stack License Agreement",
             "defaultValue": "Reject",
-            "toolTip": "Z Mod Stack License Agreement",
+            "toolTip": "IBM Z and Cloud Modernization Stack License Agreement. License is available on the Azure Marketplace offer details page under the 'Usage Information + Support' tab.",
             "constraints": {
               "allowedValues": [
                 {
@@ -66,10 +66,10 @@
             "name": "apiKey",
             "type": "Microsoft.Common.PasswordBox",
             "label": {
-              "password": "API Key",
-              "confirmPassword": "Confirm API Key"
+              "password": "Entitlement Key",
+              "confirmPassword": "Confirm Entitlement Key"
             },
-            "toolTip": "API Key for Registry Entitlement of Cloud Pak Images",
+            "toolTip": "The API Entitlement Key received when purchasing IBM Z and Cloud Modernization Stack or registering for the trial. This Entitlement Key is necessary to pull the container images for the component products.",
             "options": {
               "hideConfirmation": false
             },
@@ -91,8 +91,8 @@
           {
             "name": "dnsZoneName",
             "type": "Microsoft.Common.TextBox",
-            "label": "DNS Zone",
-            "toolTip": "DNS Zone authoritative for Domain Name",
+            "label": "Domain Name (DNS Zone)",
+            "toolTip": "The DNS Zone that is authoritative for the Domain Name provided. A subdomain will be registered under this DNS Zone for the OCP Cluster.",
             "constraints": {
               "regex": "^[a-zA-Z0-9][a-zA-Z0-9-.]{0,61}[a-zA-Z0-9].[a-zA-Z]{2,}$",
               "required": true,
@@ -103,7 +103,7 @@
             "name": "dnsZoneResourceGroup",
             "type": "Microsoft.Common.TextBox",
             "label": "DNS Zone Resource Group",
-            "toolTip": "Resource Group containing the DNS Zone",
+            "toolTip": "The name of the Azure Resource Group where the provided Domain Name is registered as a DNS Zone",
             "constraints": {
               "required": true,
               "regex": "^[a-zA-Z0-9-.(_]{1,}$",
@@ -124,8 +124,8 @@
           {
             "name": "bootstrapAdminUsername",
             "type": "Microsoft.Compute.UserNameTextBox",
-            "label": "Bootstrap VM Username",
-            "toolTip": "Admin username for the bootstrap VM",
+            "label": "Bootstrap Node VM Username",
+            "toolTip": "Admin username for the Bootstrap VM",
             "osPlatform": "Linux",
             "constraints": {
               "required": true
@@ -135,7 +135,7 @@
             "name": "bootstrapVmSize",
             "type": "Microsoft.Compute.SizeSelector",
             "label": "Bootstrap Node VM Size",
-            "toolTip": "Size of the VM to serve as the Bootstrap host",
+            "toolTip": "The size of the VM to provision as the OCP Bootstrap Node",
             "recommendedSizes": [
               "Standard_D4s_v3"
             ],
@@ -174,9 +174,9 @@
           {
             "name": "controlplaneInstanceCount",
             "type": "Microsoft.Common.DropDown",
-            "label": "Number of Controlplane Nodes",
+            "label": "Number of Control Plane Nodes",
             "defaultValue": "3",
-            "toolTip": "Number of Controlplane Nodes in OCP Cluster",
+            "toolTip": "The number of Azure VMs provisioned for the OCP control plane nodes",
             "constraints": {
               "allowedValues": [
                 {
@@ -195,8 +195,8 @@
           {
             "name": "controlplaneVmSize",
             "type": "Microsoft.Compute.SizeSelector",
-            "label": "Controlplane Node VM size",
-            "toolTip": "Size of the VM to serve as a Controlplane node",
+            "label": "Control Plane Node VM Size",
+            "toolTip": "The size of the VMs provisioned for the OCP control plane nodes",
             "recommendedSizes": [
               "Standard_D4s_v3"
             ],
@@ -215,7 +215,7 @@
             "type": "Microsoft.Common.DropDown",
             "label": "Number of Compute Nodes",
             "defaultValue": "3",
-            "toolTip": "Number of Compute Nodes in OCP Cluster",
+            "toolTip": "The number of Azure VMs provisioned for the OCP compute nodes",
             "constraints": {
               "allowedValues": [
                 {
@@ -259,7 +259,7 @@
             "name": "computeVmSize",
             "type": "Microsoft.Compute.SizeSelector",
             "label": "Compute Node VM Size",
-            "toolTip": "Size of the VM to serve as a Compute node",
+            "toolTip": "The size of the VMs provisioned for the OCP compute nodes",
             "recommendedSizes": [
               "Standard_D2s_v3"
             ],
@@ -293,7 +293,7 @@
             },
             "subnets": {
               "controlplaneSubnet": {
-                "label": "Controlplane Subnet",
+                "label": "Control Plane Subnet",
                 "defaultValue": {
                   "name": "controlplane-subnet",
                   "addressPrefixSize": "/24"
@@ -315,7 +315,7 @@
                 }
               },
               "bootstrapSubnet": {
-                "label": "Bootstrap Subnet",
+                "label": "Bootstrap Node Subnet",
                 "defaultValue": {
                   "name": "bootstrap-subnet",
                   "addressPrefixSize": "/27"
@@ -332,7 +332,7 @@
             "type": "Microsoft.Common.OptionsGroup",
             "label": "Single Zone or Multi Zone",
             "defaultValue": "AvailabilityZones",
-            "toolTip": "Deploy VMs to Single Availability Sets or Multi Availability Zones",
+            "toolTip": "Deploy VMs to Single (Availability Sets) or Multizone (Availability Zones)",
             "constraints": {
                 "allowedValues": [
                     {
@@ -352,21 +352,21 @@
       },
       {
         "name": "OpenshiftConfig",
-        "label": "Openshift Settings",
+        "label": "OpenShift Settings",
         "subLabel": {
           "preValidation": "Configure the virtual machine's resources and settings",
           "postValidation": "Done"
         },
-        "bladeTitle": "Openshift Settings",
+        "bladeTitle": "OpenShift Settings",
         "elements": [
           {
             "name": "pullSecret",
             "type": "Microsoft.Common.PasswordBox",
             "label": {
-              "password": "Openshift Pull Secret",
-              "confirmPassword": "Confirm Openshift Pull Secret"
+              "password": "OpenShift Pull Secret",
+              "confirmPassword": "Confirm OpenShift Pull Secret"
             },
-            "toolTip": "Openshift Pull Secret JSON Blob",
+            "toolTip": "OpenShift Pull Secret JSON Blob. Reference the deployment guide for more details",
             "options": {
               "hideConfirmation": false
             },
@@ -377,8 +377,8 @@
           {
             "name": "clusterName",
             "type": "Microsoft.Common.TextBox",
-            "label": "Cluster Name",
-            "toolTip": "Openshift Cluster name for prefixing Azure resources",
+            "label": "OpenShift Cluster Name",
+            "toolTip": "OpenShift Cluster name for prefixing Azure resources",
             "defaultValue": "z-mod-stack",
             "constraints": {
               "regex": "^[a-zA-Z0-9-]{3,}$",
@@ -389,8 +389,8 @@
           {
             "name": "openshiftUsername",
             "type": "Microsoft.Common.TextBox",
-            "label": "Openshift Username",
-            "toolTip": "Openshift Username to login after deployment",
+            "label": "OpenShift Username",
+            "toolTip": "OpenShift Username to login to the OCP Console after successful deployment",
             "defaultValue": "admin",
             "constraints": {
               "regex": "^[a-zA-Z0-9]{4,}$",
@@ -402,10 +402,10 @@
             "name": "openshiftPassword",
             "type": "Microsoft.Common.PasswordBox",
             "label": {
-              "password": "Openshift Password",
-              "confirmPassword": "Confirm Openshift Password"
+              "password": "OpenShift Password",
+              "confirmPassword": "Confirm OpenShift Password"
             },
-            "toolTip": "Openshift Password",
+            "toolTip": "OpenShift Password to login to the OCP Console after successful deployment",
             "constraints": {
               "required": true
             }
@@ -415,7 +415,7 @@
             "type": "Microsoft.Common.DropDown",
             "label": "OpenShift Version",
             "defaultValue": "4.12",
-            "toolTip": "Version of OpenShift",
+            "toolTip": "The version of OpenShift to deploy",
             "constraints": {
               "allowedValues": [
                 {
