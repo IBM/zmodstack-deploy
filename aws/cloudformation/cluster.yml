@@ -355,6 +355,9 @@ Resources:
             Action: "ec2:DetachVolume"
             Resource: "*"
           - Effect: "Allow"
+            Action: "ec2:CreateTags"
+            Resource: "*"
+          - Effect: "Allow"
             Action:
             - "secretsmanager:GetSecretValue"
             - "secretsmanager:UpdateSecret"
@@ -479,7 +482,7 @@ Resources:
             echo "export PATH=$PATH:/usr/local/bin" >> /etc/bashrc
             # Install basic yum pre-reqs
             yum update -y
-            yum install -y git wget python38 yum-utils httpd-tools unzip gcc
+            yum install -y git wget python38 yum-utils httpd-tools unzip
 
             # Install AWS v2 CLI
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -503,9 +506,9 @@ Resources:
  
             # Clone git repo containing automation scripts for AWS
             git clone --no-checkout https://github.com/IBM/zmodstack-deploy.git /home/ec2-user/zmodstack
-            cd zmodstack && git sparse-checkout set aws && git checkout @
+            cd /home/ec2-user/zmodstack && git sparse-checkout set aws && git checkout @
             chown -fR ec2-user:ec2-user /home/ec2-user/zmodstack
-            source /home/ec2-user/zmodstack/aws/scripts/bootstrap.sh
+            source /home/ec2-user/zmodstack/aws/scripts/bootnode-bootstrap.sh
 
             # Begin Terraform execution
             cd /home/ec2-user/zmodstack/aws/terraform

@@ -13,7 +13,7 @@ provider "aws" {
 data "aws_availability_zones" "azs" {}
 
 locals {
-  installer_workspace             = "${path.root}/aws/installer-files"
+  installer_workspace             = "${path.root}/installer-files"
   availability_zone1              = var.availability_zone1 == "" ? data.aws_availability_zones.azs.names[0] : var.availability_zone1
   availability_zone2              = var.az == "multi_zone" && var.availability_zone2 == "" ? data.aws_availability_zones.azs.names[1] : var.availability_zone2
   availability_zone3              = var.az == "multi_zone" && var.availability_zone3 == "" ? data.aws_availability_zones.azs.names[2] : var.availability_zone3
