@@ -9,12 +9,11 @@ compute:
     aws:
       zones:
       - ${var.availability_zone1}%{if var.multi_zone}${indent(6, "\n- ${var.availability_zone2}\n- ${var.availability_zone3}")}%{endif}
-      type: ${var.worker_instance_type}
+      type: ${var.computenode_instance_type}
       rootVolume:
-        iops: ${var.worker_instance_volume_iops}
-        size: ${var.worker_instance_volume_size}
-        type: ${var.worker_instance_volume_type}
-  replicas: ${var.worker_replica_count}
+        size: ${var.computenode_instance_volume_size}
+        type: ${var.computenode_instance_volume_type}
+  replicas: ${var.computenode_replica_count}
 controlPlane:
   hyperthreading: Enabled
   name: master
@@ -22,12 +21,11 @@ controlPlane:
     aws:
       zones:
       - ${var.availability_zone1}%{if var.multi_zone}${indent(6, "\n- ${var.availability_zone2}\n- ${var.availability_zone3}")}%{endif}
-      type: ${var.master_instance_type}
+      type: ${var.control_plane_node_instance_type}
       rootVolume:
-        iops: ${var.master_instance_volume_iops}
-        size: ${var.master_instance_volume_size}
-        type: ${var.master_instance_volume_type}
-  replicas: ${var.master_replica_count}
+        size: ${var.control_plane_node_instance_volume_size}
+        type: ${var.control_plane_node_instance_volume_type}
+  replicas: ${var.control_plane_node_replica_count}
 metadata:
   name: ${var.cluster_name}
 networking:
@@ -43,8 +41,8 @@ platform:
   aws:
     region: ${var.region}
     subnets:
-    - ${var.master_subnet1_id}%{if var.multi_zone}${indent(4, "\n- ${var.master_subnet2_id}\n- ${var.master_subnet3_id}")}%{endif}
-    - ${var.worker_subnet1_id}%{if var.multi_zone}${indent(4, "\n- ${var.worker_subnet2_id}\n- ${var.worker_subnet3_id}")}%{endif}
+    - ${var.control_plane_node_subnet1_id}%{if var.multi_zone}${indent(4, "\n- ${var.control_plane_node_subnet2_id}\n- ${var.control_plane_node_subnet3_id}")}%{endif}
+    - ${var.computenode_subnet1_id}%{if var.multi_zone}${indent(4, "\n- ${var.computenode_subnet2_id}\n- ${var.computenode_subnet3_id}")}%{endif}
     userTags: 
       "zmodstack:provisioner": openshift-install
       "zmodstack:cfn-stack-name": ${var.cluster_name}
@@ -119,7 +117,7 @@ resource "local_file" "cluster_autoscaler_yaml" {
   filename = "${local.installer_workspace}/cluster_autoscaler.yaml"
 }
 locals {
-  machine_autoscaler_min_replica = var.multi_zone ? 1 : var.worker_replica_count
+  machine_autoscaler_min_replica = var.multi_zone ? 1 : var.computenode_replica_count
 }
 data "template_file" "machine_autoscaler" {
   template =<<EOF
@@ -127,7 +125,7 @@ data "template_file" "machine_autoscaler" {
 kind: MachineAutoscaler
 apiVersion: "autoscaling.openshift.io/v1beta1"
 metadata:
-  name: "CLUSTERID-worker-${var.availability_zone1}"
+  name: "CLUSTERID-computenode-${var.availability_zone1}"
   namespace: "openshift-machine-api"
 spec:
   minReplicas: ${local.machine_autoscaler_min_replica}
@@ -135,13 +133,13 @@ spec:
   scaleTargetRef:
     apiVersion: machine.openshift.io/v1beta1
     kind: MachineSet
-    name: "CLUSTERID-worker-${var.availability_zone1}"
+    name: "CLUSTERID-computenode-${var.availability_zone1}"
 %{if var.multi_zone}
 ---
 kind: MachineAutoscaler
 apiVersion: "autoscaling.openshift.io/v1beta1"
 metadata:
-  name: "CLUSTERID-worker-${var.availability_zone2}"
+  name: "CLUSTERID-computenode-${var.availability_zone2}"
   namespace: "openshift-machine-api"
 spec:
   minReplicas: 1
@@ -149,12 +147,12 @@ spec:
   scaleTargetRef:
     apiVersion: machine.openshift.io/v1beta1
     kind: MachineSet
-    name: "CLUSTERID-worker-${var.availability_zone2}"
+    name: "CLUSTERID-computenode-${var.availability_zone2}"
 ---
 kind: MachineAutoscaler
 apiVersion: "autoscaling.openshift.io/v1beta1"
 metadata:
-  name: "CLUSTERID-worker-${var.availability_zone3}"
+  name: "CLUSTERID-computenode-${var.availability_zone3}"
   namespace: "openshift-machine-api"
 spec:
   minReplicas: 1
@@ -162,7 +160,7 @@ spec:
   scaleTargetRef:
     apiVersion: machine.openshift.io/v1beta1
     kind: MachineSet
-    name: "CLUSTERID-worker-${var.availability_zone3}"
+    name: "CLUSTERID-computenode-${var.availability_zone3}"
 %{endif}
 EOF
 }
@@ -178,14 +176,14 @@ data "template_file" "machine_health_check" {
 apiVersion: machine.openshift.io/v1beta1
 kind: MachineHealthCheck
 metadata:
-  name: machine-health-check-worker1-${var.availability_zone1}
+  name: machine-health-check-computenode1-${var.availability_zone1}
   namespace: openshift-machine-api
 spec:
   selector:
     matchLabels:
-      machine.openshift.io/cluster-api-machine-role: worker
-      machine.openshift.io/cluster-api-machine-type: worker
-      machine.openshift.io/cluster-api-machineset: CLUSTERID-worker-${var.availability_zone1}
+      machine.openshift.io/cluster-api-machine-role: computenode
+      machine.openshift.io/cluster-api-machine-type: computenode
+      machine.openshift.io/cluster-api-machineset: CLUSTERID-computenode-${var.availability_zone1}
   unhealthyConditions:
   - type:    "Ready"
     timeout: "300s"
@@ -199,14 +197,14 @@ spec:
 apiVersion: machine.openshift.io/v1beta1
 kind: MachineHealthCheck
 metadata:
-  name: machine-health-check-worker2-${var.availability_zone2}
+  name: machine-health-check-computenode2-${var.availability_zone2}
   namespace: openshift-machine-api
 spec:
   selector:
     matchLabels:
-      machine.openshift.io/cluster-api-machine-role: worker
-      machine.openshift.io/cluster-api-machine-type: worker
-      machine.openshift.io/cluster-api-machineset: CLUSTERID-worker-${var.availability_zone2}
+      machine.openshift.io/cluster-api-machine-role: computenode
+      machine.openshift.io/cluster-api-machine-type: computenode
+      machine.openshift.io/cluster-api-machineset: CLUSTERID-computenode-${var.availability_zone2}
   unhealthyConditions:
   - type:    "Ready"
     timeout: "300s"
@@ -219,14 +217,14 @@ spec:
 apiVersion: machine.openshift.io/v1beta1
 kind: MachineHealthCheck
 metadata:
-  name: machine-health-check-worker3-${var.availability_zone3}
+  name: machine-health-check-computenode3-${var.availability_zone3}
   namespace: openshift-machine-api
 spec:
   selector:
     matchLabels:
-      machine.openshift.io/cluster-api-machine-role: worker
-      machine.openshift.io/cluster-api-machine-type: worker
-      machine.openshift.io/cluster-api-machineset: CLUSTERID-worker-${var.availability_zone3}
+      machine.openshift.io/cluster-api-machine-role: computenode
+      machine.openshift.io/cluster-api-machine-type: computenode
+      machine.openshift.io/cluster-api-machineset: CLUSTERID-computenode-${var.availability_zone3}
   unhealthyConditions:
   - type:    "Ready"
     timeout: "300s"

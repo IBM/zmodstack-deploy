@@ -25,6 +25,7 @@ Metadata:
           - PublicSubnet1ID
           - PublicSubnet2ID
           - PublicSubnet3ID
+          - BootNodeInstanceType
           - BootNodeAccessCIDR
       - Label:
           default: DNS configuration
@@ -33,9 +34,9 @@ Metadata:
       - Label:
           default: OpenShift hosts configuration
         Parameters:
-          - NumberOfMaster
+          - NumberOfControlPlaneNode
           - NumberOfCompute
-          - MasterInstanceType
+          - ControlPlaneNodeInstanceType
           - ComputeInstanceType
           - ClusterName
           - PrivateCluster
@@ -67,13 +68,15 @@ Metadata:
       NumberOfAZs: 
         default: Number of Availability Zones
       AvailabilityZones:
-        default: Availability Zones  
-      MasterInstanceType:
-        default: Master instance type
+        default: Availability Zones
+      BootNodeInstanceType:
+        default: Boot node instance type
+      ControlPlaneNodeInstanceType:
+        default: ControlPlaneNode instance type
       ComputeInstanceType:
         default: Compute instance type
-      NumberOfMaster:
-        default: Number of master nodes
+      NumberOfControlPlaneNode:
+        default: Number of control plane nodes
       NumberOfCompute:
         default: Number of compute nodes
       DomainName:
@@ -116,6 +119,17 @@ Parameters:
   PublicSubnet3ID:
     Description: The ID of the public subnet in Availability Zone 3 for the ELB load balancer (e.g., subnet-e324ad8e).
     Type: String
+  BootNodeInstanceType:
+    Default: t3.xlarge
+    AllowedValues:
+      - t3.xlarge
+      - t3a.xlarge
+      - m4.xlarge
+      - m5.xlarge
+      - m5a.xlarge
+    ConstraintDescription: Must contain valid instance type
+    Description: The EC2 instance type for the Bootnode that acts as a bastion.
+    Type: String
   BootNodeAccessCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
@@ -135,7 +149,7 @@ Parameters:
   VPCID:
     Description: The ID of your existing VPC for deployment.
     Type: AWS::EC2::VPC::Id
-  MasterInstanceType:
+  ControlPlaneNodeInstanceType:
     Default: m5.xlarge
     AllowedValues:
       - m5.xlarge
@@ -143,7 +157,7 @@ Parameters:
       - m5d.xlarge
       - m5d.2xlarge
     ConstraintDescription: Must contain valid instance type
-    Description: The EC2 instance type for the OpenShift master instances.
+    Description: The EC2 instance type for the OpenShift master/control plane nodes instances.
     Type: String
   ComputeInstanceType:
     Default: m5.large
@@ -158,7 +172,7 @@ Parameters:
   NumberOfAZs:
     Default: 3
     Description: >-
-      The number of Availability Zones to be used for the deployment. Keep in mind that some regions may be limited to two Availability Zones. For a single OCP cluster to be highly available, three Availability Zones are needed to avoid a single point of failure when using three, five, or seven master nodes. With fewer than three Availability Zones, one of the AZs will have more master nodes.
+      The number of Availability Zones to be used for the deployment. Keep in mind that some regions may be limited to two Availability Zones. For a single OCP cluster to be highly available, three Availability Zones are needed to avoid a single point of failure when using three, five, or seven master/control plane nodes. With fewer than three Availability Zones, one of the AZs will have more master/control plane nodes.
     Type: Number
     AllowedValues:
     - 1
@@ -166,9 +180,9 @@ Parameters:
   AvailabilityZones:
     Description: The list of Availability Zones to use for the subnets in the VPC. The Template uses one or three Availability Zones and preserves the logical order you specify.
     Type: List<AWS::EC2::AvailabilityZone::Name>
-  NumberOfMaster:
+  NumberOfControlPlaneNode:
     Default: '3'
-    Description: The desired capacity for the OpenShift master instances. Must be an odd number.A minimum of 3 is required.
+    Description: The desired capacity for the OpenShift master/control plane node instances. Must be an odd number.A minimum of 3 is required.
     Type: String
     AllowedPattern: '^[3579]$|(^[3-9]+[3579]$)'
   NumberOfCompute:
@@ -178,12 +192,13 @@ Parameters:
   DomainName:
     Description: 'Amazon Route53 base domain configured for your OpenShift Container Platform cluster. Name must consist of lower case alphanumeric characters and must start and end with an alphanumeric character.'
     Type: String
-    Default: ""
+    AllowedPattern: '^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$'
+    ConstraintDescription: Must enter a valid Domain Name
   ClusterName:
     Default: ""
     Description: Custom cluster name for kubernetes.io/cluster/tags.
     Type: String
-    AllowedPattern: ^[0-9a-z-]*$
+    AllowedPattern: ^[0-9A-Za-z-]*$
   PrivateCluster:
     Description: To Deploy a Private cluster select true and false for Public cluster
     Type: String
@@ -247,7 +262,7 @@ Rules:
         AssertDescription: All subnets must in the VPC
 
 Conditions:
-  3AZCondition: !Equals [!Ref NumberOfAZs, 3]
+  3AZConditionCheck: !Equals [!Ref NumberOfAZs, '3']
   AcceptLicense: !Equals [!Ref LicenseAgreement, 'I agree']
 
 Resources:
@@ -407,9 +422,10 @@ Resources:
             /home/ec2-user/destroy.sh:
               content: |
                 echo "$1 - Destroy"
-                cd /home/ec2-user/zmodstack/terraform
+                cd /home/ec2-user/zmodstack/aws/terraform
                 sudo terraform destroy --var-file=terraform.tfvars --auto-approve | tee terraform_destroy.log
                 aws ssm put-parameter --name $1"_CleanupStatus" --type "String" --value "READY" --overwrite
+              mode: '000777'
             /root/.aws/config:
               content: !Sub |
                 [default]
@@ -439,7 +455,7 @@ Resources:
             !Sub
             - "${ClusterName}-bootnode"
             - ClusterName: !Ref ClusterName
-      InstanceType: t3.xlarge
+      InstanceType: !Ref BootNodeInstanceType
       NetworkInterfaces:
       - GroupSet:
         - !Ref BootnodeSecurityGroup
@@ -461,10 +477,9 @@ Resources:
 
             # Add /usr/local/bin to global PATH
             echo "export PATH=$PATH:/usr/local/bin" >> /etc/bashrc
-
             # Install basic yum pre-reqs
             yum update -y
-            yum install -y git wget python38 yum-utils httpd-tools unzip
+            yum install -y git wget python38 yum-utils httpd-tools unzip gcc
 
             # Install AWS v2 CLI
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -478,14 +493,22 @@ Resources:
             systemctl start amazon-ssm-agent
             systemctl enable amazon-ssm-agent
             rm -f ./amazon-ssm-agent.rpm
-            
-            # Clone git repo containing automation scripts
-            git clone https://github.com/IBM/zmodstack-deploy.git /home/ec2-user/zmodstack
+
+            # Tagging the root ebs volume
+            AWS_AVAIL_ZONE=$(curl http://169.254.169.254/latest/meta-data/placement/availability-zone)
+            AWS_REGION="`echo \"$AWS_AVAIL_ZONE\" | sed 's/[a-z]$//'`"
+            AWS_INSTANCE_ID=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+            ROOT_VOLUME_IDS=$(aws ec2 describe-instances --region $AWS_REGION --instance-id $AWS_INSTANCE_ID --output text --query Reservations[0].Instances[0].BlockDeviceMappings[0].Ebs.VolumeId)
+            aws ec2 create-tags --resources $ROOT_VOLUME_IDS --region $AWS_REGION --tags Key=Name,Value=\"${AWS::StackName}-bootnode-volume\"           
+ 
+            # Clone git repo containing automation scripts for AWS
+            git clone --no-checkout https://github.com/IBM/zmodstack-deploy.git /home/ec2-user/zmodstack
+            cd zmodstack && git sparse-checkout set aws && git checkout @
             chown -fR ec2-user:ec2-user /home/ec2-user/zmodstack
-            source /home/ec2-user/zmodstack/scripts/bootnode-bootstrap.sh
+            source /home/ec2-user/zmodstack/aws/scripts/bootstrap.sh
 
             # Begin Terraform execution
-            cd /home/ec2-user/zmodstack/terraform
+            cd /home/ec2-user/zmodstack/aws/terraform
             aws s3 cp s3://${S3BucketName}/zmodstack/ocp/pull-secret.json ./pull-secret
             
             echo "Creating terraform variables file"
@@ -506,48 +529,55 @@ Resources:
             echo "accept_license=\"${LicenseAgreement}\"" >> terraform.tfvars
             echo "new_or_existing_vpc_subnet=\"exist\"" >> terraform.tfvars
             echo "vpc_id=\"${VPCID}\"" >> terraform.tfvars
-            echo "master_subnet1_id=\"${PublicSubnet1ID}\"" >> terraform.tfvars
-            echo "master_subnet2_id=\"${PublicSubnet2ID}\"" >> terraform.tfvars
-            echo "master_subnet3_id=\"${PublicSubnet3ID}\"" >> terraform.tfvars
-            echo "worker_subnet1_id=\"${PrivateSubnet1ID}\"" >> terraform.tfvars
-            echo "worker_subnet2_id=\"${PrivateSubnet2ID}\"" >> terraform.tfvars
-            echo "worker_subnet3_id=\"${PrivateSubnet3ID}\"" >> terraform.tfvars
+            echo "control_plane_node_subnet1_id=\"${PublicSubnet1ID}\"" >> terraform.tfvars
+            echo "control_plane_node_subnet2_id=\"${PublicSubnet2ID}\"" >> terraform.tfvars
+            echo "control_plane_node_subnet3_id=\"${PublicSubnet3ID}\"" >> terraform.tfvars
+            echo "computenode_subnet1_id=\"${PrivateSubnet1ID}\"" >> terraform.tfvars
+            echo "computenode_subnet2_id=\"${PrivateSubnet2ID}\"" >> terraform.tfvars
+            echo "computenode_subnet3_id=\"${PrivateSubnet3ID}\"" >> terraform.tfvars
             echo "vpc_cidr=\"${VPCCIDR}\"" >> terraform.tfvars
             echo "availability_zone1=\"${AvailabilityZone1}\"" >> terraform.tfvars
             echo "availability_zone2=\"${AvailabilityZone2}\"" >> terraform.tfvars
             echo "availability_zone3=\"${AvailabilityZone3}\"" >> terraform.tfvars
-            echo "master_instance_type=\"${MasterInstanceType}\"" >> terraform.tfvars
-            echo "master_replica_count=${NumberOfMaster}" >> terraform.tfvars
-            echo "worker_instance_type=\"${ComputeInstanceType}\"" >> terraform.tfvars
-            echo "worker_replica_count=${NumberOfCompute}" >> terraform.tfvars
+            echo "control_plane_node_instance_type=\"${ControlPlaneNodeInstanceType}\"" >> terraform.tfvars
+            echo "control_plane_node_replica_count=${NumberOfControlPlaneNode}" >> terraform.tfvars
+            echo "computenode_instance_type=\"${ComputeInstanceType}\"" >> terraform.tfvars
+            echo "computenode_replica_count=${NumberOfCompute}" >> terraform.tfvars
             echo "enable_permission_quota_check=\"false\"" >> terraform.tfvars
 
             export TF_LOG=DEBUG
-            export TF_LOG_PATH=/home/ec2-user/zmodstack/terraform/tf-trace.log
+            export TF_LOG_PATH=/home/ec2-user/zmodstack/aws/terraform/tf-trace.log
             terraform init -input=false
             terraform plan -out=tfplan -input=false
             terraform apply -input=false tfplan
 
             # Retreieve terraform exit code
             ecode=$?
+            
+            # Setup kubeconfig for ec2-user
+            mkdir -p /home/ec2-user/.kube/
+            cp /home/ec2-user/zmodstack/aws/terraform/installer-files/auth/kubeconfig /home/ec2-user/.kube/
+            mv /home/ec2-user/.kube/kubeconfig /home/ec2-user/.kube/config
+            export KUBECONFIG=$KUBECONFIG:/home/ec2-user/.kube/config
+            echo 'export KUBECONFIG=$KUBECONFIG:/home/ec2-user/.kube/config' >> ~/.bash_profile
+            chown -R ec2-user:ec2-user /home/ec2-user/.kube
 
             # Copy values logs to S3
             aws s3 cp /var/log/cloud-init-output.log s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_cloud-init-output.log
-            aws s3 cp /home/ec2-user/zmodstack/terraform/tf-trace.log s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_tf-trace.log
-            aws s3 cp /home/ec2-user/zmodstack/terraform/terraform.tfstate s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_terraform.tfstate
-
-            cp -rf ~/.kube/ /home/ec2-user/
-            chown -R ec2-user:ec2-user /home/ec2-user/.kube
-            oc exec -it $(oc get pod -l component=usermgmt | tail -1 | cut -f1 -d\ ) -- bash -c "printf \"${OpenshiftPassword}\n\" | /usr/src/server-src/scripts/manage-user.sh --enable-user admin"
+            aws s3 cp /home/ec2-user/zmodstack/aws/terraform/tf-trace.log s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_tf-trace.log
+            aws s3 cp /home/ec2-user/zmodstack/aws/terraform/terraform.tfstate s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_terraform.tfstate
+            
+            # send completion signal
+            ln -s /aws-cfn-bootstrap-2.0/cfnbootstrap /usr/lib/python3.8/site-packages/cfnbootstrap
             cfn-signal --exit-code $ecode --id $AWS_STACKID  --data "See logs at ${S3BucketName}" $InstallCompleteURL
           -
             IAMUserAccessKey: !Ref IAMUserAccessKey
             IAMUserSecret: !GetAtt [IAMUserAccessKey, SecretAccessKey]
             LicenseAgreement: !If [ AcceptLicense, 'accept', 'reject']
-            AZ: !If [ 3AZCondition , 'multi_zone', 'single_zone']
+            AZ: !If [ 3AZConditionCheck, 'multi_zone', 'single_zone']
             AvailabilityZone1: !Select [0, !Ref AvailabilityZones]
-            AvailabilityZone2: !If [ 3AZCondition, !Select [1, !Ref AvailabilityZones], ""]
-            AvailabilityZone3: !If [ 3AZCondition, !Select [2, !Ref AvailabilityZones], ""]
+            AvailabilityZone2: !If [ 3AZConditionCheck, !Select [1, !Ref AvailabilityZones], ""]
+            AvailabilityZone3: !If [ 3AZConditionCheck, !Select [2, !Ref AvailabilityZones], ""]
   
   CleanUpLambda:
     Type: AWS::Lambda::Function

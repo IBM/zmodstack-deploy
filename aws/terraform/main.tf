@@ -13,24 +13,24 @@ provider "aws" {
 data "aws_availability_zones" "azs" {}
 
 locals {
-  installer_workspace = "${path.root}/installer-files"
-  availability_zone1  = var.availability_zone1 == "" ? data.aws_availability_zones.azs.names[0] : var.availability_zone1
-  availability_zone2  = var.az == "multi_zone" && var.availability_zone2 == "" ? data.aws_availability_zones.azs.names[1] : var.availability_zone2
-  availability_zone3  = var.az == "multi_zone" && var.availability_zone3 == "" ? data.aws_availability_zones.azs.names[2] : var.availability_zone3
-  vpc_id              = var.new_or_existing_vpc_subnet == "new" ? module.network[0].vpcid : var.vpc_id
-  master_subnet1_id   = var.new_or_existing_vpc_subnet == "new" ? module.network[0].master_subnet1_id : var.master_subnet1_id
-  master_subnet2_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].master_subnet2_id[0] : var.master_subnet2_id
-  master_subnet3_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].master_subnet3_id[0] : var.master_subnet3_id
-  worker_subnet1_id   = var.new_or_existing_vpc_subnet == "new" ? module.network[0].worker_subnet1_id : var.worker_subnet1_id
-  worker_subnet2_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_subnet2_id[0] : var.worker_subnet2_id
-  worker_subnet3_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].worker_subnet3_id[0] : var.worker_subnet3_id
-  single_zone_subnets = [local.worker_subnet1_id]
-  multi_zone_subnets  = [local.worker_subnet1_id, local.worker_subnet2_id, local.worker_subnet3_id]
-  openshift_api       = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
-  openshift_username  = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
-  openshift_password  = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
-  openshift_token     = var.existing_openshift_token
-  cluster_type        = "selfmanaged"
+  installer_workspace             = "${path.root}/aws/installer-files"
+  availability_zone1              = var.availability_zone1 == "" ? data.aws_availability_zones.azs.names[0] : var.availability_zone1
+  availability_zone2              = var.az == "multi_zone" && var.availability_zone2 == "" ? data.aws_availability_zones.azs.names[1] : var.availability_zone2
+  availability_zone3              = var.az == "multi_zone" && var.availability_zone3 == "" ? data.aws_availability_zones.azs.names[2] : var.availability_zone3
+  vpc_id                          = var.new_or_existing_vpc_subnet == "new" ? module.network[0].vpcid : var.vpc_id
+  control_plane_node_subnet1_id   = var.new_or_existing_vpc_subnet == "new" ? module.network[0].control_plane_node_subnet1_id : var.control_plane_node_subnet1_id
+  control_plane_node_subnet2_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].control_plane_node_subnet2_id[0] : var.control_plane_node_subnet2_id
+  control_plane_node_subnet3_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].control_plane_node_subnet3_id[0] : var.control_plane_node_subnet3_id
+  computenode_subnet1_id          = var.new_or_existing_vpc_subnet == "new" ? module.network[0].computenode_subnet1_id : var.computenode_subnet1_id
+  computenode_subnet2_id          = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].computenode_subnet2_id[0] : var.computenode_subnet2_id
+  computenode_subnet3_id          = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].computenode_subnet3_id[0] : var.computenode_subnet3_id
+  single_zone_subnets             = [local.computenode_subnet1_id]
+  multi_zone_subnets              = [local.computenode_subnet1_id, local.computenode_subnet2_id, local.computenode_subnet3_id]
+  openshift_api                   = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
+  openshift_username              = var.existing_cluster ? var.existing_openshift_username : module.ocp[0].openshift_username
+  openshift_password              = var.existing_cluster ? var.existing_openshift_password : module.ocp[0].openshift_password
+  openshift_token                 = var.existing_openshift_token
+  cluster_type                    = "selfmanaged"
 }
 
 resource "null_resource" "aws_configuration" {
@@ -76,21 +76,21 @@ resource "null_resource" "permission_resource_validation" {
 }
 
 module "network" {
-  count               = var.new_or_existing_vpc_subnet == "new" && var.existing_cluster == false ? 1 : 0
-  source              = "./network"
-  vpc_cidr            = var.vpc_cidr
-  network_tag_prefix  = var.cluster_name
-  tenancy             = var.tenancy
-  master_subnet_cidr1 = var.master_subnet_cidr1
-  master_subnet_cidr2 = var.master_subnet_cidr2
-  master_subnet_cidr3 = var.master_subnet_cidr3
-  worker_subnet_cidr1 = var.worker_subnet_cidr1
-  worker_subnet_cidr2 = var.worker_subnet_cidr2
-  worker_subnet_cidr3 = var.worker_subnet_cidr3
-  az                  = var.az
-  availability_zone1  = local.availability_zone1
-  availability_zone2  = local.availability_zone2
-  availability_zone3  = local.availability_zone3
+  count                           = var.new_or_existing_vpc_subnet == "new" && var.existing_cluster == false ? 1 : 0
+  source                          = "./network"
+  vpc_cidr                        = var.vpc_cidr
+  network_tag_prefix              = var.cluster_name
+  tenancy                         = var.tenancy
+  control_plane_node_subnet_cidr1 = var.control_plane_node_subnet_cidr1
+  control_plane_node_subnet_cidr2 = var.control_plane_node_subnet_cidr2
+  control_plane_node_subnet_cidr3 = var.control_plane_node_subnet_cidr3
+  computenode_subnet_cidr1        = var.computenode_subnet_cidr1
+  computenode_subnet_cidr2        = var.computenode_subnet_cidr2
+  computenode_subnet_cidr3        = var.computenode_subnet_cidr3
+  az                              = var.az
+  availability_zone1              = local.availability_zone1
+  availability_zone2              = local.availability_zone2
+  availability_zone3              = local.availability_zone3
 
   depends_on = [
     null_resource.aws_configuration,
@@ -99,49 +99,47 @@ module "network" {
 }
 
 module "ocp" {
-  count                           = var.existing_cluster ? 0 : 1
-  source                          = "./ocp"
-  openshift_installer_url         = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp"
-  multi_zone                      = var.az == "multi_zone" ? true : false
-  cluster_name                    = var.cluster_name
-  base_domain                     = var.base_domain
-  region                          = var.region
-  availability_zone1              = local.availability_zone1
-  availability_zone2              = local.availability_zone2
-  availability_zone3              = local.availability_zone3
-  worker_instance_type            = var.worker_instance_type
-  worker_instance_volume_iops     = var.worker_instance_volume_iops
-  worker_instance_volume_type     = var.worker_instance_volume_type
-  worker_instance_volume_size     = var.worker_instance_volume_size
-  worker_replica_count            = var.worker_replica_count
-  master_instance_type            = var.master_instance_type
-  master_instance_volume_iops     = var.master_instance_volume_iops
-  master_instance_volume_type     = var.master_instance_volume_type
-  master_instance_volume_size     = var.master_instance_volume_size
-  master_replica_count            = var.master_replica_count
-  cluster_network_cidr            = var.cluster_network_cidr
-  cluster_network_host_prefix     = var.cluster_network_host_prefix
-  machine_network_cidr            = var.vpc_cidr
-  service_network_cidr            = var.service_network_cidr
-  master_subnet1_id               = local.master_subnet1_id
-  master_subnet2_id               = local.master_subnet2_id
-  master_subnet3_id               = local.master_subnet3_id
-  worker_subnet1_id               = local.worker_subnet1_id
-  worker_subnet2_id               = local.worker_subnet2_id
-  worker_subnet3_id               = local.worker_subnet3_id
-  private_cluster                 = var.private_cluster
-  openshift_pull_secret_file_path = var.openshift_pull_secret_file_path
-  public_ssh_key                  = var.public_ssh_key
-  enable_fips                     = var.enable_fips
-  openshift_username              = var.openshift_username
-  openshift_password              = var.openshift_password
-  enable_autoscaler               = var.enable_autoscaler
-  installer_workspace             = local.installer_workspace
-  openshift_version               = var.openshift_version
-  vpc_id                          = local.vpc_id
-  external_registry               = var.external_registry
-  external_registry_username      = var.external_registry_username
-  external_registry_password      = var.external_registry_password
+  count                                       = var.existing_cluster ? 0 : 1
+  source                                      = "./ocp"
+  openshift_installer_url                     = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp"
+  multi_zone                                  = var.az == "multi_zone" ? true : false
+  cluster_name                                = var.cluster_name
+  base_domain                                 = var.base_domain
+  region                                      = var.region
+  availability_zone1                          = local.availability_zone1
+  availability_zone2                          = local.availability_zone2
+  availability_zone3                          = local.availability_zone3
+  computenode_instance_type                   = var.computenode_instance_type
+  computenode_instance_volume_type            = var.computenode_instance_volume_type
+  computenode_instance_volume_size            = var.computenode_instance_volume_size
+  computenode_replica_count                   = var.computenode_replica_count
+  control_plane_node_instance_type            = var.control_plane_node_instance_type
+  control_plane_node_instance_volume_type     = var.control_plane_node_instance_volume_type
+  control_plane_node_instance_volume_size     = var.control_plane_node_instance_volume_size
+  control_plane_node_replica_count            = var.control_plane_node_replica_count
+  cluster_network_cidr                        = var.cluster_network_cidr
+  cluster_network_host_prefix                 = var.cluster_network_host_prefix
+  machine_network_cidr                        = var.vpc_cidr
+  service_network_cidr                        = var.service_network_cidr
+  control_plane_node_subnet1_id               = local.control_plane_node_subnet1_id
+  control_plane_node_subnet2_id               = local.control_plane_node_subnet2_id
+  control_plane_node_subnet3_id               = local.control_plane_node_subnet3_id
+  computenode_subnet1_id                      = local.computenode_subnet1_id
+  computenode_subnet2_id                      = local.computenode_subnet2_id
+  computenode_subnet3_id                      = local.computenode_subnet3_id
+  private_cluster                             = var.private_cluster
+  openshift_pull_secret_file_path             = var.openshift_pull_secret_file_path
+  public_ssh_key                              = var.public_ssh_key
+  enable_fips                                 = var.enable_fips
+  openshift_username                          = var.openshift_username
+  openshift_password                          = var.openshift_password
+  enable_autoscaler                           = var.enable_autoscaler
+  installer_workspace                         = local.installer_workspace
+  openshift_version                           = var.openshift_version
+  vpc_id                                      = local.vpc_id
+  external_registry                           = var.external_registry
+  external_registry_username                  = var.external_registry_username
+  external_registry_password                  = var.external_registry_password
 
   depends_on = [
     module.network,

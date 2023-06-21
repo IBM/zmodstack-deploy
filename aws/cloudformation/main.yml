@@ -23,8 +23,8 @@ Metadata:
           - OpenshiftVersion
           - OpenshiftUsername
           - OpenshiftPassword
-          - NumberOfMaster
-          - MasterInstanceType
+          - NumberOfControlPlaneNode
+          - ControlPlaneNodeInstanceType
           - NumberOfCompute
           - ComputeInstanceType
       - Label:
@@ -39,6 +39,7 @@ Metadata:
           - PublicSubnet1CIDR
           - PublicSubnet2CIDR
           - PublicSubnet3CIDR
+          - BootNodeInstanceType
           - BootNodeAccessCIDR
 
     ParameterLabels:
@@ -54,18 +55,20 @@ Metadata:
         default: Public subnet 2 CIDR
       PublicSubnet3CIDR:
         default: Public subnet 3 CIDR
+      BootNodeInstanceType:
+        default: Boot node instance type
       BootNodeAccessCIDR:
         default: Boot node external access CIDR
       VPCCIDR:
         default: Virtual Private Cloud CIDR
       S3BucketName:
         default: S3 bucket name
-      MasterInstanceType:
-        default: Master node instance type
+      ControlPlaneNodeInstanceType:
+        default: Control Plane node instance type
       ComputeInstanceType:
         default: Compute node instance type
-      NumberOfMaster:
-        default: Number of master nodes
+      NumberOfControlPlaneNode:
+        default: Number of Control Plane nodes
       NumberOfCompute:
         default: Number of compute nodes
       DomainName:
@@ -88,7 +91,7 @@ Metadata:
 Parameters:
   NumberOfAZs:
     Description: >-
-      The number of Availability Zones to be used for the deployment. Keep in mind that some regions may be limited to 2 Availability Zones. For a single OCP cluster to be highly available, 3 Availability Zones are needed to avoid a single point of failure when using 3, 5 or 7 master nodes.  With less than 3 Availability Zones, one of the AZs will have more master nodes.
+      The number of Availability Zones to be used for the deployment. Keep in mind that some regions may be limited to 2 Availability Zones. For a single OCP cluster to be highly available, 3 Availability Zones are needed to avoid a single point of failure when using 3, 5 or 7 control plane nodes.  With less than 3 Availability Zones, one of the AZs will have more control plane nodes.
     Type: Number
     Default: 3
     AllowedValues:
@@ -134,6 +137,17 @@ Parameters:
     Default: 10.0.160.0/20
     Description: The CIDR block for the public subnet located in Availability Zone 3.
     Type: String
+  BootNodeInstanceType:
+    Default: t3.xlarge
+    AllowedValues:
+      - t3.xlarge
+      - t3a.xlarge
+      - m4.xlarge
+      - m5.xlarge
+      - m5a.xlarge
+    ConstraintDescription: Must contain valid instance type
+    Description: The EC2 Instance type for the bootnode instance that acts as a bastion. 
+    Type: String
   BootNodeAccessCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
@@ -150,13 +164,13 @@ Parameters:
     Default: 10.0.0.0/16
     Description: The CIDR block that will be associated to the newly created AWS VPC. This CIDR block SHOULD NOT conflict with existing VPCs in the selected AWS Region. 
     Type: String
-  MasterInstanceType:
+  ControlPlaneNodeInstanceType:
     Default: m5.xlarge
     AllowedValues:
       - m5.xlarge
       - m5.2xlarge
     ConstraintDescription: Must contain valid instance type
-    Description: The EC2 instance type for the OpenShift master instances.
+    Description: The EC2 instance type for the OpenShift control plane instances.
     Type: String
   ComputeInstanceType:
     Default: m5.xlarge
@@ -168,9 +182,9 @@ Parameters:
     ConstraintDescription: Must contain valid instance type
     Description: The EC2 instance type for the OpenShift compute instances.
     Type: String
-  NumberOfMaster:
+  NumberOfControlPlaneNode:
     Default: '3'
-    Description: The desired capacity for the OpenShift master instances. Must be an odd number. A minimum of 3 is required.
+    Description: The desired capacity for the OpenShift control plane instances. Must be an odd number. A minimum of 3 is required.
     Type: String
     AllowedPattern: '^[3579]$|(^[3-9]+[3579]$)'
   NumberOfCompute:
@@ -180,14 +194,17 @@ Parameters:
   DomainName:
     Description: The FQDN of an Amazon Route 53 registered domain and/or hosted zone. A Route 53 subdomain DNS record will be registed for proper routing to the created OpenShift cluster. Reference the Deployment Guide for more details.
     Type: String
+    AllowedPattern: '^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$'
+    ConstraintDescription: Must enter a valid Domain Name
   OpenshiftVersion:
     Description: The OpenShift version that should be deployed. The latest stable version of the selected version will be deployed. 
     Type: String
-    Default: "4.10"
+    Default: "4.11"
     AllowedValues:
       - "4.9"
       - "4.10"
       - "4.11"
+      - "4.12"
   OpenshiftUsername:
     Description: The OpenShift username that will be created as the default cluster-admin. This username will be used to login to the OpenShift Console.
     Type: String
@@ -219,6 +236,7 @@ Rules:
       AssertDescription: User must agree to the terms of the license agreement.
 
 Conditions:
+  3AZConditionCheck: !Equals [!Ref NumberOfAZs, '3']
   3AZSelectionCondition:
     Fn::Equals:
     - Fn::Length:
@@ -230,10 +248,10 @@ Conditions:
         Ref: AvailabilityZones
     - 1
   3AZCondition: !And 
-    - !Equals [!Ref NumberOfAZs, 3]
+    - !Equals [!Ref NumberOfAZs, '3']
     - !Condition 3AZSelectionCondition
   1AZCondition: !And 
-    - !Equals [!Ref NumberOfAZs, 1]
+    - !Equals [!Ref NumberOfAZs, '1']
     - !Condition 1AZSelectionCondition
   AZValidation: !Or 
     - !Condition 1AZCondition
@@ -283,28 +301,17 @@ Resources:
       Parameters:
         NumberOfAZs: !Ref NumberOfAZs
         AvailabilityZones: !Join [ ',', !Ref 'AvailabilityZones']
-        MasterInstanceType: !Ref 'MasterInstanceType'
+        BootNodeInstanceType: !Ref 'BootNodeInstanceType'
+        ControlPlaneNodeInstanceType: !Ref 'ControlPlaneNodeInstanceType'
         ComputeInstanceType: !Ref 'ComputeInstanceType'
-        NumberOfMaster: !Ref 'NumberOfMaster'
+        NumberOfControlPlaneNode: !Ref 'NumberOfControlPlaneNode'
         NumberOfCompute: !Ref 'NumberOfCompute'
         PrivateSubnet1ID: !GetAtt 'VPCStack.Outputs.PrivateSubnet1AID'
-        PrivateSubnet2ID: !If
-          - 3AZCondition
-          - !GetAtt 'VPCStack.Outputs.PrivateSubnet2AID'
-          - ""
-        PrivateSubnet3ID: !If
-          - 3AZCondition
-          - !GetAtt 'VPCStack.Outputs.PrivateSubnet3AID'
-          - ""
+        PrivateSubnet2ID: !If [3AZConditionCheck, !GetAtt 'VPCStack.Outputs.PrivateSubnet2AID', ""]
+        PrivateSubnet3ID: !If [3AZConditionCheck, !GetAtt 'VPCStack.Outputs.PrivateSubnet3AID', ""]
         PublicSubnet1ID: !GetAtt 'VPCStack.Outputs.PublicSubnet1ID'
-        PublicSubnet2ID: !If
-          - 3AZCondition
-          - !GetAtt 'VPCStack.Outputs.PublicSubnet2ID'
-          - ""
-        PublicSubnet3ID: !If
-          - 3AZCondition
-          - !GetAtt 'VPCStack.Outputs.PublicSubnet3ID'
-          - ""
+        PublicSubnet2ID: !If [3AZConditionCheck, !GetAtt 'VPCStack.Outputs.PublicSubnet2ID', ""]
+        PublicSubnet3ID: !If [3AZConditionCheck, !GetAtt 'VPCStack.Outputs.PublicSubnet3ID', ""]
         BootNodeAccessCIDR: !Ref 'BootNodeAccessCIDR'
         S3BucketName: !Ref S3BucketName
         VPCCIDR: !Ref 'VPCCIDR'
