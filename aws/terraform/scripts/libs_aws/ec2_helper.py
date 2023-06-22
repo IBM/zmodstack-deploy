@@ -190,16 +190,16 @@ class EC2Helper():
 
         tf_config = {}
         tf_config['node_type'] = {}
-        tf_config['node_type']['master'] = {}
-        tf_config['node_type']['worker'] = {}
+        tf_config['node_type']['control_plane_node'] = {}
+        tf_config['node_type']['computenode'] = {}
 
         tf_config_json = AWSGenericHelper.get_terraform_config_json(terraform_var_file)
 
         # get specified instance types from terraform config
         tf_config['region'] = tf_config_json['variable']['region']['default']
         tf_config['storage_type'] = 'ocs' if tf_config_json['variable']['ocs']['default']['enable'] else 'portworx'
-        tf_config['node_type']['master']['instance_type'] = tf_config_json['variable']['master_instance_type']['default']
-        tf_config['node_type']['worker']['instance_type'] = tf_config_json['variable']['worker_instance_type']['default']
+        tf_config['node_type']['control_plane_node']['instance_type'] = tf_config_json['variable']['control_plane_node_instance_type']['default']
+        tf_config['node_type']['computenode']['instance_type'] = tf_config_json['variable']['computenode_instance_type']['default']
         if tf_config['storage_type'] == 'ocs':
             tf_config['node_type']['ocs'] = {}
             tf_config['node_type']['ocs']['instance_type'] = tf_config_json['variable']['ocs']['default']['dedicated_node_instance_type']
@@ -302,13 +302,13 @@ class EC2Helper():
         print("      - Specify a different region.")
         print("")
 
-    def calculate_num_service_worker_nodes(self,
-                                           worker_instance_type,
+    def calculate_num_service_computenode_nodes(self,
+                                           computenode_instance_type,
                                            tf_var_file):
 
         instance_type_vcpus = self.get_vcpus_per_instance_type()
-        worker_node_vcpus = instance_type_vcpus[worker_instance_type]
+        computenode_node_vcpus = instance_type_vcpus[computenode_instance_type]
         services_vcpus = AWSGenericHelper.get_services_vcpus(tf_var_file)
-        num_service_worker_nodes = abs(-services_vcpus // worker_node_vcpus)
+        num_service_computenode_nodes = abs(-services_vcpus // computenode_node_vcpus)
 
-        return num_service_worker_nodes
+        return num_service_computenode_nodes

@@ -2,26 +2,26 @@ output "vpcid" {
   value = aws_vpc.vpc.id
 }
 
-output "master_subnet1_id" {
-  value = aws_subnet.master1.id
+output "control_plane_node_subnet1_id" {
+  value = aws_subnet.control_plane_node1.id
 }
 
-output "master_subnet2_id" {
-  value = aws_subnet.master2[*].id
+output "control_plane_node_subnet2_id" {
+  value = aws_subnet.control_plane_node2[*].id
 }
 
-output "master_subnet3_id" {
-  value = aws_subnet.master3[*].id
+output "control_plane_node_subnet3_id" {
+  value = aws_subnet.control_plane_node3[*].id
 }
 
-output "worker_subnet1_id" {
-  value = aws_subnet.worker1.id
+output "computenode_subnet1_id" {
+  value = aws_subnet.computenode1.id
 }
 
-output "worker_subnet2_id" {
-  value = aws_subnet.worker2[*].id
+output "computenode_subnet2_id" {
+  value = aws_subnet.computenode2[*].id
 }
 
-output "worker_subnet3_id" {
-  value = aws_subnet.worker3[*].id
+output "computenode_subnet3_id" {
+  value = aws_subnet.computenode3[*].id
 }

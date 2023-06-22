@@ -37,27 +37,27 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
-variable "master_subnet_cidr1" {
+variable "control_plane_node_subnet_cidr1" {
   default = "10.0.0.0/20"
 }
 
-variable "master_subnet_cidr2" {
+variable "control_plane_node_subnet_cidr2" {
   default = "10.0.16.0/20"
 }
 
-variable "master_subnet_cidr3" {
+variable "control_plane_node_subnet_cidr3" {
   default = "10.0.32.0/20"
 }
 
-variable "worker_subnet_cidr1" {
+variable "computenode_subnet_cidr1" {
   default = "10.0.128.0/20"
 }
 
-variable "worker_subnet_cidr2" {
+variable "computenode_subnet_cidr2" {
   default = "10.0.144.0/20"
 }
 
-variable "worker_subnet_cidr3" {
+variable "computenode_subnet_cidr3" {
   default = "10.0.160.0/20"
 }
 
@@ -67,27 +67,27 @@ variable "worker_subnet_cidr3" {
 variable "vpc_id" {
   default = ""
 }
-variable "master_subnet1_id" {
+variable "control_plane_node_subnet1_id" {
   default = ""
 }
 
-variable "master_subnet2_id" {
+variable "control_plane_node_subnet2_id" {
   default = ""
 }
 
-variable "master_subnet3_id" {
+variable "control_plane_node_subnet3_id" {
   default = ""
 }
 
-variable "worker_subnet1_id" {
+variable "computenode_subnet1_id" {
   default = ""
 }
 
-variable "worker_subnet2_id" {
+variable "computenode_subnet2_id" {
   default = ""
 }
 
-variable "worker_subnet3_id" {
+variable "computenode_subnet3_id" {
   default = ""
 }
 #############################
@@ -97,7 +97,7 @@ variable "enable_permission_quota_check" {
 }
 
 variable "cluster_name" {
-  default = "my-ocp"
+  default = "zmodstack-ocp"
 }
 
 
@@ -155,52 +155,42 @@ variable "existing_openshift_token" {
 ##################################
 # New Openshift Cluster Variables
 ##################################
-variable "worker_instance_type" {
+variable "computenode_instance_type" {
   type    = string
   default = "m5.4xlarge"
 }
 
-variable "worker_instance_volume_iops" {
+variable "computenode_instance_volume_size" {
   type    = number
-  default = 2000
+  default = 150
 }
 
-variable "worker_instance_volume_size" {
-  type    = number
-  default = 300
-}
-
-variable "worker_instance_volume_type" {
+variable "computenode_instance_volume_type" {
   type    = string
-  default = "io1"
+  default = "gp2"
 }
 
-variable "worker_replica_count" {
+variable "computenode_replica_count" {
   type    = number
   default = 3
 }
 
-variable "master_instance_type" {
+variable "control_plane_node_instance_type" {
   type    = string
   default = "m5.2xlarge"
 }
 
-variable "master_instance_volume_iops" {
+variable "control_plane_node_instance_volume_size" {
   type    = number
-  default = 4000
+  default = 150
 }
 
-variable "master_instance_volume_size" {
-  type    = number
-  default = 300
-}
-
-variable "master_instance_volume_type" {
+variable "control_plane_node_instance_volume_type" {
   type    = string
-  default = "io1"
+  default = "gp2"
 }
 
-variable "master_replica_count" {
+variable "control_plane_node_replica_count" {
   type    = number
   default = 3
 }
