@@ -19,10 +19,10 @@ echo $(date) " - ############## Deploy Script ####################"
 RESOURCE_GROUP=$(az group list --query [0].name -o tsv)
 RESOURCE_GROUP_LOCATION=$(az group show -g $RESOURCE_GROUP --query location -o tsv)
 
-# FIXME this may still fail if you re-use a resource group that may have a resource with init.sh in the name.
+# FIXME this may still fail if you re-use a resource group that may have a resource with bootstrap.sh in the name.
 # Instead, if we set a unique bootnode name, then we can use the 'hostname' command and the filter below
 # To find the exact ARM Deployment that created this boot node!
-DEPLOYMENT_NAME=$(az deployment group list -g $RESOURCE_GROUP | jq -r 'map(select(.properties.dependencies[].resourceName | contains("init.sh"))) | .[] .name')
+DEPLOYMENT_NAME=$(az deployment group list -g $RESOURCE_GROUP | jq -r 'map(select(.properties.dependencies[].resourceName | contains("bootstrap.sh"))) | .[] .name')
 DEPLOYMENT_PARMS=$(az deployment group show -g $RESOURCE_GROUP -n $DEPLOYMENT_NAME --query properties.parameters)
 DEPLOYMENT_VARS=$(az deployment group export -g $RESOURCE_GROUP -n $DEPLOYMENT_NAME)
 
