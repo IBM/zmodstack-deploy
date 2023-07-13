@@ -1,0 +1,70 @@
+---
+- include_vars: zosconnect.yml
+# Create namespace for cloudbroker
+# tasks file for zosconnect
+- name: "Create project with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    src: "files/project.yaml"
+    wait: true
+    wait_sleep: 50
+
+- name: "Create Operator Group with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ibm-zmodstack-zosconnect"
+    kubeconfig: "/home/ec2-user/.kube/config"
+    src: "files/operator-group.yaml"
+    wait: true
+    wait_sleep: 50
+
+- name: "Create Z/os Connect Subscription with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "openshift-operators"
+    src: "files/zosconnect-subscription.yaml"
+    wait: true
+    wait_sleep: 50
+
+#install z/os connect in openshift-operators namespace to install by default on all namespaces
+- name: "Retrieve Z/os connect subscription info"
+  kubernetes.core.k8s_info:
+    kind: Subscription
+    namespace: "openshift-operators"
+    name: "{{ zosconnect_subscription.name }}"
+    api_version: "{{ zosconnect_subscription.apiVersion }}"
+  register: zosconnect_subscription_info
+  until:
+    - "zosconnect_subscription_info.resources is defined and zosconnect_subscription_info.resources | length > 0"
+    - "'state' in zosconnect_subscription_info.resources[0].status and zosconnect_subscription_info.resources[0].status.state == 'AtLatestKnown'"
+  retries: 30
+  delay: 10
+
+- name: "Verify zosconnect subscription: '{{ zosconnect_subscription.name }}'"
+  ansible.builtin.assert:
+    that:
+      - zosconnect_subscription_info.resources[0].metadata.creationTimestamp != ""
+      - zosconnect_subscription_info.resources[0].status.installplan.kind == "InstallPlan"
+      - zosconnect_subscription_info.resources[0].status.installplan.name != ""
+      - zosconnect_subscription_info.resources[0].status.state == "AtLatestKnown"
+      - zosconnect_subscription_info.resources[0].status.conditions[0].reason == "AllCatalogSourcesHealthy"
+
+- name: "Create Z/os connect custom Resource Instance with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ibm-zmodstack-zosconnect"
+    src: "files/zosconnect.yaml"
+    wait: true
+    wait_sleep: 100
+
+# tasks to verify the installation
+- name: "Retrieve Z/os connect custom resource instance Info"
+  kubernetes.core.k8s_info:
+    namespace: "ibm-zmodstack-zosconnect"
+    kind: "{{ zosconnect.kind }}"
+    name: "{{ zosconnect.name }}"
+    api_version: "{{ zosconnect.apiVersion }}"
+  register: zosconnect_info
+
+- ansible.builtin.debug:
+        var: zosconnect_info

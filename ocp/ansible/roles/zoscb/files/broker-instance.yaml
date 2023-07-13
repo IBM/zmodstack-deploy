@@ -1,0 +1,27 @@
+---
+kind: "ZosCloudBroker"
+apiVersion: "zoscb.ibm.com/v2beta1"
+metadata:
+  name: "zoscloudbroker"
+spec:
+  license:
+    accept: true
+  multiNamespace: true
+  logLevel: "trace"
+  resources:
+      limits:
+        cpu: "200m" #"200m"
+        memory: "256Mi" #"256Mi"
+        ephemeral-storage: "500Mi"
+      requests:
+        cpu: "100m"  #"100m"
+        memory: "128Mi" #"128Mi"
+        ephemeral-storage: "500Mi"
+  storage:
+    configure: false
+    enabled: false
+    pvc: "zoscloudbroker"
+    size: "5Gi"
+    storageClassName: "gp3-default"
+    volumeMode: "Filesystem"
+    accessModes: "ReadWriteMany"

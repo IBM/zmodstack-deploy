@@ -1,0 +1,13 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: "v1"
+metadata:
+  name: "zoscloudbroker"
+spec:
+  accessModes:
+    - "ReadWriteMany"
+  resources:
+    requests:
+      storage: "5Gi"
+  volumeMode: "Filesystem"
+  storageClassName: "gp3-default"

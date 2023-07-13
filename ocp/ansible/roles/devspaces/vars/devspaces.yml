@@ -1,0 +1,12 @@
+---
+# *************************************
+# RedHat DevSpaces Variables
+# *************************************
+devspaces:
+  name: "devspaces"
+  kind: "devspaces"
+  apiVersion: "org.eclipse.che/v2"
+
+devspaces_subscription:
+  name: "devspaces"
+  apiVersion: "operators.coreos.com/v1alpha1"

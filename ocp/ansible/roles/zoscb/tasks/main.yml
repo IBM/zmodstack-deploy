@@ -1,0 +1,103 @@
+---
+- include_vars: zoscb.yml
+# Create namespace for cloudbroker
+# tasks file for zoscb
+- name: "Create project with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "/home/ec2-user/.kube/config"
+    src: "files/project.yaml"
+    wait: true
+    wait_sleep: 50
+
+- name: "Create PVC with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ibm-zmodstack-cloudbroker"
+    kubeconfig: "/home/ec2-user/.kube/config"
+    src: "files/persistent-volume-claim.yaml"
+    wait: true
+    wait_sleep: 50
+
+- name: "Create Operator Group with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ibm-zmodstack-cloudbroker"
+    kubeconfig: "/home/ec2-user/.kube/config"
+    src: "files/operator-group.yaml"
+    wait: true
+    wait_sleep: 50
+
+- name: "Create brokerInstance Subscription with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ibm-zmodstack-cloudbroker"
+    kubeconfig: "/home/ec2-user/.kube/config"
+    src: "files/broker-subscription.yaml"
+    wait: true
+    wait_sleep: 50
+
+- name: "Retrieve broker subscription info"
+  kubernetes.core.k8s_info:
+    kind: Subscription
+    namespace: "ibm-zmodstack-cloudbroker"
+    kubeconfig: "/home/ec2-user/.kube/config"
+    name: "{{ broker_subscription.name }}"
+    api_version: "{{ broker_subscription.apiVersion }}"
+  register: broker_subscription_info
+  until:
+    - "broker_subscription_info.resources is defined and broker_subscription_info.resources | length > 0"
+    - "'state' in broker_subscription_info.resources[0].status and broker_subscription_info.resources[0].status.state == 'AtLatestKnown'"
+  retries: 30
+  delay: 10
+
+- name: "Verify broker subscription: '{{ broker_subscription.name }}'"
+  ansible.builtin.assert:
+    that:
+      - broker_subscription_info.resources[0].metadata.creationTimestamp != ""
+      - broker_subscription_info.resources[0].status.installplan.kind == "InstallPlan"
+      - broker_subscription_info.resources[0].status.installplan.name != ""
+      - broker_subscription_info.resources[0].status.state == "AtLatestKnown"
+      - broker_subscription_info.resources[0].status.conditions[0].reason == "AllCatalogSourcesHealthy"
+
+- name: "Create brokerInstance with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ibm-zmodstack-cloudbroker"
+    kubeconfig: "/home/ec2-user/.kube/config"
+    src: "files/broker-instance.yaml"
+    wait: true
+    wait_condition:
+      type: Succeeded
+      status: 'True'
+      reason: Success
+    wait_timeout: 600
+
+- name: "Create route for zoscb with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ibm-zmodstack-cloudbroker"
+    kubeconfig: "/home/ec2-user/.kube/config"
+    src: "files/route.yaml"
+    wait: true
+    wait_sleep: 50
+
+# tasks to verify the installation
+- name: "Retrieve broker instance Info"
+  kubernetes.core.k8s_info:
+    namespace: "ibm-zmodstack-cloudbroker"
+    kubeconfig: "/home/ec2-user/.kube/config"
+    kind: "{{ broker_instance.kind }}"
+    name: "{{ broker_instance.name }}"
+    api_version: "{{ broker_instance.apiVersion }}"
+  register: broker_instance_info
+
+- name: "Verify broker instance: '{{ broker_instance.name }}'"
+  ansible.builtin.assert:
+    that:
+      - "'ibm-zoscb-manager-{{ broker_instance.name }}' in broker_instance_info.resources[0].status.deployment.ready"
+      - "'ibm-zoscb-registry-{{ broker_instance.name }}-ibm-zmodstack-cloudbroker' in broker_instance_info.resources[0].status.deployment.ready
+        or 'ibm-zoscb-registry-{{ broker_instance.name }}' in broker_instance_info.resources[0].status.deployment.ready"
+      - "'ibm-zoscb-ui-{{ broker_instance.name }}' in broker_instance_info.resources[0].status.deployment.ready"
+      - broker_instance_info.resources[0].status.licenseacceptance == "Accepted"
+      - broker_instance_info.resources[0].status.phase == "Successful"

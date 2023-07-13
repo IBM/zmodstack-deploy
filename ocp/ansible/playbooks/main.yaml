@@ -1,0 +1,66 @@
+###############################################################################
+# © Copyright IBM Corporation 2022
+###############################################################################
+
+---
+- name: Deploy IBM ZmodStack on AWS
+  hosts: localhost
+  become: false
+  collections:
+    - ibm.ibm_zos_core
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  gather_facts: false
+
+  tasks:
+    # ****************************************************************************************************************************
+    # *
+    # *  Playbook section for creating all ZmodSTack resources on AWS
+    # *
+    # ****************************************************************************************************************************
+
+    # ****************************************************************************************************************************
+    # *
+    # *  Playbook section for creating all z/OS Endpoint and Resources
+    # *
+    # ****************************************************************************************************************************
+    # Playbook task to Create z/OS Endpoint Instance (wazi-sandbox or wazi-aas)
+    #TODO
+ 
+    - name: Deploy IBM z/OS Cloud and Modenization Stack - Openshift z/OS Cloud Broker Operator and Sub-Operators(TODO-suboperators)
+      block:
+        # ****************************************************************************************************************************
+        # *
+        # Install z/OS Cloud Broker
+        # *
+        # ****************************************************************************************************************************
+
+        # Dynamically INCLUDE ansible role
+        - name: Include z/OS Dev Install role/task tagged for z/OS Cloud Broker
+          ansible.builtin.include_role:
+            name: "zoscb"
+          tags: "zoscb"
+
+        # ****************************************************************************************************************************
+        # *
+        # Install z/OS Connect
+        # *
+        # ****************************************************************************************************************************
+
+        # Dynamically INCLUDE ansible role
+        - name: Include z/OS Dev Install role/task tagged for z/OS Connect
+          ansible.builtin.include_role:
+            name: "zosconnect"
+          tags: "zosconnect"
+
+        # ****************************************************************************************************************************
+        # *
+        # Install Red Hat Dev Spaces
+        # *
+        # ****************************************************************************************************************************
+
+        # Dynamically INCLUDE ansible role
+        - name: Include z/OS Dev Install role/task tagged for Red Hat Dev Spaces
+          ansible.builtin.include_role:
+            name: "devspaces"
+          tags: "devspaces"

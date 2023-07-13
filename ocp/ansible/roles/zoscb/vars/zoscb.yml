@@ -1,0 +1,12 @@
+---
+# *************************************
+# z/OS Cloud Broker Variables
+# *************************************
+broker_instance:
+  name: "zoscloudbroker"
+  kind: "ZosCloudBroker"
+  apiVersion: "zoscb.ibm.com/v2beta1"
+
+broker_subscription:
+  name: "ibm-zoscb"
+  apiVersion: "operators.coreos.com/v1alpha1"

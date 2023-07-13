@@ -1,0 +1,12 @@
+---
+# *************************************
+# z/OS Connect Variables
+# *************************************
+zosconnect:
+  name: "zosconnect"
+  kind: "ZosConnect"
+  apiVersion: "zosconnect.zcon.ibm.com/v1"
+
+zosconnect_subscription:
+  name: "ibm-zcon-zosconnect"
+  apiVersion: "operators.coreos.com/v1alpha1"
