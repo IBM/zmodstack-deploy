@@ -35,22 +35,22 @@ def get_terraform_configuration(tf_var_file):
     tf_config['region'] = tf_config_json['variable']['region']['default']
     tf_config['deploy_type'] = tf_config_json['variable']['az']['default']
     tf_config['storage_type'] = 'ocs' if tf_config_json['variable']['ocs']['default']['enable'] else 'portworx'
-    tf_config['replica_count']['master'] = tf_config_json['variable']['master_replica_count']['default']
-    tf_config['replica_count']['worker'] = tf_config_json['variable']['worker_replica_count']['default']
-    tf_config['instance_type']['master'] = tf_config_json['variable']['master_instance_type']['default']
-    tf_config['instance_type']['worker'] = tf_config_json['variable']['worker_instance_type']['default']
+    tf_config['replica_count']['control_plane_node'] = tf_config_json['variable']['control_plane_node_replica_count']['default']
+    tf_config['replica_count']['computenode'] = tf_config_json['variable']['computenode_replica_count']['default']
+    tf_config['instance_type']['control_plane_node'] = tf_config_json['variable']['control_plane_node_instance_type']['default']
+    tf_config['instance_type']['computenode'] = tf_config_json['variable']['computenode_instance_type']['default']
     if tf_config['storage_type'] == 'ocs':
         tf_config['instance_type']['ocs'] = tf_config_json['variable']['ocs']['default']['dedicated_node_instance_type']
         tf_config['replica_count']['ocs'] = 3
 
     # storage-type dependend adaptions
-    ## storage-type == 'ocs' --> 3 additional OCS worker nodes are deployed
+    ## storage-type == 'ocs' --> 3 additional OCS computenode nodes are deployed
     # if tf_config['storage_type'] == 'ocs':
-    #     tf_config['replica_count']['worker'] = tf_config['replica_count']['worker'] + 3
-    ## storage-type == 'portworx' --> 1 additional worker node added by cluster auto-scaler 
+    #     tf_config['replica_count']['computenode'] = tf_config['replica_count']['computenode'] + 3
+    ## storage-type == 'portworx' --> 1 additional computenode node added by cluster auto-scaler 
     # <Femi: Commenting this out since autoscaler is disabled>
     # if tf_config['storage_type'] == 'portworx':
-    #     tf_config['replica_count']['worker'] = tf_config['replica_count']['worker'] + 1
+    #     tf_config['replica_count']['computenode'] = tf_config['replica_count']['computenode'] + 1
 
     # Summing up the number of required number of instance types
     for node_type in tf_config['instance_type']:
@@ -186,21 +186,21 @@ def main():
     ocp = AWSGenericHelper.get_opc_required_resources(tf_config['storage_type'],
                                                       ha_config)
 
-    # Calculate the additionally needed number of workers
+    # Calculate the additionally needed number of compute nodes
     # for zmodstack services to be installed
-    worker_instance_type = tf_config['instance_type']['worker']
-    num_service_worker_nodes = ec2_helper.calculate_num_service_worker_nodes(
-                                                        worker_instance_type,
+    computenode_instance_type = tf_config['instance_type']['computenode']
+    num_service_computenode_nodes = ec2_helper.calculate_num_service_computenode_nodes(
+                                                        computenode_instance_type,
                                                         tf_var_file)
 
-    # Add number of required worker nodes for zmodstack services
-    # to number of OCP worker nodes
-    tf_config['instances'][worker_instance_type] = (tf_config['instances'][worker_instance_type] +
-                                                    num_service_worker_nodes)
+    # Add number of required computenode nodes for zmodstack services
+    # to number of OCP computenode nodes
+    tf_config['instances'][computenode_instance_type] = (tf_config['instances'][computenode_instance_type] +
+                                                    num_service_computenode_nodes)
 
     # Add number of required Network Interfaces according
-    # to the number of service worker nodes
-    ocp['network-interfaces'] = ocp['network-interfaces'] + num_service_worker_nodes
+    # to the number of service computenode nodes
+    ocp['network-interfaces'] = ocp['network-interfaces'] + num_service_computenode_nodes
 
     # EC2 resources
     ## VPCs

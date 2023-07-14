@@ -29,6 +29,8 @@ wget https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-late
 tar -xzf aws-cfn-bootstrap-py3-latest.tar.gz
 cd aws-cfn-bootstrap-2.0 || return
 python3 setup.py install &> /var/log/userdata.cfn-bootstrap-setup.log
+# Add /usr/local/bin to global PATH
+echo "export PATH=$PATH:/usr/local/bin" >> /etc/bashrc
 
 # Trigger the cfn-init helper script to handle the AWS::CloudFormation::Init directive
 cfn-init -v --stack "${AWS_STACKNAME}" --resource BootnodeInstance --configsets Required --region "${AWS_REGION}"
