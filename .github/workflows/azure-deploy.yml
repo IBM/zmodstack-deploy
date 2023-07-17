@@ -3,7 +3,7 @@ name: Azure Deployment
 on:
   push:
     branches:
-      - dev
+      - main
     paths:
       - '.github/workflows/azure-deploy.yml'
       - 'azure/**' 
