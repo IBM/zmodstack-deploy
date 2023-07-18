@@ -1,5 +1,5 @@
----         
-- name: "Download OpenShift Binaries"
+---
+- name: Download OpenShift Binaries
   ansible.builtin.shell: |
     runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-{{ OPENSHIFT_VERSION }}/openshift-install-linux.tar.gz"
     runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-{{ OPENSHIFT_VERSION }}/openshift-client-linux.tar.gz"
@@ -9,13 +9,13 @@
     chmod +x /usr/bin/kubectl
     chmod +x /usr/bin/oc
     chmod +x "{{ INSTALLER_HOME }}"/openshift-install
-- name: "Set Subscription ID"
+- name: Set Subscription ID
   ansible.builtin.shell: az account show | jq -r '.id'
   register: SUBSCRIPTION_ID
-- name: "Set Tenant ID"
+- name: Set Tenant ID
   ansible.builtin.shell: az account show | jq -r '.tenantId'
   register: TENANT_ID
-- name: "Setup Azure Credentials for OCP"
+- name: Setup Azure Credentials for OCP
   ansible.builtin.shell: |
     runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "mkdir -p /home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.azure"
     runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "touch /home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.azure/osServicePrincipal.json"
@@ -24,30 +24,30 @@
     EOF
 - name: Jinja Conversion for Install Config Yaml
   template:
-    src: "files/install-config.yaml"
+    src: files/install-config.yaml
     dest: "{{ GIT_CLONE_DIR }}/azure/scripts/playbooks/roles/ocpcluster/files/install-config.yaml"
-- name: "Setup Install Config"
+- name: Setup Install Config
   ansible.builtin.shell: |
     runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "mkdir -p {{ INSTALLER_HOME }}/openshiftfourx"
     if [[ "{{ SINGLE_ZONE_OR_MULTI_ZONE }}" != "az" ]]; then
       zones=`grep -A3 'zones' "{{ GIT_CLONE_DIR }}"/azure/scripts/playbooks/roles/ocpcluster/files/install-config.yaml`
       grep -v $zones "{{ GIT_CLONE_DIR }}"/azure/scripts/playbooks/roles/ocpcluster/files/install-config.yaml > "{{ GIT_CLONE_DIR }}"/azure/scripts/playbooks/roles/ocpcluster/files/install-config-new.yaml
       rm "{{ GIT_CLONE_DIR }}"/azure/scripts/playbooks/roles/ocpcluster/files/install-config.yaml
-      mv "{{ GIT_CLONE_DIR }}"/azure/scripts/playbooks/roles/ocpcluster/files/install-config-new.yaml "{{ GIT_CLONE_DIR }}"/azure/scripts/playbooks/roles/ocpcluster/files/install-config.yaml    
+      mv "{{ GIT_CLONE_DIR }}"/azure/scripts/playbooks/roles/ocpcluster/files/install-config-new.yaml "{{ GIT_CLONE_DIR }}"/azure/scripts/playbooks/roles/ocpcluster/files/install-config.yaml
     fi
     runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "cp {{ GIT_CLONE_DIR }}/azure/scripts/playbooks/roles/ocpcluster/files/install-config.yaml {{ INSTALLER_HOME }}/openshiftfourx/install-config.yaml"
-- name: "OCP Install"
+- name: OCP Install
   ansible.builtin.shell: |
     runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "export ARM_SKIP_PROVIDER_REGISTRATION=true"
     runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "{{ INSTALLER_HOME }}/openshift-install create cluster --dir={{ INSTALLER_HOME }}/openshiftfourx --log-level=debug"
     runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "sleep 120"
-- name: "Setup Kube Config"
+- name: Setup Kube Config
   ansible.builtin.shell: |
     runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "mkdir -p /home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube"
     runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "cp {{ INSTALLER_HOME }}/openshiftfourx/auth/kubeconfig /home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube/config"
-- name: "Switch to Machine API project"
+- name: Switch to Machine API project
   ansible.builtin.shell: runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "oc project openshift-machine-api"
-- name: "Get Cluster ID"
+- name: Get Cluster ID
   ansible.builtin.shell: |
     oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}' --kubeconfig /home/"{{ BOOTSTRAP_ADMIN_USERNAME }}"/.kube/config 
   register: CLUSTER_ID_OUTPUT
@@ -56,37 +56,37 @@
   set_fact:
     CLUSTER_ID: "{{ CLUSTER_ID_OUTPUT.stdout | trim }}"
   when: ENABLE_AUTOSCALER | bool
-- name: "Execute Cluster Autoscalar"
+- name: Execute Cluster Autoscalar
   kubernetes.core.k8s:
     state: present
     kubeconfig: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube/config"
-    src: "files/cluster-autoscaler.yaml"
+    src: files/cluster-autoscaler.yaml
     wait: true
     wait_sleep: 50
   when: ENABLE_AUTOSCALER | bool
 - name: Jinja Conversion for Machine Autoscaler Yaml
   template:
-    src: "files/machine-autoscaler.yaml"
+    src: files/machine-autoscaler.yaml
     dest: "{{ GIT_CLONE_DIR }}/azure/scripts/playbooks/roles/ocpcluster/files/machine-autoscaler.yaml"
-  when: ENABLE_AUTOSCALER | bool  
-- name: "Execute Machine Autoscalar"
+  when: ENABLE_AUTOSCALER | bool
+- name: Execute Machine Autoscalar
   kubernetes.core.k8s:
     state: present
     kubeconfig: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube/config"
-    src: "files/machine-autoscaler.yaml"
+    src: files/machine-autoscaler.yaml
     wait: true
     wait_sleep: 50
   when: ENABLE_AUTOSCALER | bool
 - name: Jinja Conversion for Machine Health Check Yaml
   template:
-    src: "files/machine-health-check.yaml"
+    src: files/machine-health-check.yaml
     dest: "{{ GIT_CLONE_DIR }}/azure/scripts/playbooks/roles/ocpcluster/files/machine-health-check.yaml"
-  when: ENABLE_AUTOSCALER | bool  
-- name: "Execute Machine Health Check"
+  when: ENABLE_AUTOSCALER | bool
+- name: Execute Machine Health Check
   kubernetes.core.k8s:
     state: present
     kubeconfig: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube/config"
-    src: "files/machine-health-check.yaml"
+    src: files/machine-health-check.yaml
     wait: true
     wait_sleep: 50
   when: ENABLE_AUTOSCALER | bool
@@ -94,18 +94,18 @@
     runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "htpasswd -c -B -b /tmp/.htpasswd {{ OPENSHIFT_USERNAME }} {{ OPENSHIFT_PASSWORD }}"
     runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "sleep 5"
     runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "oc create secret generic htpass-secret --from-file=htpasswd=/tmp/.htpasswd -n openshift-config"
-- name: "Create OpenShift User"
+- name: Create OpenShift User
   kubernetes.core.k8s:
     state: present
     kubeconfig: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube/config"
-    src: "files/auth.yaml"
+    src: files/auth.yaml
     wait: true
     wait_sleep: 50
 - ansible.builtin.shell: runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "oc adm policy add-cluster-role-to-user cluster-admin {{ OPENSHIFT_USERNAME }}"
-- name: "Install IBM Operator Catalogue"
+- name: Install IBM Operator Catalogue
   kubernetes.core.k8s:
     state: present
     kubeconfig: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube/config"
-    src: "files/ibm-operator-catalog.yaml"
+    src: files/ibm-operator-catalog.yaml
     wait: true
     wait_sleep: 50
