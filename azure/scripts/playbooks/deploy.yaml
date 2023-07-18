@@ -7,5 +7,5 @@
   tasks:
   - name: Setup OCP Cluster
     ansible.builtin.include_role:
-      name: "ocpcluster"
-    tags: "ocpcluster"
+      name: ocpcluster
+    tags: ocpcluster
