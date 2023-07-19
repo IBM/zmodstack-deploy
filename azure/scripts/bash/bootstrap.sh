@@ -18,7 +18,7 @@ pip3 install ansible
 pip3 install ansible[azure]
 
 #Execute Ansible playbook to install dependencies
-ansible-playbook $GIT_CLONE_DIR/azure/scripts/playbooks/predeploy.yaml
+ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/predeploy.yaml
 
 echo $(date) " - Azure CLI Login"
 az login --identity
@@ -106,6 +106,7 @@ export OUTBOUND_TYPE=$(armVar outboundType)
 export CLUSTER_RESOURCE_GROUP_NAME=$(armParm clusterResourceGroupName)
 export API_KEY=$(vaultSecret apiKey)
 export OPENSHIFT_VERSION=$(armParm openshiftVersion)
+export ARM_SKIP_PROVIDER_REGISTRATION=true
 
 # Wait for cloud-init to finish
 count=0
@@ -132,7 +133,7 @@ else
 fi
 
 #Execute Ansible playbook to deploy OCP Cluster
-ansible-playbook $GIT_CLONE_DIR/azure/scripts/playbooks/deploy.yaml \
+ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/deploy.yaml \
   -e INSTALLER_HOME=$INSTALLER_HOME \
   -e OPENSHIFT_VERSION=$OPENSHIFT_VERSION \
   -e AAD_APPLICATION_ID=$AAD_APPLICATION_ID \
@@ -169,6 +170,8 @@ ansible-playbook $GIT_CLONE_DIR/azure/scripts/playbooks/deploy.yaml \
   -e BOOTSTRAP_ADMIN_USERNAME=$BOOTSTRAP_ADMIN_USERNAME \
   -e GIT_CLONE_DIR=$GIT_CLONE_DIR \
   -e OPENSHIFT_USERNAME=$OPENSHIFT_USERNAME \
-  -e OPENSHIFT_PASSWORD=$OPENSHIFT_PASSWORD
+  -e OPENSHIFT_PASSWORD=$OPENSHIFT_PASSWORD \
+  -e SUBSCRIPTION_ID=$SUBSCRIPTION_ID \
+  -e TENANT_ID=$TENANT_ID
 
 echo $(date) " - ############### Deploy Script - Complete ###############"

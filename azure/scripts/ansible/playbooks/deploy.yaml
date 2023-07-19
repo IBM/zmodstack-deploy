@@ -5,7 +5,7 @@
   gather_facts: false
 
   tasks:
-  - name: Setup OCP Cluster
+  - name: Deployment
     ansible.builtin.include_role:
       name: ocpcluster
     tags: ocpcluster
