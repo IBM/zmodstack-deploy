@@ -3,42 +3,36 @@
   hosts: localhost
   become: true
   gather_facts: false
-  
+
   collections:
   - kubernetes.core
   - cloud.common
 
   tasks:
-  - name: Update Packages and Installing Package Dependencies
+  - name: Update packages
     ansible.builtin.dnf:
       name: "*"
       state: latest
-  - name: Import a key from a url
+  - name: Import Microsoft key
     ansible.builtin.rpm_key:
-      state: present
       key: https://packages.microsoft.com/keys/microsoft.asc
-  - name: Install the packages-microsoft-prod rpm from a remote repo
-    ansible.builtin.dnf:
-      name: 'https://packages.microsoft.com/config/rhel/8/packages-microsoft-prod.rpm'
       state: present
-  - name: Install the latest version of jq and Azure CLI
+  - name: Import packages-microsoft-prod package
+    ansible.builtin.dnf:
+      name: https://packages.microsoft.com/config/rhel/8/packages-microsoft-prod.rpm
+      state: present
+  - name: Install Azure CLI, jq, podman and httpd-tools
     ansible.builtin.dnf:
       name:
         - azure-cli
         - jq
-      state: latest     
-  - name: Install latest version of podman and httpd-tools
-    ansible.builtin.yum:
-      name:
         - podman
         - httpd-tools
-      state: latest   
-  - name: Install PyYAML
-    ansible.builtin.pip:
-      name: PyYAML
-      extra_args: --ignore-installed
-  - name: Install kubernetes and openshift
+      state: latest
+  - name: Install PyYAML, kubernetes and openshift
     ansible.builtin.pip:
       name:
+        - PyYAML
         - kubernetes
         - openshift
+      extra_args: --ignore-installed
