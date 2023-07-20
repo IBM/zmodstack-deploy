@@ -2,11 +2,16 @@ name: Azure Deployment
 
 on:
   push:
-    branches:
-      - main
     paths:
       - '.github/workflows/azure-deploy.yml'
       - 'azure/**' 
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths:
+      - '.github/workflows/azure-deploy.yml'
+      - 'azure/**'
 
 env:
   RESOURCE_GROUP_NAME: z-mod-stack-dev-rg
