@@ -261,12 +261,12 @@ spec:
 EOF
 }
 
-data "template_file" "gp3_default_storageclass" {
+data "template_file" "gp3_immediate_storageclass" {
   template =<<EOF
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: gp3-default
+  name: gp3-immediate
   annotations:
     description: Default storage class
     storageclass.kubernetes.io/is-default-class: 'true'
@@ -280,9 +280,9 @@ volumeBindingMode: Immediate
 EOF
 }
 
-resource "local_file" "gp3_default_yaml" {
-  content  = data.template_file.gp3_default_storageclass.rendered
-  filename = "${local.installer_workspace}/gp3_default.yaml"
+resource "local_file" "gp3_immediate_yaml" {
+  content  = data.template_file.gp3_immediate_storageclass.rendered
+  filename = "${local.installer_workspace}/gp3_immediate.yaml"
 }
 
 data "template_file" "ibm_catalogsource" {

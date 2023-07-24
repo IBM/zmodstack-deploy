@@ -182,19 +182,19 @@ EOF
   ]
 }
 
-resource "null_resource" "configure_gp3_default_storageclass" {
+resource "null_resource" "configure_gp3_immediate_storageclass" {
   triggers = {
     installer_workspace = local.installer_workspace
   }
   provisioner "local-exec" {
     command = <<EOF
-oc apply -f ${self.triggers.installer_workspace}/gp3_default.yaml --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
-oc patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}' --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
+oc patch storageclass $(oc get sc --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig|grep "(default)"| awk '{print $1}') -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}' --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
+oc apply -f ${self.triggers.installer_workspace}/gp3_immediate.yaml --kubeconfig ${self.triggers.installer_workspace}/auth/kubeconfig
 EOF
   }
   depends_on = [
     null_resource.install_openshift,
-    local_file.gp3_default_yaml,
+    local_file.gp3_immediate_yaml,
   ]  
 } 
 
