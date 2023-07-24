@@ -1,0 +1,20 @@
+---
+- name: Fetch OpenShift logs from Bootstrap VM
+  hosts: all
+  gather_facts: no
+  vars_files:
+    - vars/extra_vars.yml
+  tasks:
+  - name: Fetch OpenShift Install log
+    ansible.builtin.fetch:
+      src: /mnt/openshift/openshiftfourx/.openshift_install.log
+      dest: "{{ logs_dir }}/openshift_install.log"
+      flat: yes
+  - name: Fetch Handler log
+    ansible.builtin.fetch:
+      src: /var/log/azure/custom-script/handler.log
+      dest: "{{ logs_dir }}/handler.log"
+      flat: yes
+  - name: Prints folder in local system where logs are copied
+    ansible.builtin.debug:
+      msg: "Logs are copied in {{ logs_dir }}. Logs may contain sensitive information, so please check and remove those before sending across."

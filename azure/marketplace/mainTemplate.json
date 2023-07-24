@@ -293,7 +293,7 @@
     "vTrue": true,
     "bootstrapPublicIpDnsLabel": "[concat('bootstrapdns', uniqueString(resourceGroup().id))]",
     "sshKeyPath": "[concat('/home/', parameters('bootstrapAdminUsername'), '/.ssh/authorized_keys')]",
-    "bootstrapScriptUrl": "https://raw.githubusercontent.com/IBM/zmodstack-deploy/main/azure/scripts/bash/bootstrap.sh",
+    "bootstrapScriptUrl": "https://raw.githubusercontent.com/IBM/zmodstack-deploy/dev/azure/scripts/bash/bootstrap.sh",
     "bootstrapScriptFileName": "bootstrap.sh",
     "subscriptionId": "[subscription().subscriptionId]",
     "tenantId": "[subscription().tenantId]",

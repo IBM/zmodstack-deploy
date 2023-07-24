@@ -7,11 +7,11 @@
   vars:
     RESOURCE_GROUP_DEV: z-mod-stack-dev-rg
     DEPLOYMENT_NAME: OCP-Cluster-Dev
-    ARM_TEMPLATE: "{{ lookup('file', '../marketplace/mainTemplate.json') }}"
-    ARM_PARAMETERS: "{{ (lookup('file', '../marketplace/mainParameters.json') | from_json).parameters }}"
+    ARM_TEMPLATE: "{{ lookup('file', '../../../marketplace/mainTemplate.json') }}"
+    ARM_PARAMETERS: "{{ (lookup('file', '../../../marketplace/mainParameters.json') | from_json).parameters }}"
     
   tasks:
-  - name: Create a Resource Group for OCP Deployment
+  - name: Create a Resource Group
     azure.azcollection.azure_rm_resourcegroup:
       name: "{{ RESOURCE_GROUP_DEV }}"
       location: "{{ LOCATION }}"
