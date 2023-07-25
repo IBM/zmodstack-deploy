@@ -1,19 +1,32 @@
 ---
-- name: Fetch OpenShift logs from Bootstrap VM
+- name: Fetch OpenShift logs
   hosts: all
   gather_facts: no
   vars_files:
     - vars/extra_vars.yml
   tasks:
-  - name: Fetch OpenShift Install log
-    ansible.builtin.fetch:
+  - name: Copy OpenShift Install log to home directory in Bootstrap VM
+    ansible.builtin.copy:
       src: /mnt/openshift/openshiftfourx/.openshift_install.log
-      dest: "{{ logs_dir }}/openshift_install.log"
-      flat: yes
-  - name: Fetch Handler log
-    ansible.builtin.fetch:
+      dest: ~/openshift_install.log
+      remote_src: yes
+  - name: Copy Handler log to home directory in Bootstrap VM
+    ansible.builtin.copy:
       src: /var/log/azure/custom-script/handler.log
-      dest: "{{ logs_dir }}/handler.log"
+      dest: ~/handler.log
+      remote_src: yes    
+  - name: Create an archive of OpenShift Install log and Handler log in Bootstrap VM
+    community.general.archive:
+      path:
+      - ~/openshift_install.log
+      - ~/handler.log
+      dest: ~/openshift-logs.tar.bz2
+      format: bz2
+      remove: true
+  - name: Fetch log archive from Bootstrap VM to local system
+    ansible.builtin.fetch:
+      src: ~/openshift-logs.tar.bz2
+      dest: "{{ logs_dir }}/openshift-logs.tar.bz2"
       flat: yes
   - name: Prints folder in local system where logs are copied
     ansible.builtin.debug:
