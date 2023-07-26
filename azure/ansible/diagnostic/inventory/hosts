@@ -1,0 +1,6 @@
+[azure_vm]
+<PUBLIC_IP_ADDRESS>
+
+[azure_vm:vars] 
+ansible_ssh_user=<USERNAME>
+ansible_ssh_private_key_file=<RSA_PRIVATE_KEY_FILE_PATH>
