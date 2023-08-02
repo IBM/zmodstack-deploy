@@ -16,33 +16,44 @@ on:
 env:
   RESOURCE_GROUP_NAME: z-mod-stack-dev-rg
   RESOURCE_GROUP_LOCATION: eastus
-  ARM_TEMPLATE: azure/marketplace/mainTemplate.json
-  ARM_PARAMETERS: azure/marketplace/mainParameters.json
+  ARM_TEMPLATE_BICEP: ./azure/marketplace/mainTemplate.bicep
+  ARM_PARAMETERS: ./azure/marketplace/mainParameters.json
+  ARM_TEMPLATE_JSON: ./azure/marketplace/mainTemplate.json
+  WORK_DIR: ./azure/marketplace
+  DEPLOYMENT_NAME: OCP-Cluster-Dev
 
 jobs: 
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2 
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Create ARM Template in JSON from ARM Template in Bicep
+      uses: Azure/bicep-build-action@v1.0.1
+      with:
+        bicepFilePath: ${{ env.ARM_TEMPLATE_BICEP }}
+        outputFilePath: ${{ env.ARM_TEMPLATE_JSON }}
     - name: Run ARM-TTK
       uses: microsoft/action-armttk@v1
       with:
-        workdir: azure/marketplace/   
+        workdir: ${{ env.WORK_DIR }} 
     - name: 'AZ CLI login'
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: 'Create Resource Group'
+    - name: Create Resource Group
       uses: Azure/CLI@v1
       with:
         inlineScript: |
           #!/bin/bash
           az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location ${{ env.RESOURCE_GROUP_LOCATION }}
           echo "Azure Resource Group is created"    
-    - name: 'Deploy OCP Cluster'
+    - name: Deploy OCP Cluster
       uses: azure/arm-deploy@v1
       with:
+        scope: resourcegroup
+        region: ${{ env.RESOURCE_GROUP_LOCATION }}
         resourceGroupName: ${{ env.RESOURCE_GROUP_NAME }}
-        template: ${{ env.ARM_TEMPLATE }}
+        deploymentName: ${{ env.DEPLOYMENT_NAME }}
+        template: ${{ env.ARM_TEMPLATE_BICEP }}
         parameters: ${{ env.ARM_PARAMETERS }}
