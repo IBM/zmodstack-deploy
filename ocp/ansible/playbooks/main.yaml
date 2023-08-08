@@ -62,5 +62,5 @@
         # Dynamically INCLUDE ansible role
         - name: Include z/OS Dev Install role/task tagged for Red Hat Dev Spaces
           ansible.builtin.include_role:
-            name: "devspaces"
-          tags: "devspaces"
+            name: "wazi-devspaces"
+          tags: "wazi-devspaces"

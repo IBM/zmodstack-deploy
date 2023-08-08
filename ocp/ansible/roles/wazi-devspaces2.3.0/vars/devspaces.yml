@@ -1,0 +1,12 @@
+---
+# *************************************
+# RedHat DevSpaces Variables
+# *************************************
+devspaces:
+  name: "wazi-devspaces"
+  kind: "CheCluster"
+  apiVersion: "org.eclipse.che/v1"
+
+devspaces_subscription:
+  name: "wazi-devspaces"
+  apiVersion: "operators.coreos.com/v1alpha1"

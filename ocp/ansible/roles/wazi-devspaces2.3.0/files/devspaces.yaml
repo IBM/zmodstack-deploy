@@ -1,0 +1,46 @@
+---
+kind: CheCluster
+apiVersion: org.eclipse.che/v1
+metadata:
+  name: wazi-devspaces
+spec:
+  auth:
+    externalIdentityProvider: false
+    identityProviderAdminUserName: ''
+    identityProviderClientId: ''
+    identityProviderPassword: ''
+    identityProviderRealm: ''
+    identityProviderURL: ''
+    initialOpenShiftOAuthUser: false
+    oAuthClientName: ''
+    oAuthSecret: ''
+  database:
+    chePostgresDb: ''
+    chePostgresHostName: ''
+    chePostgresPassword: ''
+    chePostgresPort: ''
+    chePostgresUser: ''
+    externalDb: false
+  metrics:
+    enable: true
+  server:
+    allowUserDefinedWorkspaceNamespaces: false
+    cheClusterRoles: ''
+    cheFlavor: codeready
+    cheWorkspaceClusterRole: ''
+    gitSelfSignedCert: false
+    nonProxyHosts: ''
+    proxyPassword: ''
+    proxyPort: ''
+    proxyURL: ''
+    proxyUser: ''
+    serverExposureStrategy: ''
+    serverTrustStoreConfigMapName: ''
+    tlsSupport: true
+    workspaceNamespaceDefault: wazi-devspaces-<username>
+  storage:
+    postgresPVCStorageClassName: 'gp3-default'
+    preCreateSubPaths: true
+    pvcClaimSize: 10Gi
+    pvcStrategy: common
+    workspacePVCStorageClassName: 'gp3-default'

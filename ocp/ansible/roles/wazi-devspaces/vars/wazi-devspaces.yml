@@ -3,10 +3,10 @@
 # RedHat DevSpaces Variables
 # *************************************
 devspaces:
-  name: "devspaces"
-  kind: "devspaces"
+  name: "wazi-devspaces"
+  kind: "CheCluster"
   apiVersion: "org.eclipse.che/v2"
 
 devspaces_subscription:
-  name: "devspaces"
+  name: "ibm-wazi-code"
   apiVersion: "operators.coreos.com/v1alpha1"

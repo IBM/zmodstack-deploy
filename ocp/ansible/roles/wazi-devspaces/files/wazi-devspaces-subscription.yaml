@@ -2,11 +2,11 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: devspaces
+  name: ibm-wazi-code
 spec:
-  channel: stable
+  channel: v3.0
   installPlanApproval: Automatic
-  name: devspaces
-  source: redhat-operators
+  name: ibm-wazi-code
+  source: ibm-operator-catalog
   sourceNamespace: openshift-marketplace
-  startingCSV: devspacesoperator.v3.7.0
+  startingCSV: ibm-wazi-code.v3.0.0

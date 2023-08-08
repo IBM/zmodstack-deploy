@@ -22,6 +22,5 @@ spec:
     enabled: false
     pvc: "zoscloudbroker"
     size: "5Gi"
-    storageClassName: "gp3-default"
     volumeMode: "Filesystem"
     accessModes: "ReadWriteMany"

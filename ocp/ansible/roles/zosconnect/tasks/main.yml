@@ -1,5 +1,6 @@
 ---
 - include_vars: zosconnect.yml
+  tags: "zosconnect"
 # Create namespace for cloudbroker
 # tasks file for zosconnect
 - name: "Create project with Native YAML API"
@@ -8,6 +9,7 @@
     src: "files/project.yaml"
     wait: true
     wait_sleep: 50
+  tags: "zosconnect"
 
 - name: "Create Operator Group with Native YAML API"
   kubernetes.core.k8s:
@@ -17,6 +19,7 @@
     src: "files/operator-group.yaml"
     wait: true
     wait_sleep: 50
+  tags: "zosconnect"
 
 - name: "Create Z/os Connect Subscription with Native YAML API"
   kubernetes.core.k8s:
@@ -25,6 +28,7 @@
     src: "files/zosconnect-subscription.yaml"
     wait: true
     wait_sleep: 50
+  tags: "zosconnect"
 
 #install z/os connect in openshift-operators namespace to install by default on all namespaces
 - name: "Retrieve Z/os connect subscription info"
@@ -39,6 +43,7 @@
     - "'state' in zosconnect_subscription_info.resources[0].status and zosconnect_subscription_info.resources[0].status.state == 'AtLatestKnown'"
   retries: 30
   delay: 10
+  tags: "zosconnect"
 
 - name: "Verify zosconnect subscription: '{{ zosconnect_subscription.name }}'"
   ansible.builtin.assert:
@@ -48,6 +53,7 @@
       - zosconnect_subscription_info.resources[0].status.installplan.name != ""
       - zosconnect_subscription_info.resources[0].status.state == "AtLatestKnown"
       - zosconnect_subscription_info.resources[0].status.conditions[0].reason == "AllCatalogSourcesHealthy"
+  tags: "zosconnect"
 
 - name: "Create Z/os connect custom Resource Instance with Native YAML API"
   kubernetes.core.k8s:
@@ -56,6 +62,7 @@
     src: "files/zosconnect.yaml"
     wait: true
     wait_sleep: 100
+  tags: "zosconnect"
 
 # tasks to verify the installation
 - name: "Retrieve Z/os connect custom resource instance Info"
@@ -65,6 +72,8 @@
     name: "{{ zosconnect.name }}"
     api_version: "{{ zosconnect.apiVersion }}"
   register: zosconnect_info
+  tags: "zosconnect"
 
 - ansible.builtin.debug:
         var: zosconnect_info
+  tags: "zosconnect"

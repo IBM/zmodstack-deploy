@@ -1,0 +1,9 @@
+apiVersion: org.eclipse.che/v1
+kind: WaziLicense
+metadata:
+  creationTimestamp: '2023-06-01T08:55:29Z'
+  name: wazi-devspaces-license
+spec:
+  license:
+    accept: true
+    use: Wazi
