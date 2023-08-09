@@ -50,6 +50,7 @@
 - name: 50 second pause
   pause:
     seconds: 50
+  tags: "wazi-devspaces"
 
 - name: "Create RedHat DevSpaces che cluster with Native YAML API"
   kubernetes.core.k8s:
