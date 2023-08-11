@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.19.5.34762",
-      "templateHash": "3608844676683857460"
+      "version": "0.20.4.51522",
+      "templateHash": "4994110130645130329"
     }
   },
   "parameters": {
@@ -319,7 +319,7 @@
     {
       "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'new')]",
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2021-08-01",
+      "apiVersion": "2022-09-01",
       "name": "[parameters('virtualNetworkName')]",
       "location": "[parameters('location')]",
       "tags": {
@@ -373,7 +373,7 @@
     {
       "condition": "[equals(variables('publicBootstrapIP'), variables('vTrue'))]",
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2021-08-01",
+      "apiVersion": "2022-09-01",
       "name": "[variables('bootstrapPublicIpDnsLabelName')]",
       "location": "[parameters('location')]",
       "sku": {
@@ -394,7 +394,7 @@
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2021-08-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('{0}-nic', variables('bootstrapHostnameName'))]",
       "location": "[parameters('location')]",
       "tags": {
@@ -428,7 +428,7 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2021-08-01",
+      "apiVersion": "2022-09-01",
       "name": "[variables('bootstrapSecurityGroupName')]",
       "location": "[parameters('location')]",
       "tags": {
@@ -477,7 +477,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2021-11-01",
+      "apiVersion": "2022-11-01",
       "name": "[variables('bootstrapHostnameName')]",
       "location": "[parameters('location')]",
       "identity": {
@@ -540,7 +540,7 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2021-08-01",
+      "apiVersion": "2022-09-01",
       "name": "[variables('controlplaneSecurityGroupName')]",
       "location": "[parameters('location')]",
       "tags": {
@@ -570,7 +570,7 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2021-08-01",
+      "apiVersion": "2022-09-01",
       "name": "[variables('computeSecurityGroupName')]",
       "location": "[parameters('location')]",
       "tags": {
@@ -732,7 +732,7 @@
   "outputs": {
     "bootstrap_Public_IP": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('bootstrapPublicIpDnsLabelName')), '2021-08-01').ipAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('bootstrapPublicIpDnsLabelName')), '2022-09-01').ipAddress]"
     },
     "bootstrap_Username": {
       "type": "string",
