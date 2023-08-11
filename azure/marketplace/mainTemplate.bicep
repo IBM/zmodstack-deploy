@@ -182,7 +182,7 @@ var openshiftConsoleURL = uri('https://console-openshift-console.apps.${clusterN
 var roleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
 var roleDefinitionName = guid(managedId.id, roleDefinitionId, resourceGroup().id)
 
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-08-01' = if (virtualNetworkNewOrExisting == 'new') {
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-09-01' = if (virtualNetworkNewOrExisting == 'new') {
   name: virtualNetworkName
   location: location
   tags: {
@@ -229,7 +229,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-08-01' = if (vir
   }
 }
 
-resource bootstrapPublicIpDnsLabel 'Microsoft.Network/publicIPAddresses@2021-08-01' = if (publicBootstrapIP == vTrue) {
+resource bootstrapPublicIpDnsLabel 'Microsoft.Network/publicIPAddresses@2022-09-01' = if (publicBootstrapIP == vTrue) {
   name: bootstrapPublicIpDnsLabelName
   location: location
   sku: {
@@ -249,7 +249,7 @@ resource bootstrapPublicIpDnsLabel 'Microsoft.Network/publicIPAddresses@2021-08-
   }
 }
 
-resource bootstrapHostname_nic 'Microsoft.Network/networkInterfaces@2021-08-01' = {
+resource bootstrapHostname_nic 'Microsoft.Network/networkInterfaces@2022-09-01' = {
   name: '${bootstrapHostnameName}-nic'
   location: location
   tags: {
@@ -281,7 +281,7 @@ resource bootstrapHostname_nic 'Microsoft.Network/networkInterfaces@2021-08-01' 
   ]
 }
 
-resource bootstrapSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-08-01' = {
+resource bootstrapSecurityGroup 'Microsoft.Network/networkSecurityGroups@2022-09-01' = {
   name: bootstrapSecurityGroupName
   location: location
   tags: {
@@ -324,7 +324,7 @@ resource roleDefinition 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   }
 }
 
-resource bootstrapHostname 'Microsoft.Compute/virtualMachines@2021-11-01' = {
+resource bootstrapHostname 'Microsoft.Compute/virtualMachines@2022-11-01' = {
   name: bootstrapHostnameName
   location: location
   identity: {
@@ -382,7 +382,7 @@ resource bootstrapHostname 'Microsoft.Compute/virtualMachines@2021-11-01' = {
   }
 }
 
-resource controlplaneSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-08-01' = {
+resource controlplaneSecurityGroup 'Microsoft.Network/networkSecurityGroups@2022-09-01' = {
   name: controlplaneSecurityGroupName
   location: location
   tags: {
@@ -411,7 +411,7 @@ resource controlplaneSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021
   }
 }
 
-resource computeSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-08-01' = {
+resource computeSecurityGroup 'Microsoft.Network/networkSecurityGroups@2022-09-01' = {
   name: computeSecurityGroupName
   location: location
   tags: {
