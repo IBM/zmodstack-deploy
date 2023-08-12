@@ -5,6 +5,8 @@
   become: true
   vars_files:
     - vars/extra_vars.yml
+  vars:
+    - date_time_stamp: "{{ lookup('pipe', 'date +%Y%m%d-%H%M') }}"  
   tasks:
   - name: Copy OpenShift Install log to home directory in Bootstrap VM
     ansible.builtin.copy:
@@ -39,13 +41,13 @@
       - ~/bootstrap.sh
       - ~/stderr
       - ~/stdout
-      dest: ~/openshift-logs.tar.bz2
+      dest: "~/zmodstack-deploy-logs-{{ date_time_stamp }}.tar.bz2"
       format: bz2
       remove: true
   - name: Fetch log archive from Bootstrap VM to local system
     ansible.builtin.fetch:
-      src: ~/openshift-logs.tar.bz2
-      dest: "{{ logs_dir }}/openshift-logs.tar.bz2"
+      src: "~/zmodstack-deploy-logs-{{ date_time_stamp }}.tar.bz2"
+      dest: "{{ logs_dir }}/zmodstack-deploy-logs-{{ date_time_stamp }}.tar.bz2"
       flat: yes
   - name: Prints folder in local system where logs are copied
     ansible.builtin.debug:
