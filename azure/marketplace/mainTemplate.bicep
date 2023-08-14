@@ -550,6 +550,15 @@ resource clusterName_aadApplicationSecret 'Microsoft.KeyVault/vaults/secrets@202
   }
 }
 
+resource clusterName_bootstrapSshPublicKey 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  parent: cluster
+  name: 'bootstrapSshPublicKey'
+  properties: {
+    contentType: 'string'
+    value: bootstrapSshPublicKey
+  }
+}
+
 output bootstrap_Public_IP string = bootstrapPublicIpDnsLabel.properties.ipAddress
 output bootstrap_Username string = bootstrapAdminUsername
 output openshift_Console_URL string = openshiftConsoleURL

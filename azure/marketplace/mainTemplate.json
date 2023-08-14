@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.20.4.51522",
-      "templateHash": "4994110130645130329"
+      "templateHash": "3183504780956278253"
     }
   },
   "parameters": {
@@ -723,6 +723,18 @@
       "properties": {
         "contentType": "string",
         "value": "[parameters('aadApplicationSecret')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2022-07-01",
+      "name": "[format('{0}/{1}', parameters('clusterName'), 'bootstrapSshPublicKey')]",
+      "properties": {
+        "contentType": "string",
+        "value": "[parameters('bootstrapSshPublicKey')]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
