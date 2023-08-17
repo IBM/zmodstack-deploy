@@ -28,7 +28,7 @@
 
 7. Execute the Ansible playbook for capturing the logs
    ```
-   ansible-playbook -i ../inventory/hosts logs-capture.yml
+   ansible-playbook -i ../inventory/hosts must-gather.yml
    ```
 
 8. Logs will be copied to the local system directory given in step 5
