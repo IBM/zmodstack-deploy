@@ -15,7 +15,7 @@
   - name: Create a Resource Group
     azure.azcollection.azure_rm_resourcegroup:
       name: "{{ RESOURCE_GROUP_NAME }}"
-      location: "{{ LOCATION }}" 
+      location: "{{ LOCATION }}"
 
   - name: Create OCP Cluster
     azure.azcollection.azure_rm_deployment:
