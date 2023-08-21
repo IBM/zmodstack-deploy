@@ -6,3 +6,5 @@ collections:
     version: 6.3.0
   - name: community.okd
     version: 2.2.0
+  - name: containers.podman
+    version: 1.10.2

@@ -1,0 +1,27 @@
+schemaVersion: 2.1.0
+metadata:
+  name: "{{ api_project_name }}"
+attributes:
+  controller.devfile.io/storage-type: ephemeral
+projects:
+  - git:
+      checkoutFrom:
+        revision: main
+      remotes:
+        origin: '{{ source_code_repository }}.git'
+    name: "{{ api_project_name }}"
+components:
+    - name: zosconnect
+      container:
+        endpoints:
+          - exposure: public
+            name: zosconnect-ui
+            path: /zosConnect/designer/
+            protocol: http
+            targetPort: 9080
+        env:
+          - name: ZCON_DESIGNER_PROJECT
+            value: {{ project_workspace }}/CatalogManagerApi
+        image: 'icr.io/zosconnect/ibm-zcon-designer:{{ designer_image_version }}'
+        memoryLimit: 4927M
+        mountSources: true
