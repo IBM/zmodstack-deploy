@@ -9,11 +9,11 @@ To execute the playbooks, adhere to the instructions below:
 
 ** 2 ** clone the OCP repository using the following commands that will do sparse checkout.
 # Sparse checkout to clone ocp mono repo
-git clone --no-checkout https://github.com/IBM/zmodstack-deploy.git /home/ec2-user/zmodstack
+git clone --no-checkout https://github.com/IBM/zmodstack-deploy.git /home/ec2-user/zmodstack/
 cd /home/ec2-user/zmodstack && git sparse-checkout set ocp && git checkout @
 
 
 ## Step 2: To initiate the playbooks, utilize the subsequent commands in the given sequence.
 # Navigate into the OCP folder and Execute the following commands 
-ansible-galaxy collection install -r requirements.yml.
+ansible-galaxy collection install -r requirements.yml .
 ansible-playbook playbooks/main.yaml.
