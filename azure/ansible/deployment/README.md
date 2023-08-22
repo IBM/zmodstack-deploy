@@ -1,63 +1,46 @@
 # Ansible Playbook
 
-## Provision of OCP Cluster using Ansible Playbook
+## Provision an OCP Cluster using Ansible Playbook
 
-1. Install the dependencies.
+1. Clone the GitHub repository to local system
    ```
-   pip install 'ansible[azure]'
-   ansible-galaxy collection install azure.azcollection
-   pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
-   ```
+   git clone --branch <BRANCH_NAME> https://github.com/IBM/zmodstack-deploy.git
+   ``` 
 
-2. Login to Azure using CLI.
+1. Change directory to the `playbooks` folder
    ```
-   az login
-   ```
+   cd zmodstack-deploy/azure/ansible/deployment/playbooks
 
-3. Clone the GitHub repository https://github.ibm.com/IBM-Z-and-Cloud-Modernization-Stack/deploy.git to local system.
-4. Change directory to `azure/ansible`.
-   ```
-   cd azure/ansible
-   ```
+1. Update variables with respective values in `run-provision.yml`
+   1. RESOURCE_GROUP_NAME ---> Resource Group in which deployment will be initiated
+   1. LOCATION ---> Location where the Resources will be created
+   1. DEPLOYMENT_NAME ---> Unique name for the deployment
 
-5. Substitute the Ansible variables in `run-provision.yml` with appropriate values. 
-   https://github.ibm.com/IBM-Z-and-Cloud-Modernization-Stack/deploy/blob/dev/azure/ansible/run-provision.yml#L8-L11 
-    1. **RESOURCE_GROUP_DEV** ---> Name of the Resource Group for BootStrap and Virtual Network resources
-    1. **DEPLOYMENT_NAME** ---> Name of the Deployment 
-    1. **ARM_TEMPLATE** ---> Path of the ARM Template file in GitHub repository
-    1. **ARM_PARAMETERS** ---> Path of the ARM Parameters file in GitHub repository
-
-6. Execute the Ansible playbook for provisioning.
+1. Execute the Ansible Playbook for provisioning resources
    ```
-   ansible-playbook run-provision.yml --extra-vars LOCATION=eastus
+   ansible-playbook run-provision.yml
    ```
 
-## Deprovision of OCP Cluster using Ansible Playbook    
+## Deprovision an OCP Cluster using Ansible Playbook
 
-1. Install the dependencies.
+1. Clone the GitHub repository to local system
    ```
-   pip install 'ansible[azure]'
-   ansible-galaxy collection install azure.azcollection
-   pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
-   ```
+   git clone --branch <BRANCH_NAME> https://github.com/IBM/zmodstack-deploy.git
+   ``` 
 
-2. Login to Azure using CLI. 
+1. Change directory to the `playbooks` folder
    ```
-   az login
+   cd zmodstack-deploy/azure/ansible/deployment/playbooks
    ```
+   
+1. Update variables with respective values in `run-deprovision.yml`
+   1. RESOURCE_GROUP_DNS ---> Resource Group where the DNS Zone is created
+   1. DNS_ZONE ---> Name of the DNS Zone
+   1. CLUSTER_NAME ---> Name of the OCP Cluster
+   1. CLUSTER_RESOURCE_GROUP_NAME ---> Resource Group in which OCP Cluster resources are created
+   1. RESOURCE_GROUP_NAME ---> Resource Group in which Bootstrap resources are created
 
-3. Clone the GitHub repository https://github.ibm.com/IBM-Z-and-Cloud-Modernization-Stack/deploy.git to local system.
-4. Change directory to `azure/ansible`.
-   ```
-   cd azure/ansible
-   ```
-
-5. Substitute the Ansible variables in `run-deprovision.yml` with appropriate values. 
-   https://github.ibm.com/IBM-Z-and-Cloud-Modernization-Stack/deploy/blob/dev/azure/ansible/run-deprovision.yml#L8-L9  
-    1. **CLUSTER_RESOURCE_GROUP** ---> Name of the Resource Group for Controlplane and Compute resources 
-    1. **BOOTSTRAP_RESOURCE_GROUP** ---> Name of the Resource Group for Bootstrap and Virtual Network resources 
-
-6. Execute the Ansible playbook for deprovisioning.
+1. Execute the Ansible Playbook for deprovisioning resources
    ```
    ansible-playbook run-deprovision.yml
    ```

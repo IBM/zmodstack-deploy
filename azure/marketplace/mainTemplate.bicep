@@ -166,7 +166,7 @@ var privateOrPublicEndpoints = 'public'
 var vTrue = true
 var bootstrapPublicIpDnsLabelName = 'bootstrapdns${uniqueString(resourceGroup().id)}'
 var sshKeyPath = '/home/${bootstrapAdminUsername}/.ssh/authorized_keys'
-var bootstrapScriptUrl = 'https://raw.githubusercontent.com/IBM/zmodstack-deploy/main/azure/scripts/bash/bootstrap.sh'
+var bootstrapScriptUrl = 'https://raw.githubusercontent.com/IBM/zmodstack-deploy/dev/azure/scripts/bash/bootstrap.sh'
 var bootstrapScriptFileName = 'bootstrap.sh'
 var subscriptionId = subscription().subscriptionId
 var tenantId = subscription().tenantId
@@ -547,6 +547,15 @@ resource clusterName_aadApplicationSecret 'Microsoft.KeyVault/vaults/secrets@202
   properties: {
     contentType: 'string'
     value: aadApplicationSecret
+  }
+}
+
+resource clusterName_bootstrapSshPublicKey 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  parent: cluster
+  name: 'bootstrapSshPublicKey'
+  properties: {
+    contentType: 'string'
+    value: bootstrapSshPublicKey
   }
 }
 

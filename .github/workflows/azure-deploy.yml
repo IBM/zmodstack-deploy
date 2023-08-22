@@ -14,14 +14,11 @@ on:
       - 'azure/**'
 
 env:
-  RESOURCE_GROUP_NAME: z-mod-stack-dev-rg
-  RESOURCE_GROUP_LOCATION: eastus
   ARM_TEMPLATE_BICEP: ./azure/marketplace/mainTemplate.bicep
-  ARM_PARAMETERS: ./azure/marketplace/mainParameters.json
-  ARM_TEMPLATE_JSON_EXISTING: ./azure/marketplace/mainTemplate.json
-  ARM_TEMPLATE_JSON_NEW: ./azure/marketplace/mainTemplateNew.json
+  ARM_TEMPLATE_JSON: ./azure/marketplace/mainTemplate.json
+  ARM_TEMPLATE_BICEP_TO_JSON: ./azure/marketplace/mainTemplateBicepToJson.json
   WORK_DIR: ./azure/marketplace
-  DEPLOYMENT_NAME: OCP-Cluster-Dev
+  ANSIBLE_PLAYBOOK: ./azure/ansible/deployment/playbooks/run-provision.yml
 
 jobs: 
   deploy:
@@ -33,9 +30,9 @@ jobs:
       uses: Azure/bicep-build-action@v1.0.1
       with:
         bicepFilePath: ${{ env.ARM_TEMPLATE_BICEP }}
-        outputFilePath: ${{ env.ARM_TEMPLATE_JSON_NEW }} 
+        outputFilePath: ${{ env.ARM_TEMPLATE_BICEP_TO_JSON }} 
     - name: Check mainTemplate.json is Latest
-      run: diff ${{ env.ARM_TEMPLATE_JSON_EXISTING }} ${{ env.ARM_TEMPLATE_JSON_NEW }}
+      run: diff ${{ env.ARM_TEMPLATE_JSON }} ${{ env.ARM_TEMPLATE_BICEP_TO_JSON }}
       shell: bash
       continue-on-error: true  
     - name: Run ARM-TTK
@@ -46,19 +43,10 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: Create Resource Group
-      uses: Azure/CLI@v1
-      with:
-        inlineScript: |
-          #!/bin/bash
-          az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location ${{ env.RESOURCE_GROUP_LOCATION }}
-          echo "Azure Resource Group is created"    
-    - name: Deploy OCP Cluster
-      uses: azure/arm-deploy@v1
-      with:
-        scope: resourcegroup
-        region: ${{ env.RESOURCE_GROUP_LOCATION }}
-        resourceGroupName: ${{ env.RESOURCE_GROUP_NAME }}
-        deploymentName: ${{ env.DEPLOYMENT_NAME }}
-        template: ${{ env.ARM_TEMPLATE_BICEP }}
-        parameters: ${{ env.ARM_PARAMETERS }}
+    - name: Ansible Playbook Runner
+      run: |
+        ansible-galaxy collection install azure.azcollection --force
+        pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
+        pip install 'ansible[azure]'
+        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK }}
+      shell: bash

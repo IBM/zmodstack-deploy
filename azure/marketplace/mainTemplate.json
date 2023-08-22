@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.20.4.51522",
-      "templateHash": "4994110130645130329"
+      "templateHash": "3183504780956278253"
     }
   },
   "parameters": {
@@ -299,7 +299,7 @@
     "vTrue": true,
     "bootstrapPublicIpDnsLabelName": "[format('bootstrapdns{0}', uniqueString(resourceGroup().id))]",
     "sshKeyPath": "[format('/home/{0}/.ssh/authorized_keys', parameters('bootstrapAdminUsername'))]",
-    "bootstrapScriptUrl": "https://raw.githubusercontent.com/IBM/zmodstack-deploy/main/azure/scripts/bash/bootstrap.sh",
+    "bootstrapScriptUrl": "https://raw.githubusercontent.com/IBM/zmodstack-deploy/dev/azure/scripts/bash/bootstrap.sh",
     "bootstrapScriptFileName": "bootstrap.sh",
     "subscriptionId": "[subscription().subscriptionId]",
     "tenantId": "[subscription().tenantId]",
@@ -723,6 +723,18 @@
       "properties": {
         "contentType": "string",
         "value": "[parameters('aadApplicationSecret')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2022-07-01",
+      "name": "[format('{0}/{1}', parameters('clusterName'), 'bootstrapSshPublicKey')]",
+      "properties": {
+        "contentType": "string",
+        "value": "[parameters('bootstrapSshPublicKey')]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
