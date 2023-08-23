@@ -13,26 +13,31 @@
       src: /mnt/openshift/openshiftfourx/.openshift_install.log
       dest: ~/openshift_install.log
       remote_src: yes
+    ignore_errors: true   
   - name: Copy Handler log to home directory in Bootstrap VM
     ansible.builtin.copy:
       src: /var/log/azure/custom-script/handler.log
       dest: ~/handler.log
       remote_src: yes
+    ignore_errors: true   
   - name: Copy Bootstrap script to home directory in Bootstrap VM
     ansible.builtin.copy:
       src: /var/lib/waagent/custom-script/download/0/bootstrap.sh
       dest: ~/bootstrap.sh
       remote_src: yes
+    ignore_errors: true  
   - name: Copy stderr log to home directory in Bootstrap VM
     ansible.builtin.copy:
       src: /var/lib/waagent/custom-script/download/0/stderr
       dest: ~/stderr
       remote_src: yes
+    ignore_errors: true   
   - name: Copy stdout log to home directory in Bootstrap VM
     ansible.builtin.copy:
       src: /var/lib/waagent/custom-script/download/0/stdout
       dest: ~/stdout
-      remote_src: yes                   
+      remote_src: yes
+    ignore_errors: true                      
   - name: Create an archive of the logs captured in Bootstrap VM
     community.general.archive:
       path:
