@@ -2,7 +2,6 @@
 - name: Fetch OpenShift Logs
   hosts: all
   gather_facts: no
-  become: true
   vars_files:
     - vars/extra_vars.yml
   vars:
@@ -23,20 +22,23 @@
   - name: Copy Bootstrap script to home directory in Bootstrap VM
     ansible.builtin.copy:
       src: /var/lib/waagent/custom-script/download/0/bootstrap.sh
-      dest: ~/bootstrap.sh
+      dest: "/home/{{ ansible_ssh_user }}/bootstrap.sh"
       remote_src: yes
+    become: true  
     ignore_errors: true  
   - name: Copy stderr log to home directory in Bootstrap VM
     ansible.builtin.copy:
       src: /var/lib/waagent/custom-script/download/0/stderr
-      dest: ~/stderr
+      dest: "/home/{{ ansible_ssh_user }}/stderr"
       remote_src: yes
+    become: true
     ignore_errors: true   
   - name: Copy stdout log to home directory in Bootstrap VM
     ansible.builtin.copy:
       src: /var/lib/waagent/custom-script/download/0/stdout
-      dest: ~/stdout
+      dest: "/home/{{ ansible_ssh_user }}/stdout"
       remote_src: yes
+    become: true
     ignore_errors: true                      
   - name: Create an archive of the logs captured in Bootstrap VM
     community.general.archive:

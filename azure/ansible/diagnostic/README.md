@@ -14,12 +14,16 @@
 
 3. Update `hosts` file with BootStrap VM IP address, SSH Username and RSA Private Key path
 
+   <img width="672" alt="Screenshot 2023-08-24 at 8 21 34 PM" src="https://github.com/IBM/zmodstack-deploy/assets/50948780/6621bf32-d58e-4a09-8475-1737c72fd2fe">
+
 4. Change directory to the `vars` folder
    ```
    cd zmodstack-deploy/azure/ansible/diagnostic/playbooks/vars
    ```
 
 5. Update `extra_vars.yml` file with the local system directory to capture the logs
+   
+   <img width="569" alt="Screenshot 2023-08-24 at 8 22 31 PM" src="https://github.com/IBM/zmodstack-deploy/assets/50948780/b673de4f-f962-478c-a1c7-f34cbaf389e5">
 
 6. Change directory to the `playbooks` folder
    ```
