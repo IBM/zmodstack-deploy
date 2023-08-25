@@ -3,9 +3,10 @@
   hosts: all
   gather_facts: true
   vars:
-    - date_time_stamp: "{{ lookup('pipe', 'date +%Y%m%d%H%M') }}"
-    - dir_mg: "~/zmodstack/must-gather"
-    - dir_mgts: "{{ dir_mg }}/{{ date_time_stamp }}"
+    - timestamp: "{{ ansible_date_time.epoch }}"
+    # NOTE: Using ~ will cause steps that use 'become: true' to attempt to write to the root home dir
+    - dir_mg: "/home/{{ ansible_user }}/zmodstack/must-gather"
+    - dir_mgts: "{{ dir_mg }}/{{ ansible_date_time.epoch }}"
     - dir_out: ~/Downloads
   tasks:
     - name: "Create must-gather directory: {{ dir_mgts }}"
@@ -40,13 +41,13 @@
       community.general.archive:
         path:
           - "{{ dir_mgts }}/*"
-        dest: "{{ dir_mgts }}/zmodstack-{{ date_time_stamp }}.tar.bz2"
+        dest: "{{ dir_mgts }}/zmodstack-{{ timestamp }}.tar.bz2"
         format: bz2
         mode: "400"
     - name: Fetch log archive from Bootstrap VM to local system
       ansible.builtin.fetch:
-        src: "{{ dir_mgts }}/zmodstack-{{ date_time_stamp }}.tar.bz2"
-        dest: "{{ dir_out }}/zmodstack-deploy-logs-{{ date_time_stamp }}.tar.bz2"
+        src: "{{ dir_mgts }}/zmodstack-{{ timestamp }}.tar.bz2"
+        dest: "{{ dir_out }}/zmodstack-deploy-logs-{{ timestamp }}.tar.bz2"
         flat: true
       when: remote_host
     - name: Prints folder in local system where logs are copied

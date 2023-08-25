@@ -25,17 +25,14 @@ Running the ansible playbook from your local machine will connect your machine t
    cd zmodstack-deploy/azure/ansible/diagnostic
    ``` 
 
-2. Update `local.yml` file with the Azure Bootstrap VM IP address, SSH username and (optionally) RSA private key path
+2. Update `inventory/local.yml` file with the Azure Bootstrap VM IP address, SSH username and (optionally) RSA private key path, for example:
    ```yaml
    all:
      hosts:
        azure_vm:
          remote_host: true
-         # IP Address or Hostname
          ansible_host: 1.2.3.4
          ansible_user: vmadmin
-         # Uncomment and supply value if default SSH key is not configured for the ansible_host
-         # ansible_ssh_private_key_file: <path/to/local/ssh_key>
    ```
 
 3. Execute the Ansible playbook for collecting the must-gather data
@@ -43,7 +40,7 @@ Running the ansible playbook from your local machine will connect your machine t
    **Note**: Override variables as necessary, see [variable overrides](#variable-overrides).
 
    ```
-   ansible-playbook -i inventory/remote.yml must-gather.yml
+   ansible-playbook -i inventory/local.yml playbooks/must-gather.yml
    ```
 
 After following these steps, an archive file will be created in the specified `dir_out` directory, `~/Downloads` by default.
