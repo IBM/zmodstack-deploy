@@ -1,0 +1,7 @@
+all:
+  hosts:
+    azure_vm:
+      remote_host: false
+      ansible_host: localhost
+      ansible_user: "{{ lookup('env', 'USER') }}"
+      connection: local

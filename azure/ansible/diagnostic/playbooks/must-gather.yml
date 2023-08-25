@@ -1,61 +1,56 @@
 ---
-- name: Fetch OpenShift Logs
+- name: Gather IBM Z and Cloud Modernization Stack deployment logs
   hosts: all
-  gather_facts: no
-  vars_files:
-    - vars/extra_vars.yml
+  gather_facts: true
   vars:
-    - date_time_stamp: "{{ lookup('pipe', 'date +%Y%m%d-%H%M') }}"  
+    - date_time_stamp: "{{ lookup('pipe', 'date +%Y%m%d%H%M') }}"
+    - dir_mg: "~/zmodstack/must-gather"
+    - dir_mgts: "{{ dir_mg }}/{{ date_time_stamp }}"
+    - dir_out: ~/Downloads
   tasks:
-  - name: Copy OpenShift Install log to home directory in Bootstrap VM
-    ansible.builtin.copy:
-      src: /mnt/openshift/openshiftfourx/.openshift_install.log
-      dest: ~/openshift_install.log
-      remote_src: yes
-    ignore_errors: true   
-  - name: Copy Handler log to home directory in Bootstrap VM
-    ansible.builtin.copy:
-      src: /var/log/azure/custom-script/handler.log
-      dest: ~/handler.log
-      remote_src: yes
-    ignore_errors: true   
-  - name: Copy Bootstrap script to home directory in Bootstrap VM
-    ansible.builtin.copy:
-      src: /var/lib/waagent/custom-script/download/0/bootstrap.sh
-      dest: "/home/{{ ansible_ssh_user }}/bootstrap.sh"
-      remote_src: yes
-    become: true  
-    ignore_errors: true  
-  - name: Copy stderr log to home directory in Bootstrap VM
-    ansible.builtin.copy:
-      src: /var/lib/waagent/custom-script/download/0/stderr
-      dest: "/home/{{ ansible_ssh_user }}/stderr"
-      remote_src: yes
-    become: true
-    ignore_errors: true   
-  - name: Copy stdout log to home directory in Bootstrap VM
-    ansible.builtin.copy:
-      src: /var/lib/waagent/custom-script/download/0/stdout
-      dest: "/home/{{ ansible_ssh_user }}/stdout"
-      remote_src: yes
-    become: true
-    ignore_errors: true                      
-  - name: Create an archive of the logs captured in Bootstrap VM
-    community.general.archive:
-      path:
-      - ~/openshift_install.log
-      - ~/handler.log
-      - ~/bootstrap.sh
-      - ~/stderr
-      - ~/stdout
-      dest: "~/zmodstack-deploy-logs-{{ date_time_stamp }}.tar.bz2"
-      format: bz2
-      remove: true
-  - name: Fetch log archive from Bootstrap VM to local system
-    ansible.builtin.fetch:
-      src: "~/zmodstack-deploy-logs-{{ date_time_stamp }}.tar.bz2"
-      dest: "{{ logs_dir }}/zmodstack-deploy-logs-{{ date_time_stamp }}.tar.bz2"
-      flat: yes
-  - name: Prints folder in local system where logs are copied
-    ansible.builtin.debug:
-      msg: "Logs are copied in {{ logs_dir }}. Logs may contain sensitive information, so please check and remove those before sending across."
+    - name: "Create must-gather directory: {{ dir_mgts }}"
+      ansible.builtin.file:
+        path: "{{ dir_mgts }}"
+        state: directory
+        mode: '750'
+    - name: Gather OpenShift install log
+      ansible.builtin.copy:
+        src: /mnt/openshift/openshiftfourx/.openshift_install.log
+        dest: "{{ dir_mgts }}/openshift_install.log"
+        remote_src: "{{ remote_host }}"
+        mode: '400'
+      ignore_errors: true
+    - name: Gather bootstrap script handler log
+      ansible.builtin.copy:
+        src: /var/log/azure/custom-script/handler.log
+        dest: "{{ dir_mgts }}/handler.log"
+        remote_src: "{{ remote_host }}"
+        mode: "400"
+      ignore_errors: true
+    - name: Gather bootstrap script files
+      ansible.builtin.copy:
+        src: "/var/lib/waagent/custom-script/download/0/"
+        dest: "{{ dir_mgts }}/."
+        remote_src: "{{ remote_host }}"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "750"
+      become: true
+    - name: Create an archive of the logs captured in Bootstrap VM
+      community.general.archive:
+        path:
+          - "{{ dir_mgts }}/*"
+        dest: "{{ dir_mgts }}/zmodstack-{{ date_time_stamp }}.tar.bz2"
+        format: bz2
+        mode: "400"
+    - name: Fetch log archive from Bootstrap VM to local system
+      ansible.builtin.fetch:
+        src: "{{ dir_mgts }}/zmodstack-{{ date_time_stamp }}.tar.bz2"
+        dest: "{{ dir_out }}/zmodstack-deploy-logs-{{ date_time_stamp }}.tar.bz2"
+        flat: true
+      when: remote_host
+    - name: Prints folder in local system where logs are copied
+      ansible.builtin.debug:
+        msg: >-
+          IBM Z and Cloud Modernization Stack must-gather data has been copied to {{ dir_out }}.
+          Logs may contain sensitive information, limit access and sanitize data as necessary.

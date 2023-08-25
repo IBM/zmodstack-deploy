@@ -1,0 +1,8 @@
+all:
+  hosts:
+    azure_vm:
+      remote_host: true
+      ansible_host: <hostname or ip address of azure VM>
+      ansible_user: <admin username set during deployment>
+      # Uncomment and supply value if default SSH key is not configured for the ansible_host
+      # ansible_ssh_private_key_file: <path/to/local/ssh_key>
