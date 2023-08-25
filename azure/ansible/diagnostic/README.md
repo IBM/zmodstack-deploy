@@ -32,12 +32,10 @@ Running the ansible playbook from your local machine will connect your machine t
        azure_vm:
          remote_host: true
          ansible_host: 1.2.3.4
-         ansible_user: vmadmin
+         ansible_user: azuser
    ```
 
 3. Execute the Ansible playbook for collecting the must-gather data
-   
-   **Note**: Override variables as necessary, see [variable overrides](#variable-overrides).
 
    ```
    ansible-playbook -i inventory/local.yml playbooks/must-gather.yml
@@ -46,3 +44,18 @@ Running the ansible playbook from your local machine will connect your machine t
 After following these steps, an archive file will be created in the specified `dir_out` directory, `~/Downloads` by default.
 
 ## Run from Azure Bootstrap VM
+Running the ansible playbook from the Azure Bootstrap VM will copy files locally on the VM, and create an archive with all relevant data. The archive file must be manually retrieved from the Azure VM for distribution.
+  
+1. Clone the GitHub repository to local system and navigate to this folder
+   ```bash
+   git clone https://github.com/IBM/zmodstack-deploy.git
+   cd zmodstack-deploy/azure/ansible/diagnostic
+   ``` 
+
+2. Execute the Ansible playbook for collecting the must-gather data
+
+   ```
+   ansible-playbook -i inventory/bootstrap.yml playbooks/must-gather.yml
+   ```
+
+After following these steps, an archive file will be created in the specified `dir_out` directory, `~/Downloads` by default.
