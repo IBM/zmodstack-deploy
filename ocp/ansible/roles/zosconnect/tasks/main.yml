@@ -68,10 +68,12 @@
   tags: "zosconnect"
 
 # clone zosconnect server image
-- name: Pull ZosConnect designer Docker image
+- name: Pull ZosConnect server Docker image
   containers.podman.podman_image:
     name: 'cp.icr.io/cp/zosconnect/ibm-zcon-server:{{ server_image_version }}'
     tag: '{{ server_image_version }}'
+    username: "{{ registry_username }}"
+    password: "{{ apikey }}"
     pull: True 
   tags: "zosconnect"
   

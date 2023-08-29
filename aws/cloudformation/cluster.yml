@@ -385,6 +385,13 @@ Resources:
       Type: String
       Value: !Sub "https://console-openshift-console.apps.${ClusterName}.${DomainName}"
 
+  WaziDevspacesURL:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "${AWS::StackName}-WaziDevspacesURL"
+      Type: String
+      Value: !Sub "https://eclipse-che.apps.${ClusterName}.${DomainName}"
+
   BootnodeInstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
     Properties:
@@ -547,7 +554,8 @@ Resources:
             echo "computenode_instance_type=\"${ComputeInstanceType}\"" >> terraform.tfvars
             echo "computenode_replica_count=${NumberOfCompute}" >> terraform.tfvars
             echo "enable_permission_quota_check=\"false\"" >> terraform.tfvars
-
+            echo "apikey: \"${APIKey}\"" >> /home/ec2-user/zmodstack/ocp/ansible/roles/zosconnect/vars/zosconnect.yml
+            
             export TF_LOG=DEBUG
             export TF_LOG_PATH=/home/ec2-user/zmodstack/aws/terraform/tf-trace.log
             terraform init -input=false
@@ -564,6 +572,17 @@ Resources:
             export KUBECONFIG=$KUBECONFIG:/home/ec2-user/.kube/config
             echo 'export KUBECONFIG=$KUBECONFIG:/home/ec2-user/.kube/config' >> ~/.bash_profile
             chown -R ec2-user:ec2-user /home/ec2-user/.kube
+
+            #initiate ansible-playbooks to install z-mod-stack
+            JSON_STRING=$(jq -n \
+                  --arg zoscb ${ZosCloudBroker} \
+                  --arg zosconnect ${ZosConnect} \
+                  --arg wazidevspaces ${WaziDevspaces} \
+                  --arg wazidevspacesversion ${WaziDevspacesVersion} \
+                  '{ zoscb: $zoscb, zosconnect: $zosconnect, wazidevspaces: $wazidevspaces, wazidevspacesversion: $wazidevspacesversion }')
+            printf '%s\n' "$JSON_STRING" > /home/ec2-user/zmodstack/ocp/ansible/extravars.json
+            ansible-galaxy collection install -r /home/ec2-user/zmodstack/ocp/ansible/requirements.yml
+            cd /home/ec2-user/zmodstack/ocp/ansible && ansible-playbook playbooks/main.yaml --extra-vars "@extravars.json" 
 
             # Copy values logs to S3
             aws s3 cp /var/log/cloud-init-output.log s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_cloud-init-output.log
@@ -678,3 +697,7 @@ Outputs:
   OpenshiftPassword:
     Description: OpenShift password secret.
     Value: !Ref OpenshiftSecret
+
+  WaziDevspacesConsole:
+    Description: The URL for the Wazi Devspaces UI.
+    Value: !GetAtt WaziDevspacesURL.Value

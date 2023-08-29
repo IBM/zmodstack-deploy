@@ -29,3 +29,6 @@ zosconnect:
 zosconnect_subscription:
   name: "ibm-zcon-zosconnect"
   apiVersion: "operators.coreos.com/v1alpha1"
+
+# Credentials for external icr repository 
+registry_username: cp

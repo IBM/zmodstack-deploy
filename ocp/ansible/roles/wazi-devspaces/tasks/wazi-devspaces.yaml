@@ -4,11 +4,23 @@
 - include_vars: wazi-devspaces.yml
   tags: "wazi-devspaces"
 
+- name: Create ansible-workspace directory 
+  ansible.builtin.file:
+    path: "{{ ansible_workspace }}/generated_yamls"
+    state: directory
+  tags: "wazi-devspaces"
+
+- name: Create subscription.yaml
+  ansible.builtin.template:
+    src: files/wazi-devspaces-subscription.yaml.j2
+    dest: "{{ ansible_workspace }}/generated_yamls/wazi-devspaces-subscription.yaml"
+  tags: "wazi-devspaces"
+
 - name: "Create RedHat DevSpaces Subscription with Native YAML API"
   kubernetes.core.k8s:
     state: present
     namespace: "openshift-operators"
-    src: "files/wazi-devspaces-subscription.yaml"
+    src: "{{ ansible_workspace }}/generated_yamls/wazi-devspaces-subscription.yaml"
     wait: true
     wait_sleep: 100
   tags: "wazi-devspaces"
@@ -38,11 +50,17 @@
       - devspaces_subscription_info.resources[0].status.conditions[0].reason == "AllCatalogSourcesHealthy"
   tags: "wazi-devspaces"
 
+- name: Create license.yaml
+  ansible.builtin.template:
+    src: files/wazi-license.yaml.j2
+    dest: "{{ ansible_workspace }}/generated_yamls/wazi-license.yaml"
+  tags: "wazi-devspaces"
+
 - name: "Accept wazi DevSpaces License with Native YAML API"
   kubernetes.core.k8s:
     state: present
     namespace: "openshift-operators"
-    src: "files/wazi-license.yaml"
+    src: "{{ ansible_workspace }}/generated_yamls/wazi-license.yaml"
     wait: true
     wait_sleep: 2000
   tags: "wazi-devspaces"

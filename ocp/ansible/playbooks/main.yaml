@@ -10,6 +10,7 @@
     - ibm.ibm_zos_core
   vars:
     ansible_python_interpreter: /usr/bin/python3
+  
   gather_facts: false
 
   tasks:
@@ -39,6 +40,7 @@
         - name: Include z/OS Dev Install role/task tagged for z/OS Cloud Broker
           ansible.builtin.include_role:
             name: "zoscb"
+          when: zoscb == "true"
           tags: "zoscb"
 
         # ****************************************************************************************************************************
@@ -51,6 +53,7 @@
         - name: Include z/OS Dev Install role/task tagged for z/OS Connect
           ansible.builtin.include_role:
             name: "zosconnect"
+          when: zosconnect == "true"
           tags: "zosconnect"
 
         # ****************************************************************************************************************************
@@ -63,4 +66,6 @@
         - name: Include z/OS Dev Install role/task tagged for Red Hat Dev Spaces
           ansible.builtin.include_role:
             name: "wazi-devspaces"
+            tasks_from: "{{ 'wazi-devspaces.yaml' if wazidevspacesversion== '3.0.0' else 'devspaces.yaml' }}"
+          when: wazidevspaces == "true"
           tags: "wazi-devspaces"

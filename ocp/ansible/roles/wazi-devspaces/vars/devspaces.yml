@@ -6,15 +6,15 @@ ansible_workspace: "/home/ec2-user/zmodstack/ansible-workspace"
 devspaces:
   name: "wazi-devspaces"
   kind: "CheCluster"
-  apiVersion: "org.eclipse.che/v2"
+  apiVersion: "org.eclipse.che/v1"
 
 devspaces_subscription:
-  name: "ibm-wazi-code"
+  name: "wazi-devspaces"
   apiVersion: "operators.coreos.com/v1alpha1"
   spec:
-    channel: v3.0
-    name: "ibm-wazi-code"
-    startingCSV: "ibm-wazi-code.v3.0.0"
+    channel: v2.3
+    name: ibm-wazi-developer-for-workspaces
+    startingCSV: ibm-wazi-for-devspaces.v2.3.0
 
 devspaces_license:
   apiVersion: "org.eclipse.che/v1"
