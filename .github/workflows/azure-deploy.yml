@@ -2,42 +2,51 @@ name: Azure Deployment
 
 on:
   push:
-    branches:
-      - dev
     paths:
       - '.github/workflows/azure-deploy.yml'
       - 'azure/**' 
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths:
+      - '.github/workflows/azure-deploy.yml'
+      - 'azure/**'
 
 env:
-  RESOURCE_GROUP_NAME: z-mod-stack-dev-rg
-  RESOURCE_GROUP_LOCATION: eastus
-  ARM_TEMPLATE: azure/marketplace/mainTemplate.json
-  ARM_PARAMETERS: azure/marketplace/mainParameters.json
+  ARM_TEMPLATE_BICEP: ./azure/marketplace/mainTemplate.bicep
+  ARM_TEMPLATE_JSON: ./azure/marketplace/mainTemplate.json
+  ARM_TEMPLATE_BICEP_TO_JSON: ./azure/marketplace/mainTemplateBicepToJson.json
+  WORK_DIR: ./azure/marketplace
+  ANSIBLE_PLAYBOOK: ./azure/ansible/deployment/playbooks/run-provision.yml
 
 jobs: 
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2 
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Create ARM Template in JSON from ARM Template in Bicep
+      uses: Azure/bicep-build-action@v1.0.1
+      with:
+        bicepFilePath: ${{ env.ARM_TEMPLATE_BICEP }}
+        outputFilePath: ${{ env.ARM_TEMPLATE_BICEP_TO_JSON }} 
+    - name: Check mainTemplate.json is Latest
+      run: diff ${{ env.ARM_TEMPLATE_JSON }} ${{ env.ARM_TEMPLATE_BICEP_TO_JSON }}
+      shell: bash
+      continue-on-error: true  
     - name: Run ARM-TTK
       uses: microsoft/action-armttk@v1
       with:
-        workdir: azure/marketplace/   
+        workdir: ${{ env.WORK_DIR }} 
     - name: 'AZ CLI login'
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: 'Create Resource Group'
-      uses: Azure/CLI@v1
-      with:
-        inlineScript: |
-          #!/bin/bash
-          az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location ${{ env.RESOURCE_GROUP_LOCATION }}
-          echo "Azure Resource Group is created"    
-    - name: 'Deploy OCP Cluster'
-      uses: azure/arm-deploy@v1
-      with:
-        resourceGroupName: ${{ env.RESOURCE_GROUP_NAME }}
-        template: ${{ env.ARM_TEMPLATE }}
-        parameters: ${{ env.ARM_PARAMETERS }}
+    - name: Ansible Playbook Runner
+      run: |
+        ansible-galaxy collection install azure.azcollection --force
+        pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
+        pip install 'ansible[azure]'
+        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK }}
+      shell: bash

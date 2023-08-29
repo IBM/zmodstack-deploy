@@ -13,7 +13,7 @@
         "keyVault": {
           "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
         },
-        "secretName": "aadClientSecret"
+        "secretName": "aadApplicationSecret"
       }
     },
     "bootstrapAdminUsername": {
@@ -27,7 +27,7 @@
         "keyVault": {
           "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
         },
-        "secretName": "sshPublicKey"
+        "secretName": "bootstrapSshPublicKey"
       }
     },
     "controlplaneInstanceCount": {

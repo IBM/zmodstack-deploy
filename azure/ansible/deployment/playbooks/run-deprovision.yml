@@ -1,0 +1,41 @@
+---
+- name: Destroy Azure Resources
+  hosts: localhost
+  collections:
+  - azure.azcollection
+  
+  vars:
+    RESOURCE_GROUP_DNS: z-mod-stack-rg
+    DNS_ZONE: ibmzsw.com
+    CLUSTER_NAME: z-mod-stack
+    CLUSTER_RESOURCE_GROUP_NAME: z-mod-stack-abc12-rg
+    RESOURCE_GROUP_NAME: z-mod-stack-dev-rg
+
+  tasks:
+  - name: Delete A Record from DNS Zone
+    azure.azcollection.azure_rm_dnsrecordset:
+      resource_group: "{{ RESOURCE_GROUP_DNS }}"
+      record_type: A
+      relative_name: "*.apps.{{ CLUSTER_NAME }}"
+      zone_name: "{{ DNS_ZONE }}"
+      state: absent
+
+  - name: Delete CNAME Record from DNS Zone
+    azure.azcollection.azure_rm_dnsrecordset:
+      resource_group: "{{ RESOURCE_GROUP_DNS }}"
+      record_type: CNAME
+      relative_name: "api.{{ CLUSTER_NAME }}"
+      zone_name: "{{ DNS_ZONE }}"
+      state: absent 
+
+  - name: Delete Resource Group for OCP Cluster Resources
+    azure.azcollection.azure_rm_resourcegroup:
+      name: "{{ CLUSTER_RESOURCE_GROUP_NAME }}"
+      force_delete_nonempty: yes
+      state: absent        
+
+  - name: Delete Resource Group for Bootstrap Resources
+    azure.azcollection.azure_rm_resourcegroup:
+      name: "{{ RESOURCE_GROUP_NAME }}"
+      force_delete_nonempty: yes
+      state: absent
