@@ -43,6 +43,13 @@ Metadata:
           - OpenshiftVersion
           - OpenshiftUsername
           - OpenshiftPassword
+      - Label:
+          default: IBM Z and Cloud Modernization Stack resources
+        Parameters:
+          - ZosCloudBroker
+          - ZosConnect
+          - WaziDevspaces
+          - WaziDevspacesVersion
       
     ParameterLabels:
       PrivateSubnet1ID:
@@ -95,6 +102,14 @@ Metadata:
         default: License agreement
       APIKey:
         default: IBM Container Registry API or Entitlement Key
+      ZosCloudBroker:
+        default: Install IBM z/OS Cloud Broker
+      ZosConnect:
+        default: Install IBM z/OS Connect
+      WaziDevspaces:
+        default: Install IBM Wazi DevSpaces
+      WaziDevspacesVersion:
+        default: Version of IBM Wazi DevSpaces 
 
 Parameters:
   APIKey:
@@ -217,6 +232,28 @@ Parameters:
     Description: Password to be used to login to Openshift Console
     Type: String
     NoEcho: 'true'
+  ZosCloudBroker:
+    Description: Install IBM z/OS Cloud Broker
+    Default: true
+    Type: String
+    AllowedValues: [true, false]
+  ZosConnect:
+    Description: Install IBM z/OS Connect
+    Default: true
+    Type: String
+    AllowedValues: [true, false]
+  WaziDevspaces:
+    Description: Install IBM Wazi DevSpaces
+    Default: true
+    Type: String
+    AllowedValues: [true, false]
+  WaziDevspacesVersion:
+    Description: Version of IBM Wazi DevSpaces
+    Type: String
+    Default: "3.0.0"
+    AllowedValues:
+      - "3.0.0"
+      - "2.3.0"
   LicenseAgreement:
     Description: >-
       I have read and agreed to the license terms for IBM Z and Cloud Modernization Stack that were provided to me at time of purchase.
@@ -264,6 +301,9 @@ Rules:
 Conditions:
   3AZConditionCheck: !Equals [!Ref NumberOfAZs, '3']
   AcceptLicense: !Equals [!Ref LicenseAgreement, 'I agree']
+  ZosCloudBrokerCheck: !Equals [true, !Ref ZosCloudBroker]
+  ZosConnectCheck: !Equals [true, !Ref ZosConnect]
+  WaziDevspacesCheck: !Equals [true, !Ref WaziDevspaces]
 
 Resources:
   KeyPairName:
