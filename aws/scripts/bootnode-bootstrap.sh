@@ -19,9 +19,14 @@ mv jq /usr/local/bin
 cp /usr/local/bin/jq /usr/bin/
 
 # Install openshift-client
-wget "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest-4.10/openshift-client-linux.tar.gz"
+wget "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz"
 tar -xvf openshift-client-linux.tar.gz
 mv oc kubectl /usr/local/bin
+
+# Install Ansible
+python3 -m pip install --user pipx
+python3 -m pipx ensurepath
+pipx install ansible-core
 
 # Install CloudFormation bootstrap tools - https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html
 echo "Installing CloudFormation Bootstrap Tools"

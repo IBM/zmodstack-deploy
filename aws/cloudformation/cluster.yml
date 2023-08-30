@@ -621,6 +621,7 @@ Resources:
                   --arg wazidevspacesversion ${WaziDevspacesVersion} \
                   '{ zoscb: $zoscb, zosconnect: $zosconnect, wazidevspaces: $wazidevspaces, wazidevspacesversion: $wazidevspacesversion }')
             printf '%s\n' "$JSON_STRING" > /home/ec2-user/zmodstack/ocp/ansible/extravars.json
+            pip3 install --user -r home/ec2-user/zmodstack/ocp/ansible/requirements.txt
             ansible-galaxy collection install -r /home/ec2-user/zmodstack/ocp/ansible/requirements.yml
             cd /home/ec2-user/zmodstack/ocp/ansible && ansible-playbook playbooks/main.yaml --extra-vars "@extravars.json" 
 
