@@ -100,7 +100,7 @@
       - "'ibm-zoscb-manager-{{ broker_instance.name }}' in broker_instance_info.resources[0].status.deployment.ready"
       - "'ibm-zoscb-registry-{{ broker_instance.name }}-ibm-zmodstack-cloudbroker' in broker_instance_info.resources[0].status.deployment.ready
         or 'ibm-zoscb-registry-{{ broker_instance.name }}' in broker_instance_info.resources[0].status.deployment.ready"
-      - "'ibm-zoscb-ui-{{ broker_instance.name }}' in broker_instance_info.resources[0].status.deployment.ready"
+      - broker_instance_info.resources[0].status.zosCloudBrokerUrl | length > 0
       - broker_instance_info.resources[0].status.licenseacceptance == "Accepted"
       - broker_instance_info.resources[0].status.phase == "Successful"
   tags: zoscb

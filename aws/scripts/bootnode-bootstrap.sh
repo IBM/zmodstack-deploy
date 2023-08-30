@@ -24,9 +24,7 @@ tar -xvf openshift-client-linux.tar.gz
 mv oc kubectl /usr/local/bin
 
 # Install Ansible
-python3 -m pip install --user pipx
-python3 -m pipx ensurepath
-pipx install ansible-core
+python3 -m pip install ansible
 
 # Install CloudFormation bootstrap tools - https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html
 echo "Installing CloudFormation Bootstrap Tools"
