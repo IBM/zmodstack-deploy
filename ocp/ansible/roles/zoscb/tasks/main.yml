@@ -41,6 +41,7 @@
 - name: "Retrieve broker subscription info"
   kubernetes.core.k8s_info:
     kind: Subscription
+    namespace: "ibm-zmodstack-cloudbroker"
     name: "{{ broker_subscription.name }}"
     api_version: "{{ broker_subscription.apiVersion }}"
   register: broker_subscription_info
