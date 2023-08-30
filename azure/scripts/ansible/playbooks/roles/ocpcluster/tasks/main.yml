@@ -3,11 +3,13 @@
   ansible.builtin.get_url:
     url: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-{{ OPENSHIFT_VERSION }}/openshift-install-linux.tar.gz"
     dest: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/openshift-install-linux.tar.gz"
+    mode: '0644'
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
 - name: Download OpenShift client binary
   ansible.builtin.get_url:
     url: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-{{ OPENSHIFT_VERSION }}/openshift-client-linux.tar.gz"
     dest: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/openshift-client-linux.tar.gz"
+    mode: '0644'
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
 - name: Change ownership, group and permissions for INSTALLER_HOME directory
   ansible.builtin.file:
@@ -38,10 +40,11 @@
     owner: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
     group: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
     mode: '0644'
-- name: Jinja Conversion for Install Config Yaml
+- name: Jinja Conversion for Install Config yaml
   ansible.builtin.template:
     src: files/install-config.yaml
-    dest: "{{ GIT_CLONE_DIR }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/install-config.yaml"    
+    dest: "{{ GIT_CLONE_DIR }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/install-config.yaml"
+    mode: '0644'
 - name: Create a directory for OpenShift installation
   ansible.builtin.file:
     path: "{{ INSTALLER_HOME }}/openshiftfourx"
@@ -57,8 +60,11 @@
     group: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
     mode: '0644'
 - name: OCP install
-  ansible.builtin.shell: |
-    runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "{{ INSTALLER_HOME }}/openshift-install create cluster --dir={{ INSTALLER_HOME }}/openshiftfourx --log-level=debug"
+  ansible.builtin.command: "{{ INSTALLER_HOME }}/openshift-install create cluster --dir={{ INSTALLER_HOME }}/openshiftfourx --log-level=debug"
+  become: true
+  become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+  register: command_output
+  changed_when: command_output.rc != 0
 - name: Sleep for 2 minutes and continue with play
   ansible.builtin.wait_for:
     timeout: 120
@@ -77,15 +83,19 @@
     group: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
     mode: '0644'
 - name: Switch to Machine API project
-  ansible.builtin.shell: |
-    runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "oc project openshift-machine-api"      
-- name: Get Cluster ID
-  ansible.builtin.shell: |
-    oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}' --kubeconfig /home/"{{ BOOTSTRAP_ADMIN_USERNAME }}"/.kube/config 
+  ansible.builtin.command: oc project openshift-machine-api
+  become: true
+  become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+  register: command_output
+  changed_when: command_output.rc != 0
+- name: Get Machine Set
+  ansible.builtin.command: |
+    oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}'
+    --kubeconfig /home/"{{ BOOTSTRAP_ADMIN_USERNAME }}"/.kube/config
   register: CLUSTER_ID_OUTPUT
-  when: ENABLE_AUTOSCALER | bool
+  changed_when: ENABLE_AUTOSCALER | bool
 - name: Set Cluster ID
-  set_fact:
+  ansible.builtin.set_fact:
     CLUSTER_ID: "{{ CLUSTER_ID_OUTPUT.stdout | trim }}"
   when: ENABLE_AUTOSCALER | bool
 - name: Execute Cluster Autoscalar
@@ -95,11 +105,12 @@
     src: files/cluster-autoscaler.yaml
     wait: true
     wait_sleep: 50
-  when: ENABLE_AUTOSCALER | bool  
+  when: ENABLE_AUTOSCALER | bool
 - name: Jinja Conversion for Machine Autoscaler Yaml
   ansible.builtin.template:
     src: files/machine-autoscaler.yaml
     dest: "{{ GIT_CLONE_DIR }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/machine-autoscaler.yaml"
+    mode: '0644'
   when: ENABLE_AUTOSCALER | bool
 - name: Execute Machine Autoscalar
   kubernetes.core.k8s:
@@ -108,11 +119,12 @@
     src: files/machine-autoscaler.yaml
     wait: true
     wait_sleep: 50
-  when: ENABLE_AUTOSCALER | bool         
+  when: ENABLE_AUTOSCALER | bool
 - name: Jinja Conversion for Machine Health Check Yaml
   ansible.builtin.template:
     src: files/machine-health-check.yaml
     dest: "{{ GIT_CLONE_DIR }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/machine-health-check.yaml"
+    mode: '0644'
   when: ENABLE_AUTOSCALER | bool
 - name: Execute Machine Health Check
   kubernetes.core.k8s:
@@ -122,13 +134,21 @@
     wait: true
     wait_sleep: 50
   when: ENABLE_AUTOSCALER | bool
-- ansible.builtin.shell: |
-    runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "htpasswd -c -B -b /tmp/.htpasswd {{ OPENSHIFT_USERNAME }} {{ OPENSHIFT_PASSWORD }}"
+- name: Create OpenShift User
+  ansible.builtin.command: "htpasswd -c -B -b /tmp/.htpasswd {{ OPENSHIFT_USERNAME }} {{ OPENSHIFT_PASSWORD }}"
+  become: true
+  become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+  register: command_output
+  changed_when: command_output.rc != 0
 - name: Sleep for 5 seconds and continue with play
   ansible.builtin.wait_for:
     timeout: 5
-- ansible.builtin.shell: |
-    runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "oc create secret generic htpass-secret --from-file=htpasswd=/tmp/.htpasswd -n openshift-config"
+- name: Create Secret
+  ansible.builtin.command: oc create secret generic htpass-secret --from-file=htpasswd=/tmp/.htpasswd -n openshift-config
+  become: true
+  become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+  register: command_output
+  changed_when: command_output.rc != 0
 - name: Create OpenShift User
   kubernetes.core.k8s:
     state: present
@@ -137,8 +157,10 @@
     wait: true
     wait_sleep: 50
 - name: Add Cluster Role to User
-  ansible.builtin.shell: |
-    runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "oc adm policy add-cluster-role-to-user cluster-admin {{ OPENSHIFT_USERNAME }}"
+  ansible.builtin.command: "oc adm policy add-cluster-role-to-user cluster-admin {{ OPENSHIFT_USERNAME }}"
+  become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+  register: command_output
+  changed_when: command_output.rc != 0
 - name: Install IBM Operator Catalogue
   kubernetes.core.k8s:
     state: present
