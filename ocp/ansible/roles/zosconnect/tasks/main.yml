@@ -1,6 +1,5 @@
 ---
 - include_vars: zosconnect.yml
-  tags: "zosconnect"
 
 # tasks file for zosconnect
 # Create namespace for zos connect 
@@ -8,28 +7,18 @@
   kubernetes.core.k8s:
     state: present
     src: "files/project.yaml"
-    wait: true
-    wait_sleep: 50
-  tags: "zosconnect"
 
 - name: "Create Operator Group with Native YAML API"
   kubernetes.core.k8s:
     state: present
     namespace: "ibm-zmodstack-zosconnect"
-    kubeconfig: "/home/ec2-user/.kube/config"
     src: "files/operator-group.yaml"
-    wait: true
-    wait_sleep: 50
-  tags: "zosconnect"
 
 - name: "Create Z/os Connect Subscription with Native YAML API"
   kubernetes.core.k8s:
     state: present
     namespace: "openshift-operators"
     src: "files/zosconnect-subscription.yaml"
-    wait: true
-    wait_sleep: 50
-  tags: "zosconnect"
 
 #install z/os connect in openshift-operators namespace to install by default on all namespaces
 - name: "Retrieve Z/os connect subscription info"
@@ -44,7 +33,6 @@
     - "'state' in zosconnect_subscription_info.resources[0].status and zosconnect_subscription_info.resources[0].status.state == 'AtLatestKnown'"
   retries: 30
   delay: 10
-  tags: "zosconnect"
 
 - name: "Verify zosconnect subscription: '{{ zosconnect_subscription.name }}'"
   ansible.builtin.assert:
@@ -54,7 +42,6 @@
       - zosconnect_subscription_info.resources[0].status.installplan.name != ""
       - zosconnect_subscription_info.resources[0].status.state == "AtLatestKnown"
       - zosconnect_subscription_info.resources[0].status.conditions[0].reason == "AllCatalogSourcesHealthy"
-  tags: "zosconnect"
 
 ######################################################################
 ## Logic to run zos-connect via wazi devspaces with a sampke cics app
@@ -65,7 +52,6 @@
     name: 'icr.io/zosconnect/ibm-zcon-designer:{{ designer_image_version }}'
     tag: '{{ designer_image_version }}'
     pull: True
-  tags: "zosconnect"
 
 # clone zosconnect server image
 - name: Pull ZosConnect server Docker image
@@ -75,61 +61,51 @@
     username: "{{ registry_username }}"
     password: "{{ apikey }}"
     pull: True 
-  tags: "zosconnect"
   
 - name: Create API project workspace directory
   ansible.builtin.file:
     path: "{{ project_workspace }}"
     state: directory
-  tags: "zosconnect"
 
 - name: Create subdirectories for sample Liberty server config
   ansible.builtin.file:
     path: "{{ project_workspace }}/CatalogManagerApi/src/main/liberty/config"
     state: directory
-  tags: "zosconnect"
 
 - name: Create certs dir in workspace directory
   ansible.builtin.file:
     path: "{{ project_workspace }}/certs"
     state: directory
-  tags: "zosconnect"
 
 - name: Create logs dir in workspace directory
   ansible.builtin.file:
     path: "{{ project_workspace }}/logs"
     state: directory
-  tags: "zosconnect"
 
 - name: Create server configuration file
   ansible.builtin.template:
     src: files/cics.xml.j2
     dest: "{{ project_workspace }}/CatalogManagerApi/src/main/liberty/config/cics.xml"
-  tags: "zosconnect"
 
 - name: Create devfile.yaml
   ansible.builtin.template:
     src: files/devfile.yaml.j2
     dest: "{{ project_workspace }}/CatalogManagerApi/devfile.yaml"
-  tags: "zosconnect"
 
 - name: Create api dir in workspace directory
   ansible.builtin.file:
     path: "{{ project_workspace }}/src/main/api"
     state: directory
-  tags: "zosconnect"
 
 - name: Copy the sample api
   ansible.builtin.copy:
     src: sample-api.yaml
     dest: "{{ project_workspace }}/src/main/api/sample-api.yaml"
-  tags: "zosconnect"
 
 - name: Create docker-compose.yaml
   ansible.builtin.template:
     src: files/docker-compose.yaml.j2
     dest: "{{ project_workspace }}/docker-compose.yaml"
-  tags: "zosconnect"
 
 # Logic to build the zosconnect server image
 
@@ -142,10 +118,7 @@
     #state: present
     #namespace: "ibm-zmodstack-zosconnect"
     #src: "files/zosconnect.yaml"
-    #wait: true
-    #wait_sleep: 100
-  #tags: "zosconnect"
-#
+
 ## tasks to verify the installation
 #- name: "Retrieve Z/os connect custom resource instance Info"
   #kubernetes.core.k8s_info:
@@ -154,8 +127,6 @@
     #name: "{{ zosconnect.name }}"
     #api_version: "{{ zosconnect.apiVersion }}"
   #register: zosconnect_info
-  #tags: "zosconnect"
-#
+
 #- ansible.builtin.debug:
         #var: zosconnect_info
-  #tags: "zosconnect"

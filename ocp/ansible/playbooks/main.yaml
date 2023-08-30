@@ -19,16 +19,8 @@
     # *  Playbook section for creating all ZmodSTack resources on AWS
     # *
     # ****************************************************************************************************************************
-
-    # ****************************************************************************************************************************
-    # *
-    # *  Playbook section for creating all z/OS Endpoint and Resources
-    # *
-    # ****************************************************************************************************************************
-    # Playbook task to Create z/OS Endpoint Instance (wazi-sandbox or wazi-aas)
-    #TODO
  
-    - name: Deploy IBM z/OS Cloud and Modenization Stack - Openshift z/OS Cloud Broker Operator and Sub-Operators(TODO-suboperators)
+    - name: Deploy IBM z/OS Cloud and Modenization Stack - Openshift z/OS Cloud Broker Operator
       block:
         # ****************************************************************************************************************************
         # *
@@ -40,32 +32,29 @@
         - name: Include z/OS Dev Install role/task tagged for z/OS Cloud Broker
           ansible.builtin.include_role:
             name: "zoscb"
-          when: zoscb == "true"
-          tags: "zoscb"
+          when: zoscb | bool
 
-        # ****************************************************************************************************************************
-        # *
-        # Install z/OS Connect
-        # *
-        # ****************************************************************************************************************************
+    # ****************************************************************************************************************************
+    # *
+    # Install z/OS Connect
+    # *
+    # ****************************************************************************************************************************
 
-        # Dynamically INCLUDE ansible role
-        - name: Include z/OS Dev Install role/task tagged for z/OS Connect
-          ansible.builtin.include_role:
-            name: "zosconnect"
-          when: zosconnect == "true"
-          tags: "zosconnect"
+    # Dynamically INCLUDE ansible role
+    - name: Include z/OS Dev Install role/task tagged for z/OS Connect Operator, Designer, server image
+      ansible.builtin.include_role:
+        name: "zosconnect"
+      when: zosconnect | bool
 
-        # ****************************************************************************************************************************
-        # *
-        # Install Red Hat Dev Spaces
-        # *
-        # ****************************************************************************************************************************
+    # ****************************************************************************************************************************
+    # *
+    # Install Red Hat Dev Spaces
+    # *
+    # ****************************************************************************************************************************
 
-        # Dynamically INCLUDE ansible role
-        - name: Include z/OS Dev Install role/task tagged for Red Hat Dev Spaces
-          ansible.builtin.include_role:
-            name: "wazi-devspaces"
-            tasks_from: "{{ 'wazi-devspaces.yaml' if wazidevspacesversion== '3.0.0' else 'devspaces.yaml' }}"
-          when: wazidevspaces == "true"
-          tags: "wazi-devspaces"
+    # Dynamically INCLUDE ansible role
+    - name: Include z/OS Dev Install role/task tagged for Red Hat Dev Spaces
+      ansible.builtin.include_role:
+        name: "wazi-devspaces"
+        tasks_from: "{{ 'wazi-devspaces3.yaml' if wazidevspacesversion== '3.0.0' else 'wazi-devspaces2.yaml' }}"
+      when: wazidevspaces | bool

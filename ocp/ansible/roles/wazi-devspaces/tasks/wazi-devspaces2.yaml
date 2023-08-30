@@ -1,35 +1,40 @@
 ---
 # Create namespace for ibm wazi devspaces
 # tasks file for devspaces
-- include_vars: wazi-devspaces.yml
-  tags: "wazi-devspaces"
+- include_vars: wazi-devspaces2.yml
+
+- name: "Create project with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    src: "files/project.yaml"
+
+- name: "Create opertaor group with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "wazi-devspaces"
+    src: "files/operator-group.yml"
 
 - name: Create ansible-workspace directory 
   ansible.builtin.file:
     path: "{{ ansible_workspace }}/generated_yamls"
     state: directory
-  tags: "wazi-devspaces"
 
 - name: Create subscription.yaml
   ansible.builtin.template:
     src: files/wazi-devspaces-subscription.yaml.j2
     dest: "{{ ansible_workspace }}/generated_yamls/wazi-devspaces-subscription.yaml"
-  tags: "wazi-devspaces"
 
-- name: "Create RedHat DevSpaces Subscription with Native YAML API"
+- name: "Create Wazi DevSpaces Subscription with Native YAML API"
   kubernetes.core.k8s:
     state: present
-    namespace: "openshift-operators"
+    namespace: "wazi-devspaces"
     src: "{{ ansible_workspace }}/generated_yamls/wazi-devspaces-subscription.yaml"
-    wait: true
-    wait_sleep: 100
-  tags: "wazi-devspaces"
 
 #install RedHat DevSpaces in openshift-operators namespace to install by default on all namespaces
-- name: "Retrieve RedHat DevSpaces subscription info"
+- name: "Retrieve  DevSpaces subscription info"
   kubernetes.core.k8s_info:
     kind: Subscription
-    namespace: "openshift-operators"
+    namespace: "wazi-devspaces"
     name: "{{ devspaces_subscription.name }}"
     api_version: "{{ devspaces_subscription.apiVersion }}"
   register: devspaces_subscription_info
@@ -37,8 +42,7 @@
     - "devspaces_subscription_info.resources is defined and devspaces_subscription_info.resources | length > 0"
     - "'state' in devspaces_subscription_info.resources[0].status and devspaces_subscription_info.resources[0].status.state == 'AtLatestKnown'"
   retries: 30
-  delay: 30
-  tags: "wazi-devspaces"
+  delay: 10
 
 - name: "Verify devspaces subscription: '{{ devspaces_subscription.name }}'"
   ansible.builtin.assert:
@@ -48,62 +52,51 @@
       - devspaces_subscription_info.resources[0].status.installplan.name != ""
       - devspaces_subscription_info.resources[0].status.state == "AtLatestKnown"
       - devspaces_subscription_info.resources[0].status.conditions[0].reason == "AllCatalogSourcesHealthy"
-  tags: "wazi-devspaces"
 
 - name: Create license.yaml
   ansible.builtin.template:
     src: files/wazi-license.yaml.j2
     dest: "{{ ansible_workspace }}/generated_yamls/wazi-license.yaml"
-  tags: "wazi-devspaces"
 
 - name: "Accept wazi DevSpaces License with Native YAML API"
   kubernetes.core.k8s:
     state: present
-    namespace: "openshift-operators"
+    namespace: "wazi-devspaces"
     src: "{{ ansible_workspace }}/generated_yamls/wazi-license.yaml"
-    wait: true
-    wait_sleep: 2000
-  tags: "wazi-devspaces"
 
+# Wait for 50 secconds until wazi license is up (status block unavailable)
 - name: 50 second pause
   pause:
     seconds: 50
-  tags: "wazi-devspaces"
 
 - name: "Create RedHat DevSpaces che cluster with Native YAML API"
   kubernetes.core.k8s:
     state: present
-    namespace: "openshift-operators"
-    src: "files/wazi-devspaces.yaml"
-    wait: true
-    wait_sleep: 2000
-  tags: "wazi-devspaces"
+    namespace: "wazi-devspaces"
+    src: "files/wazi-devspaces2.yaml"
 
 # tasks to verify the installation
 - name: "Retrieve RedHat DevSpaces custom resource instance Info"
   kubernetes.core.k8s_info:
-    namespace: "openshift-operators"
+    namespace: "wazi-devspaces"
     kind: "{{ devspaces.kind }}"
     name: "{{ devspaces.name }}"
     api_version: "{{ devspaces.apiVersion }}"
   register: devspaces_info
   until:
     - "devspaces_info.resources is defined and devspaces_info.resources | length > 0"
-    - "devspaces_info.resources[0].status is defined and devspaces_info.resources[0].status | length > 0"
-    - "'chePhase' in devspaces_info.resources[0].status and devspaces_info.resources[0].status.chePhase == 'Active'"
-    - "'gatewayPhase' in devspaces_info.resources[0].status and devspaces_info.resources[0].status.gatewayPhase == 'Established'"
+    - "'cheClusterRunning' in devspaces_info.resources[0].status and devspaces_info.resources[0].status.cheClusterRunning == 'Available'"
+    - "'openShiftoAuthProvisioned' in devspaces_info.resources[0].status and devspaces_info.resources[0].status.openShiftoAuthProvisioned == true"
   retries: 30
-  delay: 50
-  tags: "wazi-devspaces"
+  delay: 10
 
 - ansible.builtin.debug:
         var: devspaces_info
-  tags: "wazi-devspaces"
 
 - name: "Verify Devspaces: '{{ devspaces.name }}'"
   ansible.builtin.assert:
     that:
-      - devspaces_info.resources[0].status.chePhase == "Active"
-      - devspaces_info.resources[0].status.gatewayPhase == "Established"
+      - devspaces_info.resources[0].status.cheClusterRunning == "Available"
+      - devspaces_info.resources[0].status.openShiftoAuthProvisioned == true
+      - devspaces_info.resources[0].status.dbProvisioned == true
       - "devspaces_info.resources[0].status.cheURL | length > 0"
-  tags: "wazi-devspaces"
