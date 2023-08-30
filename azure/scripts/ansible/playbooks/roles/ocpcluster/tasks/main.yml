@@ -4,12 +4,14 @@
     url: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-{{ OPENSHIFT_VERSION }}/openshift-install-linux.tar.gz"
     dest: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/openshift-install-linux.tar.gz"
     mode: '0644'
+  become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
 - name: Download OpenShift client binary
   ansible.builtin.get_url:
     url: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-{{ OPENSHIFT_VERSION }}/openshift-client-linux.tar.gz"
     dest: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/openshift-client-linux.tar.gz"
     mode: '0644'
+  become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
 - name: Change ownership, group and permissions for INSTALLER_HOME directory
   ansible.builtin.file:
@@ -21,6 +23,7 @@
   ansible.builtin.unarchive:
     src: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/openshift-install-linux.tar.gz"
     dest: "{{ INSTALLER_HOME }}"
+  become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
 - name: Extract OpenShift client binary
   ansible.builtin.unarchive:
@@ -158,6 +161,7 @@
     wait_sleep: 50
 - name: Add Cluster Role to User
   ansible.builtin.command: "oc adm policy add-cluster-role-to-user cluster-admin {{ OPENSHIFT_USERNAME }}"
+  become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
   register: command_output
   changed_when: command_output.rc != 0

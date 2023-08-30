@@ -4,10 +4,6 @@
   become: true
   gather_facts: false
   tasks:
-    - name: Update packages
-      ansible.builtin.dnf:
-        name: "*"
-        state: present
     - name: Import Microsoft key
       ansible.builtin.rpm_key:
         key: https://packages.microsoft.com/keys/microsoft.asc
