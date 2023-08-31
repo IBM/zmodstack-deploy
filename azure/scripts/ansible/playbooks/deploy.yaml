@@ -9,3 +9,8 @@
       ansible.builtin.include_role:
         name: ocpcluster
       tags: ocpcluster
+    - name: Auto Scaler
+      ansible.builtin.include_role:
+        name: autoscaler
+      when: ENABLE_AUTOSCALER | bool
+      tags: autoscaler
