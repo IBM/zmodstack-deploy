@@ -1,0 +1,31 @@
+---
+- name: Get Machine Set
+  ansible.builtin.command: |
+    oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}'
+  register: CLUSTER_ID_OUTPUT
+  changed_when: CLUSTER_ID_OUTPUT.rc != 0
+- name: Set Cluster ID
+  ansible.builtin.set_fact:
+    CLUSTER_ID: "{{ CLUSTER_ID_OUTPUT.stdout | trim }}"
+- name: Execute Cluster Autoscaler
+  kubernetes.core.k8s:
+    state: present
+    src: files/cluster-autoscaler.yaml
+- name: Jinja Conversion for Machine Autoscaler Yaml
+  ansible.builtin.template:
+    src: files/machine-autoscaler.yaml
+    dest: "{{ GIT_CLONE_DIR }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/machine-autoscaler.yaml"
+    mode: '0644'
+- name: Execute Machine Autoscaler
+  kubernetes.core.k8s:
+    state: present
+    src: files/machine-autoscaler.yaml
+- name: Jinja Conversion for Machine Health Check Yaml
+  ansible.builtin.template:
+    src: files/machine-health-check.yaml
+    dest: "{{ GIT_CLONE_DIR }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/machine-health-check.yaml"
+    mode: '0644'
+- name: Execute Machine Health Check
+  kubernetes.core.k8s:
+    state: present
+    src: files/machine-health-check.yaml
