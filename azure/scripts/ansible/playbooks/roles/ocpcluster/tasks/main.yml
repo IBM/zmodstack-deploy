@@ -100,10 +100,12 @@
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
   register: command_output
   changed_when: command_output.rc != 0
-- name: Create OpenShift User
+- name: Setup Authentication
   kubernetes.core.k8s:
     state: present
     src: files/auth.yaml
+  become: true
+  become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
 - name: Add Cluster Role to User
   ansible.builtin.command: "oc adm policy add-cluster-role-to-user cluster-admin {{ OPENSHIFT_USERNAME }}"
   become: true
@@ -114,3 +116,5 @@
   kubernetes.core.k8s:
     state: present
     src: files/ibm-operator-catalog.yaml
+  become: true
+  become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
