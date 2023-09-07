@@ -3,35 +3,35 @@
 # tasks file for devspaces
 - include_vars: wazi-devspaces2.yml
 
-- name: "Create project with Native YAML API"
+- name: "Create project with Native YAML API - IBM Wazi for DevSpaces"
   kubernetes.core.k8s:
     state: present
     src: "files/project.yaml"
 
-- name: "Create opertaor group with Native YAML API"
+- name: "Create opertaor group with Native YAML API - IBM Wazi for DevSpaces"
   kubernetes.core.k8s:
     state: present
     namespace: "wazi-devspaces"
     src: "files/operator-group.yml"
 
-- name: Create ansible-workspace directory 
+- name: "Create ansible-workspace directory - IBM Wazi for DevSpaces"
   ansible.builtin.file:
     path: "{{ ansible_workspace }}/generated_yamls"
     state: directory
 
-- name: Create subscription.yaml
+- name: "Create subscription.yaml - IBM Wazi for DevSpaces"
   ansible.builtin.template:
     src: files/wazi-devspaces-subscription.yaml.j2
     dest: "{{ ansible_workspace }}/generated_yamls/wazi-devspaces-subscription.yaml"
 
-- name: "Create Wazi DevSpaces Subscription with Native YAML API"
+- name: "Create Wazi DevSpaces Subscription with Native YAML API - IBM Wazi for DevSpaces"
   kubernetes.core.k8s:
     state: present
     namespace: "wazi-devspaces"
     src: "{{ ansible_workspace }}/generated_yamls/wazi-devspaces-subscription.yaml"
 
-#install RedHat DevSpaces in openshift-operators namespace to install by default on all namespaces
-- name: "Retrieve  DevSpaces subscription info"
+#install IBM Wazi for DevSpaces in openshift-operators namespace to install by default on all namespaces
+- name: "Retrieve  IBM Wazi for DevSpaces subscription info"
   kubernetes.core.k8s_info:
     kind: Subscription
     namespace: "wazi-devspaces"
@@ -44,7 +44,7 @@
   retries: 30
   delay: 10
 
-- name: "Verify devspaces subscription: '{{ devspaces_subscription.name }}'"
+- name: "Verify IBM Wazi for devspaces subscription: '{{ devspaces_subscription.name }}'"
   ansible.builtin.assert:
     that:
       - devspaces_subscription_info.resources[0].metadata.creationTimestamp != ""
@@ -53,30 +53,30 @@
       - devspaces_subscription_info.resources[0].status.state == "AtLatestKnown"
       - devspaces_subscription_info.resources[0].status.conditions[0].reason == "AllCatalogSourcesHealthy"
 
-- name: Create license.yaml
+- name: "Create license.yaml - IBM Wazi for DevSpaces"
   ansible.builtin.template:
     src: files/wazi-license.yaml.j2
     dest: "{{ ansible_workspace }}/generated_yamls/wazi-license.yaml"
 
-- name: "Accept wazi DevSpaces License with Native YAML API"
+- name: "Accept wazi DevSpaces License with Native YAML API - - IBM Wazi for DevSpaces"
   kubernetes.core.k8s:
     state: present
     namespace: "wazi-devspaces"
     src: "{{ ansible_workspace }}/generated_yamls/wazi-license.yaml"
 
-# Wait for 50 secconds until wazi license is up (status block unavailable)
-- name: 50 second pause
+# Wait for 50 secconds until wazi license is up (status block unavailable for verification)
+- name: Wait for 50sec for wazi License setup
   pause:
     seconds: 50
 
-- name: "Create RedHat DevSpaces che cluster with Native YAML API"
+- name: "Create IBM Wazi for DevSpaces che cluster with Native YAML API - IBM Wazi for DevSpaces"
   kubernetes.core.k8s:
     state: present
     namespace: "wazi-devspaces"
     src: "files/wazi-devspaces2.yaml"
 
 # tasks to verify the installation
-- name: "Retrieve RedHat DevSpaces custom resource instance Info"
+- name: "Retrieve IBM Wazi for DevSpaces custom resource instance Info - IBM Wazi for DevSpaces"
   kubernetes.core.k8s_info:
     namespace: "wazi-devspaces"
     kind: "{{ devspaces.kind }}"
@@ -90,13 +90,11 @@
   retries: 30
   delay: 10
 
-- ansible.builtin.debug:
-        var: devspaces_info
-
-- name: "Verify Devspaces: '{{ devspaces.name }}'"
+- name: "Verify IBM Wazi for Devspaces: '{{ devspaces.name }}'"
   ansible.builtin.assert:
     that:
       - devspaces_info.resources[0].status.cheClusterRunning == "Available"
       - devspaces_info.resources[0].status.openShiftoAuthProvisioned == true
       - devspaces_info.resources[0].status.dbProvisioned == true
       - "devspaces_info.resources[0].status.cheURL | length > 0"
+      

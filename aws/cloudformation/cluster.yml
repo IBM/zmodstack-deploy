@@ -448,6 +448,10 @@ Resources:
         FromPort: 22
         ToPort: 22
         CidrIp: !Ref BootNodeAccessCIDR
+      - IpProtocol: tcp
+        FromPort: 9443
+        ToPort: 9443
+        CidrIp: !Ref BootNodeAccessCIDR
       SecurityGroupEgress:
       - IpProtocol: "-1"
         CidrIp: 0.0.0.0/0
@@ -594,7 +598,6 @@ Resources:
             echo "computenode_instance_type=\"${ComputeInstanceType}\"" >> terraform.tfvars
             echo "computenode_replica_count=${NumberOfCompute}" >> terraform.tfvars
             echo "enable_permission_quota_check=\"false\"" >> terraform.tfvars
-            echo "apikey: \"${APIKey}\"" >> /home/ec2-user/zmodstack/ocp/ansible/roles/zosconnect/vars/zosconnect.yml
             
             export TF_LOG=DEBUG
             export TF_LOG_PATH=/home/ec2-user/zmodstack/aws/terraform/tf-trace.log

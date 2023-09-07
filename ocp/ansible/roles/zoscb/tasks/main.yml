@@ -26,7 +26,7 @@
     namespace: "ibm-zmodstack-cloudbroker"
     src: "files/broker-subscription.yaml"
 
-- name: "Retrieve broker subscription info for Z/OS CloudBroker"
+- name: "Retrieve subscription info for Z/OS CloudBroker"
   kubernetes.core.k8s_info:
     kind: Subscription
     namespace: "ibm-zmodstack-cloudbroker"
@@ -39,7 +39,7 @@
   retries: 30
   delay: 10
 
-- name: "Verify broker subscription: '{{ broker_subscription.name }}'"
+- name: "Verify Z/OS CloudBroker subscription: '{{ broker_subscription.name }}'"
   ansible.builtin.assert:
     that:
       - broker_subscription_info.resources[0].metadata.creationTimestamp != ""
@@ -60,7 +60,7 @@
       reason: Success
     wait_timeout: 600
 
-- name: "Create route for zoscb with Native YAML API for Z/OS CloudBroker"
+- name: "Create route with Native YAML API for Z/OS CloudBroker"
   kubernetes.core.k8s:
     state: present
     namespace: "ibm-zmodstack-cloudbroker"
@@ -75,7 +75,7 @@
     api_version: "{{ broker_instance.apiVersion }}"
   register: broker_instance_info
 
-- name: "Verify broker instance: '{{ broker_instance.name }}'"
+- name: "Verify Z/OS CloudBroker instance: '{{ broker_instance.name }}'"
   ansible.builtin.assert:
     that:
       - "'ibm-zoscb-manager-{{ broker_instance.name }}' in broker_instance_info.resources[0].status.deployment.ready"
