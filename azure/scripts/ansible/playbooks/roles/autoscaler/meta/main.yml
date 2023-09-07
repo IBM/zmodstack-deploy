@@ -1,7 +1,6 @@
 galaxy_info:
-  standalone: true
   author: Midhun T
-  description: OCP Cluster Deploy
+  description: Enable Auto Scaler
   company: IBM
 
   # If the issue tracker for your role is not on github, uncomment the

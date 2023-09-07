@@ -1,26 +1,24 @@
 ---
 - name: Deploy ARM Template
   hosts: localhost
-  collections:
-  - azure.azcollection
-  
+
   vars:
     RESOURCE_GROUP_NAME: z-mod-stack-dev-rg
     LOCATION: eastus
     DEPLOYMENT_NAME: OCP-Cluster-Dev
     ARM_TEMPLATE: "{{ lookup('file', '../../../marketplace/mainTemplate.json') }}"
     ARM_PARAMETERS: "{{ (lookup('file', '../../../marketplace/mainParameters.json') | from_json).parameters }}"
-    
-  tasks:
-  - name: Create a Resource Group
-    azure.azcollection.azure_rm_resourcegroup:
-      name: "{{ RESOURCE_GROUP_NAME }}"
-      location: "{{ LOCATION }}"
 
-  - name: Create OCP Cluster
-    azure.azcollection.azure_rm_deployment:
-      name: "{{ DEPLOYMENT_NAME }}"
-      resource_group_name: "{{ RESOURCE_GROUP_NAME }}"
-      location: "{{ LOCATION }}"
-      template: "{{ ARM_TEMPLATE }}"
-      parameters: "{{ ARM_PARAMETERS }}"
+  tasks:
+    - name: Create a Resource Group
+      azure.azcollection.azure_rm_resourcegroup:
+        name: "{{ RESOURCE_GROUP_NAME }}"
+        location: "{{ LOCATION }}"
+
+    - name: Create OCP Cluster
+      azure.azcollection.azure_rm_deployment:
+        name: "{{ DEPLOYMENT_NAME }}"
+        resource_group_name: "{{ RESOURCE_GROUP_NAME }}"
+        location: "{{ LOCATION }}"
+        template: "{{ ARM_TEMPLATE }}"
+        parameters: "{{ ARM_PARAMETERS }}"
