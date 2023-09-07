@@ -382,6 +382,7 @@ Outputs:
     Value: !GetAtt 'ZModStack.Outputs.OpenshiftPassword'
   WaziDevspacesConsole:
     Description: The URL for the Wazi Devspaces UI.
+    Condition: AZValidation
     Value: !GetAtt 'ZModStack.Outputs.WaziDevspacesConsole'
   AZValidationError:
     Description: Error when the AZ conditions fail

@@ -11,6 +11,9 @@ yum copr enable lsm5/container-selinux -y
 yum install podman -y
 podman version
 
+#Install podman-compose 
+python3 -m pip install podman-compose
+
 #install jq
 wget "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64"
 mv jq-linux64 jq
