@@ -556,7 +556,7 @@ Resources:
             aws ec2 create-tags --resources $ROOT_VOLUME_IDS --region $AWS_REGION --tags Key=Name,Value=\"${AWS::StackName}-bootnode-volume\"           
  
             # Clone git repo containing automation scripts for AWS
-            git clone --no-checkout -b ce-40 https://github.com/IBM/zmodstack-deploy.git /home/ec2-user/zmodstack
+            git clone --no-checkout -b dev https://github.com/IBM/zmodstack-deploy.git /home/ec2-user/zmodstack
             cd /home/ec2-user/zmodstack && git sparse-checkout set aws ocp && git checkout @
             chown -fR ec2-user:ec2-user /home/ec2-user/zmodstack
             source /home/ec2-user/zmodstack/aws/scripts/bootnode-bootstrap.sh
