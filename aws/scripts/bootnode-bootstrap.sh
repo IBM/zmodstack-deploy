@@ -11,6 +11,9 @@ yum copr enable lsm5/container-selinux -y
 yum install podman -y
 podman version
 
+#Install podman-compose 
+python3 -m pip install podman-compose
+
 #install jq
 wget "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64"
 mv jq-linux64 jq
@@ -19,9 +22,12 @@ mv jq /usr/local/bin
 cp /usr/local/bin/jq /usr/bin/
 
 # Install openshift-client
-wget "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest-4.10/openshift-client-linux.tar.gz"
+wget "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz"
 tar -xvf openshift-client-linux.tar.gz
 mv oc kubectl /usr/local/bin
+
+# Install Ansible
+python3 -m pip install ansible
 
 # Install CloudFormation bootstrap tools - https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html
 echo "Installing CloudFormation Bootstrap Tools"

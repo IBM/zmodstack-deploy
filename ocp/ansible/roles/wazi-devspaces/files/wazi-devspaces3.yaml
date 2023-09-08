@@ -1,0 +1,45 @@
+---
+apiVersion: org.eclipse.che/v2
+kind: CheCluster
+metadata:
+  name: wazi-devspaces
+spec:
+  components:
+    cheServer:
+      debug: false
+      logLevel: INFO
+    database:
+      credentialsSecretName: postgres-credentials
+      externalDb: false
+      postgresDb: dbche
+      postgresHostName: postgres
+      postgresPort: '5432'
+      pvc:
+        claimSize: 1Gi
+    metrics:
+      enable: true
+    pluginRegistry:
+      openVSXURL: ''
+  containerRegistry: {}
+  devEnvironments:
+    startTimeoutSeconds: 300
+    secondsOfRunBeforeIdling: -1
+    maxNumberOfWorkspacesPerUser: -1
+    containerBuildConfiguration:
+      openShiftSecurityContextConstraint: container-build
+    disableContainerBuildCapabilities: true
+    defaultEditor: che-incubator/che-code/latest
+    defaultComponents:
+      - container:
+          sourceMapping: /projects
+          image: >-
+            registry.redhat.io/devspaces/udi-rhel8@sha256:d18f22ef1aa2e5d1da4e3356ee1fc8fa59f795cdc3ab9d54c666054fbcfecd8f
+        name: universal-developer-image
+    defaultNamespace:
+      autoProvision: true
+      template: <username>-devspaces
+    secondsOfInactivityBeforeIdling: 1800
+    storage:
+      pvcStrategy: per-user
+  gitServices: {}
+  networking: {}

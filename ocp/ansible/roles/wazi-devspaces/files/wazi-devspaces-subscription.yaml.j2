@@ -1,0 +1,12 @@
+---
+apiVersion: '{{ devspaces_subscription.apiVersion }}'
+kind: Subscription
+metadata:
+  name: '{{ devspaces_subscription.name }}'
+spec:
+  channel: '{{ devspaces_subscription.spec.channel }}'
+  installPlanApproval: Automatic
+  name: '{{ devspaces_subscription.spec.name }}'
+  source: ibm-operator-catalog
+  sourceNamespace: openshift-marketplace
+  startingCSV: '{{ devspaces_subscription.spec.startingCSV }}'

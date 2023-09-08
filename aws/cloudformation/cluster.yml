@@ -43,6 +43,13 @@ Metadata:
           - OpenshiftVersion
           - OpenshiftUsername
           - OpenshiftPassword
+      - Label:
+          default: IBM Z and Cloud Modernization Stack resources
+        Parameters:
+          - ZosCloudBroker
+          - ZosConnect
+          - WaziDevspaces
+          - WaziDevspacesVersion
       
     ParameterLabels:
       PrivateSubnet1ID:
@@ -95,6 +102,14 @@ Metadata:
         default: License agreement
       APIKey:
         default: IBM Container Registry API or Entitlement Key
+      ZosCloudBroker:
+        default: Install IBM z/OS Cloud Broker
+      ZosConnect:
+        default: Install IBM z/OS Connect
+      WaziDevspaces:
+        default: Install IBM Wazi DevSpaces
+      WaziDevspacesVersion:
+        default: Version of IBM Wazi DevSpaces 
 
 Parameters:
   APIKey:
@@ -217,6 +232,28 @@ Parameters:
     Description: Password to be used to login to Openshift Console
     Type: String
     NoEcho: 'true'
+  ZosCloudBroker:
+    Description: Install IBM z/OS Cloud Broker
+    Default: true
+    Type: String
+    AllowedValues: [true, false]
+  ZosConnect:
+    Description: Install IBM z/OS Connect
+    Default: true
+    Type: String
+    AllowedValues: [true, false]
+  WaziDevspaces:
+    Description: Install IBM Wazi DevSpaces
+    Default: true
+    Type: String
+    AllowedValues: [true, false]
+  WaziDevspacesVersion:
+    Description: Version of IBM Wazi DevSpaces
+    Type: String
+    Default: "3.0.0"
+    AllowedValues:
+      - "3.0.0"
+      - "2.3.0"
   LicenseAgreement:
     Description: >-
       I have read and agreed to the license terms for IBM Z and Cloud Modernization Stack that were provided to me at time of purchase.
@@ -264,6 +301,9 @@ Rules:
 Conditions:
   3AZConditionCheck: !Equals [!Ref NumberOfAZs, '3']
   AcceptLicense: !Equals [!Ref LicenseAgreement, 'I agree']
+  ZosCloudBrokerCheck: !Equals [true, !Ref ZosCloudBroker]
+  ZosConnectCheck: !Equals [true, !Ref ZosConnect]
+  WaziDevspacesCheck: !Equals [true, !Ref WaziDevspaces]
 
 Resources:
   KeyPairName:
@@ -385,6 +425,13 @@ Resources:
       Type: String
       Value: !Sub "https://console-openshift-console.apps.${ClusterName}.${DomainName}"
 
+  WaziDevspacesURL:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "${AWS::StackName}-WaziDevspacesURL"
+      Type: String
+      Value: !Sub "https://eclipse-che.apps.${ClusterName}.${DomainName}"
+
   BootnodeInstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
     Properties:
@@ -400,6 +447,10 @@ Resources:
       - IpProtocol: tcp
         FromPort: 22
         ToPort: 22
+        CidrIp: !Ref BootNodeAccessCIDR
+      - IpProtocol: tcp
+        FromPort: 9443
+        ToPort: 9443
         CidrIp: !Ref BootNodeAccessCIDR
       SecurityGroupEgress:
       - IpProtocol: "-1"
@@ -505,8 +556,8 @@ Resources:
             aws ec2 create-tags --resources $ROOT_VOLUME_IDS --region $AWS_REGION --tags Key=Name,Value=\"${AWS::StackName}-bootnode-volume\"           
  
             # Clone git repo containing automation scripts for AWS
-            git clone --no-checkout https://github.com/IBM/zmodstack-deploy.git /home/ec2-user/zmodstack
-            cd /home/ec2-user/zmodstack && git sparse-checkout set aws && git checkout @
+            git clone --no-checkout -b dev https://github.com/IBM/zmodstack-deploy.git /home/ec2-user/zmodstack
+            cd /home/ec2-user/zmodstack && git sparse-checkout set aws ocp && git checkout @
             chown -fR ec2-user:ec2-user /home/ec2-user/zmodstack
             source /home/ec2-user/zmodstack/aws/scripts/bootnode-bootstrap.sh
 
@@ -547,7 +598,7 @@ Resources:
             echo "computenode_instance_type=\"${ComputeInstanceType}\"" >> terraform.tfvars
             echo "computenode_replica_count=${NumberOfCompute}" >> terraform.tfvars
             echo "enable_permission_quota_check=\"false\"" >> terraform.tfvars
-
+            
             export TF_LOG=DEBUG
             export TF_LOG_PATH=/home/ec2-user/zmodstack/aws/terraform/tf-trace.log
             terraform init -input=false
@@ -558,12 +609,22 @@ Resources:
             ecode=$?
             
             # Setup kubeconfig for ec2-user
-            mkdir -p /home/ec2-user/.kube/
-            cp /home/ec2-user/zmodstack/aws/terraform/installer-files/auth/kubeconfig /home/ec2-user/.kube/
-            mv /home/ec2-user/.kube/kubeconfig /home/ec2-user/.kube/config
-            export KUBECONFIG=$KUBECONFIG:/home/ec2-user/.kube/config
-            echo 'export KUBECONFIG=$KUBECONFIG:/home/ec2-user/.kube/config' >> ~/.bash_profile
-            chown -R ec2-user:ec2-user /home/ec2-user/.kube
+            cp /home/ec2-user/zmodstack/aws/terraform/installer-files/auth/kubeconfig /root/.kube/
+            mv /root/.kube/kubeconfig /root/.kube/config
+            export KUBECONFIG=$KUBECONFIG:/root/.kube/config
+            echo 'export KUBECONFIG=$KUBECONFIG:/root/.kube/config' >> ~/.bash_profile
+
+            #initiate ansible-playbooks to install z-mod-stack
+            JSON_STRING=$(jq -n \
+                  --arg zoscb ${ZosCloudBroker} \
+                  --arg zosconnect ${ZosConnect} \
+                  --arg wazidevspaces ${WaziDevspaces} \
+                  --arg wazidevspacesversion ${WaziDevspacesVersion} \
+                  '{ zoscb: $zoscb, zosconnect: $zosconnect, wazidevspaces: $wazidevspaces, wazidevspacesversion: $wazidevspacesversion }')
+            printf '%s\n' "$JSON_STRING" > /home/ec2-user/zmodstack/ocp/ansible/extravars.json
+            pip3 install --user -r /home/ec2-user/zmodstack/ocp/ansible/requirements.txt
+            ansible-galaxy collection install -r /home/ec2-user/zmodstack/ocp/ansible/requirements.yml
+            cd /home/ec2-user/zmodstack/ocp/ansible && ansible-playbook playbooks/main.yaml --extra-vars "@extravars.json" 
 
             # Copy values logs to S3
             aws s3 cp /var/log/cloud-init-output.log s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_cloud-init-output.log
@@ -678,3 +739,7 @@ Outputs:
   OpenshiftPassword:
     Description: OpenShift password secret.
     Value: !Ref OpenshiftSecret
+
+  WaziDevspacesConsole:
+    Description: The URL for the Wazi Devspaces UI.
+    Value: !GetAtt WaziDevspacesURL.Value

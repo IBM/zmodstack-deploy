@@ -1,0 +1,16 @@
+---
+kind: Route
+apiVersion: "route.openshift.io/v1"
+metadata:
+  name: "ibm-zmodstack-route"
+spec:
+  to:
+    kind: "Service"
+    name: "ibm-zoscb-ui-zoscloudbroker"
+    weight: 100
+  port:
+    targetPort: "ui-port"
+  tls:
+    termination: "passthrough"
+    insecureEdgeTerminationPolicy: "None"
+  wildcardPolicy: "None"
