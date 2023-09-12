@@ -23,7 +23,6 @@
         "oc login --insecure-skip-tls-verify -u {{ OCP_USERNAME }} -p {{ OCP_PASSWORD }} --server=https://api.{{ CLUSTER_NAME }}.{{ DNS_ZONE }}:6443"
       register: cluster_login
       changed_when: cluster_login.rc != 0
-      ignore_errors: true
 
     - name: Openshift cluster API status
       ansible.builtin.debug:
