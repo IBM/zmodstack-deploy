@@ -30,18 +30,18 @@ This resource group will contain all Azure resources needed to launch the OCP bo
    ```
 6.  Login to or create a Red Hat account and download a Pull Secret. https://cloud.redhat.com/openshift/install/pull-secret
 7. Login to IBM Cloud to obtain Entitlement API Key. https://www.ibm.com/account/reg/us-en/signup?formid=urx-42212
-8. Download the [ARM Template](https://github.ibm.com/IBM-Z-and-Cloud-Modernization-Stack/deploy/blob/dev/azure/marketplace/mainTemplate.json) file from GitHub to the local system.
-9. Download the [ARM Parameters](https://github.ibm.com/IBM-Z-and-Cloud-Modernization-Stack/deploy/blob/dev/azure/marketplace/mainParameters.json) file from GitHub to the local system.
-10. Initiate a [Custom Deployment](https://portal.azure.com/#create/Microsoft.Template) from Azure Portal by uploading the ARM Template. 
-    > Note: You may either keep the predefined values for ARM parameters or provide new values.
+8. Download the [ARM Template](https://github.com/IBM/zmodstack-deploy/blob/dev/azure/marketplace/mainTemplate.json) file from public GitHub repository to the local system.
+9. Download the [ARM Parameters](https://github.com/IBM/zmodstack-deploy/blob/dev/azure/marketplace/mainParameters.json) file from public GitHub repository to the local system.
+10. Initiate a [Custom Deployment](https://portal.azure.com/#create/Microsoft.Template) from Azure Portal by uploading the ARM Template and ARM Parameters files. 
+    > Note: You may either keep the predefined values for ARM Parameters or provide new values.
     1. **Resource group** ---> Select a Resource Group from the drop down option or Create new 
     1. **Aad Client Id** ---> Same as the `appId` generated in step 3 
     1. **Aad Client Secret** ---> Same as the `password` generated in step 3 
     1. **SSH public key source** ---> Generate a new key pair or provide an existing Public Key 
-    1. **Pull Secret** ---> Provide the Pull Secret generated in step 11 
+    1. **Pull Secret** ---> Provide the Pull Secret generated in step 6 
     1. **Openshift Password** ---> Provide a unique password for login to OpenShift console UI 
     1. **Cluster Resource Group Name** ---> Give an existing Resource Group name or keep it as blank so that OpenShift installer will create a Resource Group based on the Cluster name 
-    1. **Api Key** ---> Provide the Entitlement API Key generated in step 12
+    1. **Api Key** ---> Provide the Entitlement API Key generated in step 7
     1. **Z Mod Stack License Agreement** ---> Select Accept from drop down options 
     <img width="1043" alt="Screenshot 2023-06-05 at 12 41 47 PM" src="https://media.github.ibm.com/user/401002/files/10c96b64-7e73-43eb-a81d-ff7ed6207377">
     <img width="1180" alt="Screenshot 2023-06-05 at 12 42 16 PM" src="https://media.github.ibm.com/user/401002/files/fcc57636-c423-42d3-becb-d2e85230741d">
