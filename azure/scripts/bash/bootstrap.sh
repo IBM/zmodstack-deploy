@@ -69,7 +69,7 @@ function vaultSecret {
 echo $(date) " - Get Deployment Parameters and Variables"
 export BOOTSTRAP_ADMIN_USERNAME=$(armParm bootstrapAdminUsername)
 export OPENSHIFT_PASSWORD=$(vaultSecret openshiftPassword)
-export BOOTSTRAP_SSH_PUBLIC_KEY=$(armParm bootstrapSshPublicKey)
+export BOOTSTRAP_SSH_PUBLIC_KEY=$(vaultSecret bootstrapSshPublicKey)
 export COMPUTE_INSTANCE_COUNT=$(armParm computeInstanceCount)
 export CONTROLPLANE_INSTANCE_COUNT=$(armParm controlplaneInstanceCount)
 export SUBSCRIPTION_ID=$(az account show | jq -r '.id')
@@ -163,7 +163,7 @@ ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/deploy.yaml \
   -e PULL_SECRET=$PULL_SECRET \
   -e ENABLE_FIPS=$ENABLE_FIPS \
   -e PRIVATE_OR_PUBLIC=$PRIVATE_OR_PUBLIC \
-  -e BOOTSTRAP_SSH_PUBLIC_KEY=$BOOTSTRAP_SSH_PUBLIC_KEY \
+  -e "BOOTSTRAP_SSH_PUBLIC_KEY='$BOOTSTRAP_SSH_PUBLIC_KEY'" \
   -e SINGLE_ZONE_OR_MULTI_ZONE=$SINGLE_ZONE_OR_MULTI_ZONE \
   -e INSTALLER_HOME=$INSTALLER_HOME \
   -e ENABLE_AUTOSCALER=$ENABLE_AUTOSCALER \
