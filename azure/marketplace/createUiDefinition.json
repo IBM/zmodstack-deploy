@@ -76,6 +76,90 @@
             "constraints": {
               "required": true
             }
+          },
+          {
+            "name": "zosCloudBrokerInstall",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Install z/OS Cloud Broker",
+            "defaultValue": "No",
+            "toolTip": "Whether z/OS Cloud Broker should be installed or not.",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "No",
+                  "value": false
+                },
+                {
+                  "label": "Yes",
+                  "value": true
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "zosConnectInstall",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Install z/OS Connect",
+            "defaultValue": "No",
+            "toolTip": "Whether z/OS Connect should be installed or not.",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "No",
+                  "value": false
+                },
+                {
+                  "label": "Yes",
+                  "value": true
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "waziDevspacesInstall",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Install Wazi Devspaces",
+            "defaultValue": "No",
+            "toolTip": "Whether Wazi Devspaces should be installed or not.",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "No",
+                  "value": false
+                },
+                {
+                  "label": "Yes",
+                  "value": true
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "waziDevspacesVersion",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Wazi Devspaces Version",
+            "defaultValue": "2.3.0",
+            "toolTip": "The version of Wazi Devspaces to deploy",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "2.3.0",
+                  "value": "2.3.0"
+                },
+                {
+                  "label": "3.0.0",
+                  "value": "3.0.0"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
           }
         ]
       },
@@ -469,7 +553,11 @@
       "openshiftPassword": "[steps('OpenshiftConfig').openshiftPassword]",
       "openshiftVersion": "[steps('OpenshiftConfig').openshiftVersion]",
       "apiKey": "[steps('zModStackConfig').apiKey]",
-      "zModStackLicenseAgreement": "[steps('zModStackConfig').zModStackLicenseAgreement]"
+      "zModStackLicenseAgreement": "[steps('zModStackConfig').zModStackLicenseAgreement]",
+      "zosCloudBrokerInstall": "[steps('zModStackConfig').zosCloudBrokerInstall]",
+      "zosConnectInstall": "[steps('zModStackConfig').zosConnectInstall]",
+      "waziDevspacesInstall": "[steps('zModStackConfig').waziDevspacesInstall]",
+      "waziDevspacesVersion": "[steps('zModStackConfig').waziDevspacesVersion]"
     }
   }
 }
