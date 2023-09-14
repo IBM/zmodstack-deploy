@@ -88,9 +88,6 @@
         "secretName": "openshiftPassword"
       }
     },
-    "clusterResourceGroupName": {
-      "value": "z-mod-stack-ocp-dev-rg"
-    },
     "apiKey": {
       "reference": {
         "keyVault": {
@@ -104,6 +101,18 @@
     },
     "zModStackLicenseAgreement": {
       "value": "accept"
+    },
+    "zosCloudBrokerInstall": {
+      "value": true
+    },
+    "zosConnectInstall": {
+      "value": true
+    },
+    "waziDevspacesInstall": {
+      "value": true
+    },
+    "waziDevspacesVersion": {
+      "value": "2.3.0"
     }
   }
 }
