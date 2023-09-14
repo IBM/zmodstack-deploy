@@ -1,6 +1,7 @@
 # User Guide
 
-This document explains how an OCP Cluster can be provisioned and deprovisioned in Azure from Azure Portal.
+This document explains how an OCP Cluster can be provisioned and deprovisioned in Azure Portal using the templates and scripts present in this public GitHub repository.
+> Note : User can also provision the OCP Cluster directly from the [Azure Marketplace](https://portal.azure.com/#view/Microsoft_Azure_Marketplace/GalleryItemDetailsBladeNopdl/id/ibm-usa-ny-armonk-hq-6275750-ibmcloud-asperia.ibm_z_and_cloud_modernization_stack_byol/resourceGroupId//resourceGroupLocation//dontDiscardJourney~/false/_provisioningContext~/%7B%22initialValues%22%3A%7B%22subscriptionIds%22%3A%5B%2260088d66-faba-486b-b703-276fcdd23696%22%5D%2C%22resourceGroupNames%22%3A%5B%22z-mod-stack-dev-rg%22%5D%2C%22locationNames%22%3A%5B%22eastus%22%2C%22australiaeast%22%5D%7D%2C%22telemetryId%22%3A%22ec0d0f95-5912-4445-ba2b-07c2d2a5a4ac%22%2C%22marketplaceItem%22%3A%7B%22categoryIds%22%3A%5B%5D%2C%22id%22%3A%22Microsoft.Portal%22%2C%22itemDisplayName%22%3A%22NoMarketplace%22%2C%22products%22%3A%5B%5D%2C%22version%22%3A%22%22%2C%22productsWithNoPricing%22%3A%5B%5D%2C%22publisherDisplayName%22%3A%22Microsoft.Portal%22%2C%22deploymentName%22%3A%22NoMarketplace%22%2C%22launchingContext%22%3A%7B%22telemetryId%22%3A%22ec0d0f95-5912-4445-ba2b-07c2d2a5a4ac%22%2C%22source%22%3A%5B%5D%2C%22galleryItemId%22%3A%22%22%7D%2C%22deploymentTemplateFileUris%22%3A%7B%7D%2C%22uiMetadata%22%3Anull%7D%7D). Steps to follow are explained in the [IBM Z And Cloud Modernization Stack Azure Deployment Guide](https://zmodstackstorage.blob.core.windows.net/client-assets/IBM_Z_And_Cloud_Modernization_Stack_Azure_Deployment_Guide.pdf).
 
 ## Azure Portal
 
@@ -33,16 +34,18 @@ This resource group will contain all Azure resources needed to launch the OCP bo
 8. Download the [ARM Template](https://github.com/IBM/zmodstack-deploy/blob/dev/azure/marketplace/mainTemplate.json) file from public GitHub repository to the local system.
 9. Download the [ARM Parameters](https://github.com/IBM/zmodstack-deploy/blob/dev/azure/marketplace/mainParameters.json) file from public GitHub repository to the local system.
 10. Initiate a [Custom Deployment](https://portal.azure.com/#create/Microsoft.Template) from Azure Portal by uploading the ARM Template and ARM Parameters files. 
-    > Note: You may either keep the predefined values for ARM Parameters or provide new values.
-    1. **Resource group** ---> Select a Resource Group from the drop down option or Create new 
+    > Note : You may either keep the predefined values for ARM Parameters or provide new values.
+    1. **Resource group** ---> Select a Resource Group from the drop down options or click on `Create new` and provide the `Name`
     1. **Aad Client Id** ---> Same as the `appId` generated in step 3 
     1. **Aad Client Secret** ---> Same as the `password` generated in step 3 
-    1. **SSH public key source** ---> Generate a new key pair or provide an existing Public Key 
-    1. **Pull Secret** ---> Provide the Pull Secret generated in step 6 
+    1. **SSH public key source** ---> Generate a new key pair or provide an existing Public Key
+    1. **Virtual Network New or Existing** ---> Select `new` from the drop down options
+    1. **Virtual Network Name** ---> Provide a unique name for the Virtual Network
+    1. **Pull Secret** ---> Provide the `Pull Secret` generated in step 6 
     1. **Openshift Password** ---> Provide a unique password for login to OpenShift console UI 
     1. **Cluster Resource Group Name** ---> Give an existing Resource Group name or keep it as blank so that OpenShift installer will create a Resource Group based on the Cluster name 
-    1. **Api Key** ---> Provide the Entitlement API Key generated in step 7
-    1. **Z Mod Stack License Agreement** ---> Select Accept from drop down options 
+    1. **Api Key** ---> Provide the `Entitlement API Key` generated in step 7
+    1. **Z Mod Stack License Agreement** ---> Select `Accept` from drop down options
     <img width="1043" alt="Screenshot 2023-06-05 at 12 41 47 PM" src="https://media.github.ibm.com/user/401002/files/10c96b64-7e73-43eb-a81d-ff7ed6207377">
     <img width="1180" alt="Screenshot 2023-06-05 at 12 42 16 PM" src="https://media.github.ibm.com/user/401002/files/fcc57636-c423-42d3-becb-d2e85230741d">
 11.  Note down the Public IP of the Bootstrap VM and OpenShift Console URL from the Outputs section of the Deployment.
