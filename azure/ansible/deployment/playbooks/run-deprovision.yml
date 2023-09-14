@@ -1,12 +1,12 @@
 ---
-- name: Destroy Azure Resources
+- name: Delete OCP Cluster
   hosts: localhost
 
   vars:
     RESOURCE_GROUP_DNS: z-mod-stack-rg
     DNS_ZONE: ibmzsw.com
     CLUSTER_NAME: z-mod-stack
-    CLUSTER_RESOURCE_GROUP_NAME: z-mod-stack-abc12-rg
+    CLUSTER_RESOURCE_GROUP_NAME: z-mod-stack-ocp-dev-rg
     RESOURCE_GROUP_NAME: z-mod-stack-dev-rg
 
   tasks:
