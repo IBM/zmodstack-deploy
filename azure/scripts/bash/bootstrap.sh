@@ -178,7 +178,7 @@ ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/deploy.yaml \
   -e SUBSCRIPTION_ID=$SUBSCRIPTION_ID \
   -e TENANT_ID=$TENANT_ID
 
-# Execute Ansible playbook to deploy IBM Z and Cloud Modernization Stack components
+# Execute Ansible playbook to deploy IBM Z and Cloud Modernization Stack
 runuser -l $BOOTSTRAP_ADMIN_USERNAME -c "cd $GIT_CLONE_DIR/ocp/ansible && \
   ansible-playbook playbooks/main.yaml -e zoscb=$ZOS_CLOUD_BROKER_INSTALL -e zosconnect=$ZOS_CONNECT_INSTALL \
   -e wazidevspaces=$WAZI_DEVSPACES_INSTALL -e wazidevspacesversion=$WAZI_DEVSPACES_VERSION"
