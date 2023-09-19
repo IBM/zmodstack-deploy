@@ -3,7 +3,7 @@
   ansible.builtin.command: |
     oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}'
   register: CLUSTER_ID_OUTPUT
-  changed_when: CLUSTER_ID_OUTPUT.rc != 0
+  changed_when: CLUSTER_ID_OUTPUT.rc == 0
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
 - name: Set Cluster ID

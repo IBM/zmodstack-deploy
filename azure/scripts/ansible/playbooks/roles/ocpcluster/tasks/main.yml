@@ -66,8 +66,8 @@
   ansible.builtin.command: "{{ INSTALLER_HOME }}/openshift-install create cluster --dir={{ INSTALLER_HOME }}/openshiftfourx --log-level=debug"
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
-  register: command_output
-  changed_when: command_output.rc != 0
+  register: ocp_install
+  changed_when: ocp_install.rc == 0
 - name: Create a directory kube for kubeconfig file
   ansible.builtin.file:
     path: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube"
@@ -86,20 +86,20 @@
   ansible.builtin.command: oc project openshift-machine-api
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
-  register: command_output
-  changed_when: command_output.rc != 0
+  register: switch_project
+  changed_when: switch_project.rc == 0
 - name: Create OpenShift User
   ansible.builtin.command: "htpasswd -c -B -b /tmp/.htpasswd {{ OPENSHIFT_USERNAME }} {{ OPENSHIFT_PASSWORD }}"
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
-  register: command_output
-  changed_when: command_output.rc != 0
+  register: create_user
+  changed_when: create_user.rc == 0
 - name: Create Secret
   ansible.builtin.command: oc create secret generic htpass-secret --from-file=htpasswd=/tmp/.htpasswd -n openshift-config
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
-  register: command_output
-  changed_when: command_output.rc != 0
+  register: create_secret
+  changed_when: create_secret.rc == 0
 - name: Setup Authentication
   kubernetes.core.k8s:
     state: present
@@ -110,8 +110,8 @@
   ansible.builtin.command: "oc adm policy add-cluster-role-to-user cluster-admin {{ OPENSHIFT_USERNAME }}"
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
-  register: command_output
-  changed_when: command_output.rc != 0
+  register: add_role
+  changed_when: add_role.rc == 0
 - name: Install IBM Operator Catalogue
   kubernetes.core.k8s:
     state: present
