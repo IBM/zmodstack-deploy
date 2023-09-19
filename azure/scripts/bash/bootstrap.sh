@@ -23,8 +23,6 @@ ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/predeploy.yaml
 echo $(date) " - Azure CLI Login"
 az login --identity
 
-echo $(date) " - ############### Deploy Script - Start ###############"
-
 # FIXME - if the user-assigned identity is given a scope at the subscription level, then the command below will
 # fail because multiple resource groups will be listed
 RESOURCE_GROUP=$(az group list --query [0].name -o tsv)
@@ -182,5 +180,3 @@ ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/deploy.yaml \
 runuser -l $BOOTSTRAP_ADMIN_USERNAME -c "cd $GIT_CLONE_DIR/ocp/ansible && \
   ansible-playbook playbooks/main.yaml -e zoscb=$ZOS_CLOUD_BROKER_INSTALL -e zosconnect=$ZOS_CONNECT_INSTALL \
   -e wazidevspaces=$WAZI_DEVSPACES_INSTALL -e wazidevspacesversion=$WAZI_DEVSPACES_VERSION"
-
-echo $(date) " - ############### Deploy Script - Complete ###############"
