@@ -295,10 +295,10 @@
     },
     "waziDevspacesVersion": {
       "type": "string",
-      "defaultValue": "2.8",
+      "defaultValue": "2.x",
       "allowedValues": [
-        "2.8",
-        "3.0"
+        "2.x",
+        "3.x"
       ],
       "metadata": {
         "description": "Wazi Devspaces Version"
