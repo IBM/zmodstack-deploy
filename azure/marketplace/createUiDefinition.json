@@ -114,7 +114,7 @@
               ],
               "required": true
             },
-            "visible": "[equals(steps('zModStackConfig').waziDevspacesInstall,true)]"
+            "visible": true
           }
         ]
       },
