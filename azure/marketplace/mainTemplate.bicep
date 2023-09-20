@@ -156,10 +156,10 @@ param waziDevspacesInstall bool = false
 
 @description('Wazi Devspaces Version')
 @allowed([
-  '2.3.0'
-  '3.0.0'
+  '2.x'
+  '3.x'
 ])
-param waziDevspacesVersion string = '2.3.0'
+param waziDevspacesVersion string = '2.x'
 
 @description('Name of the managed identity that will run the container (and create storage if necessary)')
 param managedIdName string = 'zmodmgdid${substring(uniqueString(resourceGroup().id), 1, 7)}'
