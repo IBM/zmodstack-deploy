@@ -99,17 +99,17 @@
             "name": "waziDevspacesVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "Wazi Devspaces Version",
-            "defaultValue": "3.x",
+            "defaultValue": "3.X",
             "toolTip": "The version of Wazi Devspaces to deploy",
             "constraints": {
               "allowedValues": [
                 {
-                  "label": "2.x",
-                  "value": "2.x"
+                  "label": "2.X",
+                  "value": "2.X"
                 },
                 {
-                  "label": "3.x",
-                  "value": "3.x"
+                  "label": "3.X",
+                  "value": "3.X"
                 }
               ],
               "required": true
