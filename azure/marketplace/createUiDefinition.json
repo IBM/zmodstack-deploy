@@ -99,22 +99,22 @@
             "name": "waziDevspacesVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "Wazi Devspaces Version",
-            "defaultValue": "3.0",
+            "defaultValue": 3.0,
             "toolTip": "The version of Wazi Devspaces to deploy",
             "constraints": {
               "allowedValues": [
                 {
                   "label": "2.8",
-                  "value": "2.8"
+                  "value": 2.8
                 },
                 {
                   "label": "3.0",
-                  "value": "3.0"
+                  "value": 3.0
                 }
               ],
               "required": true
             },
-            "visible": true
+            "visible": "[equals(steps('zModStackConfig').waziDevspacesInstall,true)]"
           }
         ]
       },
