@@ -258,10 +258,10 @@ Parameters:
   WaziDevspacesVersion:
     Description: Version of Wazi DevSpaces
     Type: String
-    Default: "3.0.0"
+    Default: "3.x"
     AllowedValues:
-      - "3.0.0"
-      - "2.3.0"
+      - "3.x"
+      - "2.x"
 
 Rules:
   LicenseAgreementRule:
