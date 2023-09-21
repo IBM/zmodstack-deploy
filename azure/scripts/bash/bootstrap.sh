@@ -9,7 +9,7 @@ sudo dnf install -y git
 
 export GIT_CLONE_DIR=$INSTALLER_HOME/zmodstack-deploy
 mkdir -p $GIT_CLONE_DIR
-git clone --branch ce-42 https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
+git clone --branch dev https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
 
 # Install Ansible
 sudo dnf install -y python3-pip
