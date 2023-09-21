@@ -88,7 +88,7 @@
             "type": "Microsoft.Common.CheckBox",
             "label": "Install z/OS Connect",
             "toolTip": "Whether z/OS Connect should be installed or not."
-		  },	
+		      },	
           {
             "name": "waziDevspacesInstall",
             "type": "Microsoft.Common.CheckBox",
