@@ -69,7 +69,7 @@
   set_fact:
     apikeynew={{ jq_output.stdout }}
 
-- name: Pull Z/OS Connect server image via Podman
+- name: Pull Z/OS Connect server image
   containers.podman.podman_image:
     name: 'cp.icr.io/cp/zosconnect/ibm-zcon-server:{{ server_image_version }}'
     tag: '{{ server_image_version }}'
@@ -79,45 +79,45 @@
   
 - name: Create API project workspace directory - IBM Z/OS Connect
   ansible.builtin.file:
-    path: "{{ project_workspace }}"
+    path: "{{ playbook_dir }}/ansible-workspace/zosconnect"
     state: directory
 
 - name: Create subdirectories for sample Liberty server config - IBM Z/OS Connect
   ansible.builtin.file:
-    path: "{{ project_workspace }}/CatalogManagerApi/src/main/liberty/config"
+    path: "{{ playbook_dir }}/ansible-workspace/zosconnect/CatalogManagerApi/src/main/liberty/config"
     state: directory
 
 - name: Create certs dir in workspace directory - IBM Z/OS Connect
   ansible.builtin.file:
-    path: "{{ project_workspace }}/certs"
+    path: "{{ playbook_dir }}/ansible-workspace/zosconnect/certs"
     state: directory
 
 - name: Create logs dir in workspace directory - IBM Z/OS Connect
   ansible.builtin.file:
-    path: "{{ project_workspace }}/logs"
+    path: "{{ playbook_dir }}/ansible-workspace/zosconnect/logs"
     state: directory
 
 - name: Create server configuration file - IBM Z/OS Connect
   ansible.builtin.template:
     src: files/cics.xml.j2
-    dest: "{{ project_workspace }}/CatalogManagerApi/src/main/liberty/config/cics.xml"
+    dest: "{{ playbook_dir }}/ansible-workspace/zosconnect/CatalogManagerApi/src/main/liberty/config/cics.xml"
 
 - name: Create devfile.yaml - IBM Z/OS Connect
   ansible.builtin.template:
     src: files/devfile.yaml.j2
-    dest: "{{ project_workspace }}/CatalogManagerApi/devfile.yaml"
+    dest: "{{ playbook_dir }}/ansible-workspace/zosconnect/CatalogManagerApi/devfile.yaml"
 
 - name: Create api dir in workspace directory - IBM Z/OS Connect
   ansible.builtin.file:
-    path: "{{ project_workspace }}/src/main/api"
+    path: "{{ playbook_dir }}/ansible-workspace/zosconnect/src/main/api"
     state: directory
 
 - name: Copy the sample api - IBM Z/OS Connect
   ansible.builtin.copy:
     src: sample-api.yaml
-    dest: "{{ project_workspace }}/src/main/api/sample-api.yaml"
+    dest: "{{ playbook_dir }}/ansible-workspace/zosconnect/src/main/api/sample-api.yaml"
 
-- name: Create podman-compose.yaml - IBM Z/OS Connect Designer
+- name: Create docker-compose.yaml - IBM Z/OS Connect Designer
   ansible.builtin.template:
-    src: files/podman-compose.yaml.j2
-    dest: "{{ project_workspace }}/podman-compose.yaml"
+    src: files/docker-compose.yaml.j2
+    dest: "{{ playbook_dir }}/ansible-workspace/zosconnect/docker-compose.yaml"
