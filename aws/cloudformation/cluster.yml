@@ -250,10 +250,10 @@ Parameters:
   WaziDevspacesVersion:
     Description: Version of IBM Wazi DevSpaces
     Type: String
-    Default: "3.0.0"
+    Default: "3.x"
     AllowedValues:
-      - "3.0.0"
-      - "2.3.0"
+      - "3.x"
+      - "2.x"
   LicenseAgreement:
     Description: >-
       I have read and agreed to the license terms for IBM Z and Cloud Modernization Stack that were provided to me at time of purchase.
