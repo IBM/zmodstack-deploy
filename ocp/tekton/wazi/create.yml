@@ -1,29 +1,29 @@
 ---
-- name: conditional flush cache
+- name: Conditional flush cache
   hosts: localhost
-  gather_facts: False
+  gather_facts: false
   tasks:
     - name: Clear cache if we have changed the target zone
       when: (cache_zone is undefined) or (zone != cache_zone)
-      meta: clear_facts
+      ansible.builtin.meta: clear_facts
+
 - name: Create IBM Cloud VPC VSI
   hosts: localhost
   collections:
-   - ibm.cloudcollection
+    - ibm.cloudcollection
   environment:
     IC_REGION: "{{ region }}"
   vars:
     os_type: zos
     name_prefix: "ivandov"
-    instance-zos:
+    instance:
       name: "{{ name_prefix }}-zvsi"
       profile: mz2o-2x16
       image: .*zos.*
       username: IBMUSER
       python_interpreters:
-      - /usr/lpp/IBM/cyp/v3r9/pyz/bin/python3
-      - /usr/lpp/IBM/cyp/v3r8/pyz/bin/python3
-    instance: "{{ lookup('vars','instance-' + os_type) }}"
+        - /usr/lpp/IBM/cyp/v3r9/pyz/bin/python3
+        - /usr/lpp/IBM/cyp/v3r8/pyz/bin/python3
     ssh_key_name: "{{ ansible_user_id | lower }}"
     ssh_public_key: "{{lookup('file', '~/.ssh/ibmcloud.pub') }}"
     region: "eu-gb"
