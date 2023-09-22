@@ -29,7 +29,7 @@
     region: "eu-gb"
     zone: "{{region}}-1"
     cache_vsi: false
-    resource_group: ""
+    resource_group: "8d923eb7bb0a450baa9bafb46aba797e"
   tasks:
     - name: Save zone as fact
       set_fact:
