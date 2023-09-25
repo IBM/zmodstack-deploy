@@ -56,25 +56,11 @@ spec:
           value: /tekton/home
         - name: image
           value: 'quay.io/ansible/ansible-runner:stable-2.12-latest'
-      runAfter:
-        - run-command
       taskRef:
         kind: Task
         name: ansible-runner
       workspaces:
         - name: runner-dir
-          workspace: zmodstack-deploy
-    - name: run-command
-      params:
-        - name: directory
-          value: /home
-      runAfter:
-        - git-clone
-      taskRef:
-        kind: Task
-        name: run-command
-      workspaces:
-        - name: dir
           workspace: zmodstack-deploy
   workspaces:
     - name: zmodstack-deploy

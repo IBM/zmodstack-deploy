@@ -23,7 +23,9 @@
         - /usr/lpp/IBM/cyp/v3r9/pyz/bin/python3
         - /usr/lpp/IBM/cyp/v3r8/pyz/bin/python3
     ssh_key_name: "{{ ansible_user_id | lower }}"
-    ssh_public_key: "{{lookup('file', '~/.ssh/ibmcloud.pub') }}"
+    # TODO - feed this from pipeline input or SSH key stored in namespace Secret
+    # ssh_public_key: "{{lookup('file', '~/.ssh/ibmcloud.pub') }}"
+    ssh_public_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH8Q/RYUGySZoke4dBp2pJXAb1BM9Vs0pFvl6ESMgzJR zmodstack-deploy"
     region: "eu-gb"
     zone: "{{region}}-1"
     cache_vsi: false
