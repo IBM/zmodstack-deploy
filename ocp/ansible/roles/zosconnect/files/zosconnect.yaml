@@ -1,3 +1,4 @@
+#sample yaml to spin up the zosconnect server 
 ---
 apiVersion: zosconnect.zcon.ibm.com/v1
 kind: ZosConnect
