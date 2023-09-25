@@ -13,7 +13,7 @@
     IC_REGION: "{{ region }}"
   vars:
     os_type: zos
-    name_prefix: "ivandov"
+    name_prefix: "zmodstack-deploy"
     instance:
       name: "{{ name_prefix }}-zvsi"
       profile: mz2o-2x16
@@ -28,6 +28,7 @@
     zone: "{{region}}-1"
     cache_vsi: false
     resource_group: "8d923eb7bb0a450baa9bafb46aba797e"
+    total_ipv4_address_count: 256
   tasks:
     - name: Save zone as fact
       ansible.builtin.set_fact:
