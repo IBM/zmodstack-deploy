@@ -133,6 +133,34 @@ param openshiftVersion string = '4.12'
 ])
 param zModStackLicenseAgreement string = 'reject'
 
+@description('Install z/OS Cloud Broker')
+@allowed([
+  true
+  false
+])
+param zosCloudBrokerInstall bool = false
+
+@description('Install z/OS Connect')
+@allowed([
+  true
+  false
+])
+param zosConnectInstall bool = false
+
+@description('Install Wazi Devspaces')
+@allowed([
+  true
+  false
+])
+param waziDevspacesInstall bool = false
+
+@description('Wazi Devspaces Version')
+@allowed([
+  '2.x'
+  '3.x'
+])
+param waziDevspacesVersion string = '2.x'
+
 @description('Name of the managed identity that will run the container (and create storage if necessary)')
 param managedIdName string = 'zmodmgdid${substring(uniqueString(resourceGroup().id), 1, 7)}'
 
@@ -586,3 +614,7 @@ output cluster_Network_Cidr string = clusterNetworkCidr
 output host_Address_Prefix int = hostAddressPrefix
 output service_Network_Cidr string = serviceNetworkCidr
 output private_Or_Public string = privateOrPublic
+output zos_Cloud_Broker_Install bool = zosCloudBrokerInstall
+output zos_Connect_Install bool = zosConnectInstall
+output wazi_Devspaces_Install bool = waziDevspacesInstall
+output wazi_Devspaces_Version string = waziDevspacesVersion

@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.20.4.51522",
-      "templateHash": "3183504780956278253"
+      "version": "0.21.1.54444",
+      "templateHash": "2739836821841506564"
     }
   },
   "parameters": {
@@ -260,6 +260,50 @@
         "description": "Accept License Agreement"
       }
     },
+    "zosCloudBrokerInstall": {
+      "type": "bool",
+      "defaultValue": false,
+      "allowedValues": [
+        true,
+        false
+      ],
+      "metadata": {
+        "description": "Install z/OS Cloud Broker"
+      }
+    },
+    "zosConnectInstall": {
+      "type": "bool",
+      "defaultValue": false,
+      "allowedValues": [
+        true,
+        false
+      ],
+      "metadata": {
+        "description": "Install z/OS Connect"
+      }
+    },
+    "waziDevspacesInstall": {
+      "type": "bool",
+      "defaultValue": false,
+      "allowedValues": [
+        true,
+        false
+      ],
+      "metadata": {
+        "description": "Install Wazi Devspaces"
+      }
+    },
+    "waziDevspacesVersion": {
+      "type": "string",
+      "defaultValue": "2.x",
+      "allowedValues": [
+        "2.x",
+        "3.x"
+      ],
+      "metadata": {
+        "description": "Wazi Devspaces Version"
+      }
+    },
     "managedIdName": {
       "type": "string",
       "defaultValue": "[format('zmodmgdid{0}', substring(uniqueString(resourceGroup().id), 1, 7))]",
@@ -299,7 +343,7 @@
     "vTrue": true,
     "bootstrapPublicIpDnsLabelName": "[format('bootstrapdns{0}', uniqueString(resourceGroup().id))]",
     "sshKeyPath": "[format('/home/{0}/.ssh/authorized_keys', parameters('bootstrapAdminUsername'))]",
-    "bootstrapScriptUrl": "https://raw.githubusercontent.com/IBM/zmodstack-deploy/dev/azure/scripts/bash/bootstrap.sh",
+    "bootstrapScriptUrl": "https://raw.githubusercontent.com/IBM/zmodstack-deploy/feature-ce-42/azure/scripts/bash/bootstrap.sh",
     "bootstrapScriptFileName": "bootstrap.sh",
     "subscriptionId": "[subscription().subscriptionId]",
     "tenantId": "[subscription().tenantId]",
@@ -849,6 +893,22 @@
     "private_Or_Public": {
       "type": "string",
       "value": "[variables('privateOrPublic')]"
+    },
+    "zos_Cloud_Broker_Install": {
+      "type": "bool",
+      "value": "[parameters('zosCloudBrokerInstall')]"
+    },
+    "zos_Connect_Install": {
+      "type": "bool",
+      "value": "[parameters('zosConnectInstall')]"
+    },
+    "wazi_Devspaces_Install": {
+      "type": "bool",
+      "value": "[parameters('waziDevspacesInstall')]"
+    },
+    "wazi_Devspaces_Version": {
+      "type": "string",
+      "value": "[parameters('waziDevspacesVersion')]"
     }
   }
 }

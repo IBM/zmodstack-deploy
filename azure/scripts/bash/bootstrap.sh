@@ -4,26 +4,24 @@ set -ex
 export INSTALLER_HOME=/mnt/openshift
 mkdir -p $INSTALLER_HOME
 
-#Install git
+# Install git
 sudo dnf install -y git
 
 export GIT_CLONE_DIR=$INSTALLER_HOME/zmodstack-deploy
 mkdir -p $GIT_CLONE_DIR
-git clone --branch dev https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
+git clone --branch feature-ce-42 https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
 
-#Install Ansible
+# Install Ansible
 sudo dnf install -y python3-pip
 sudo pip3 install --upgrade pip
 pip3 install ansible
 pip3 install ansible[azure]
 
-#Execute Ansible playbook to install dependencies
+# Execute Ansible playbook to install dependencies
 ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/predeploy.yaml
 
 echo $(date) " - Azure CLI Login"
 az login --identity
-
-echo $(date) " - ############### Deploy Script - Start ###############"
 
 # FIXME - if the user-assigned identity is given a scope at the subscription level, then the command below will
 # fail because multiple resource groups will be listed
@@ -107,6 +105,10 @@ export CLUSTER_RESOURCE_GROUP_NAME=$(armParm clusterResourceGroupName)
 export API_KEY=$(vaultSecret apiKey)
 export OPENSHIFT_VERSION=$(armParm openshiftVersion)
 export ARM_SKIP_PROVIDER_REGISTRATION=true
+export ZOS_CLOUD_BROKER_INSTALL=$(armParm zosCloudBrokerInstall)
+export ZOS_CONNECT_INSTALL=$(armParm zosConnectInstall)
+export WAZI_DEVSPACES_INSTALL=$(armParm waziDevspacesInstall)
+export WAZI_DEVSPACES_VERSION=$(armParm waziDevspacesVersion)
 
 # Wait for cloud-init to finish
 count=0
@@ -121,7 +123,7 @@ while [[ $(/usr/bin/ps xua | /usr/bin/grep cloud-init | /usr/bin/grep -v grep) ]
 done
 
 # TODO - why do we need this?
-#echo $(date) " - Disable and enable repo"
+# echo $(date) " - Disable and enable repo"
 sudo yum update -y --disablerepo=* --enablerepo="*microsoft*"
 
 if [ $? -eq 0 ]
@@ -132,7 +134,7 @@ else
 	  exit 20
 fi
 
-#Execute Ansible playbook to deploy OCP Cluster
+# Execute Ansible playbook to deploy OCP Cluster
 ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/deploy.yaml \
   -e INSTALLER_HOME=$INSTALLER_HOME \
   -e OPENSHIFT_VERSION=$OPENSHIFT_VERSION \
@@ -174,4 +176,7 @@ ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/deploy.yaml \
   -e SUBSCRIPTION_ID=$SUBSCRIPTION_ID \
   -e TENANT_ID=$TENANT_ID
 
-echo $(date) " - ############### Deploy Script - Complete ###############"
+# Execute Ansible playbook to deploy IBM Z and Cloud Modernization Stack
+runuser -l $BOOTSTRAP_ADMIN_USERNAME -c "cd $GIT_CLONE_DIR/ocp/ansible && chown -R $BOOTSTRAP_ADMIN_USERNAM:root $GIT_CLONE_DIR && \
+  ansible-playbook playbooks/main.yaml -e zoscb=$ZOS_CLOUD_BROKER_INSTALL -e zosconnect=$ZOS_CONNECT_INSTALL \
+  -e wazidevspaces=$WAZI_DEVSPACES_INSTALL -e wazidevspacesversion=$WAZI_DEVSPACES_VERSION"
