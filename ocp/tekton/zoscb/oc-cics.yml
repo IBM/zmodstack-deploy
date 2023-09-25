@@ -1,0 +1,13 @@
+apiVersion: zoscb.ibm.com/v2beta2
+kind: OperatorCollection
+metadata:
+  name: zos-cics-ts-operator.ibm.1.0.0
+  # labels:
+  #   instance-name: zoscloudbroker
+  #   managed-by: ibm-zos-cloud-broker
+  #   operator-domain: ibm
+  #   operator-name: zos-cics-ts-operator
+  #   operator-version: 1.0.0
+spec:
+  collectionURL: 'https://galaxy.ansible.com/download/ibm-zos_cics_operator-1.0.0.tar.gz'
+  skipSignatureVerification: true

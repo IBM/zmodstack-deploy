@@ -1,0 +1,8 @@
+- name: Create z/OS Cloud Broker ZosEndpoint
+  hosts: localhost
+  tasks:
+    - name: Apply a ZosEndpoint configuration with ZVSI connection details
+      kubernetes.core.k8s:
+        state: present
+        namespace: ibm-zmodstack-cloudbroker
+        src: zosendpoint.yml
