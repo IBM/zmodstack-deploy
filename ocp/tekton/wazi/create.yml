@@ -9,8 +9,6 @@
 
 - name: Create IBM Cloud VPC VSI
   hosts: localhost
-  collections:
-    - ibm.cloudcollection
   environment:
     IC_REGION: "{{ region }}"
   vars:
@@ -32,13 +30,13 @@
     resource_group: "8d923eb7bb0a450baa9bafb46aba797e"
   tasks:
     - name: Save zone as fact
-      set_fact:
-        cacheable: True
+      ansible.builtin.set_fact:
+        cacheable: true
         cache_zone: "{{ zone }}"
 
     - name: Create VPC
       when: vpc is undefined
-      ibm_is_vpc:
+      ibm.cloudcollection.ibm_is_vpc:
         name: "{{ name_prefix }}-vpc"
         state: available
         id: "{{ vpc.id | default(omit) }}"
@@ -47,7 +45,7 @@
 
     - name: Configure Security Group Rule to open SSH and web server on the VSI
       when: vpc is undefined
-      ibm_is_security_group_rule:
+      ibm.cloudcollection.ibm_is_security_group_rule:
         state: available
         group: "{{ vpc_create_output.resource.default_security_group }}"
         direction: inbound
@@ -62,13 +60,13 @@
 
     - name: Save VPC as fact
       when: vpc is undefined
-      set_fact:
-        cacheable: True
+      ansible.builtin.set_fact:
+        cacheable: true
         vpc: "{{ vpc_create_output.resource }}"
 
     - name: Create VPC Subnet
       when: subnet is undefined
-      ibm_is_subnet:
+      ibm.cloudcollection.ibm_is_subnet:
         name: "{{ name_prefix }}-{{ zone }}"
         state: available
         id: "{{ subnet.id | default(omit) }}"
@@ -80,13 +78,13 @@
 
     - name: Save VPC Subnet as fact
       when: subnet is undefined
-      set_fact:
-        cacheable: True
+      ansible.builtin.set_fact:
+        cacheable: true
         subnet: "{{ subnet_create_output.resource }}"
 
     - name: Upload SSH Key
       when: ssh_key is undefined
-      ibm_is_ssh_key:
+      ibm.cloudcollection.ibm_is_ssh_key:
         name: "{{ ssh_key_name }}"
         public_key: "{{ ssh_public_key }}"
         id: "{{ ssh_key.id | default(omit) }}"
@@ -95,11 +93,11 @@
 
     - name: Save SSH Key as fact
       when: ssh_key is undefined
-      set_fact:
-        cacheable: True
+      ansible.builtin.set_fact:
+        cacheable: true
         ssh_key: "{{ ssh_key_create_output.resource }}"
 
-    ## FIXME - ibm_is_images_info doesn't return anything! 
+    ## FIXME - ibm_is_images_info doesn't return anything!
     #
     #
     # - name: Retrieve image list
@@ -107,25 +105,22 @@
     #   ibm_is_images_info:
     #     # resource_group: "{{ resource_group }}"
     #   register: images_list
-
     # - name: show image_dict
     #   debug:
     #     var: images_list
-
     # - name: Set VM image name/id dictionary fact
     #   when: image_dict is undefined
     #   set_fact:
     #     cacheable: True
     #     image_dict: "{{ images_list.resource.images |
     #                     items2dict(key_name='name', value_name='id') }}"
-    
     # - name: show image_dict
     #   debug:
     #     var: image_dict
 
     - name: Create VSI
       when: (vsi is undefined) or (vsi == None) or (not cache_vsi)
-      ibm_is_instance:
+      ibm.cloudcollection.ibm_is_instance:
         name: "{{ instance.name }}"
         state: available
         id: "{{ vsi.id | default(omit) }}"
@@ -143,13 +138,13 @@
 
     - name: Save VSI as fact
       when: vsi_create_output.resource is defined
-      set_fact:
-        cacheable: True
+      ansible.builtin.set_fact:
+        cacheable: true
         vsi: "{{ vsi_create_output.resource }}"
 
     - name: Configure Floating IP Address
       when: (fip is undefined) or (fip == None) or (not cache_vsi)
-      ibm_is_floating_ip:
+      ibm.cloudcollection.ibm_is_floating_ip:
         name: "{{ name_prefix }}-fip"
         state: available
         id: "{{ fip.id | default(omit) }}"
@@ -159,16 +154,16 @@
 
     - name: Save Floating IP as fact
       when: fip_create_output.resource is defined
-      set_fact:
-        cacheable: True
+      ansible.builtin.set_fact:
+        cacheable: true
         fip: "{{ fip_create_output.resource }}"
 
     - name: Print Floating IP Address
-      debug:
+      ansible.builtin.debug:
         msg: "IP Address: {{ fip.address }}"
 
     - name: Add VSI to Ansible inventory
-      add_host:
+      ansible.builtin.add_host:
         name: "{{ fip.address }}"
         ansible_user: "{{instance.username | default('root')}}"
         groups: new_vsi
@@ -177,34 +172,7 @@
 
 - name: Check Ansible connection to new VSI
   hosts: new_vsi
-  gather_facts: False
+  gather_facts: false
   tasks:
     - name: Wait for VSI to become reachable over SSH
-      wait_for_connection:
-
-- name: Deploy application
-  hosts: new_vsi
-  tasks:
-    - name: Collect OS information
-      when: os_type == "zlinux"
-      command: cat /proc/sysinfo
-      register: sysinfo
-
-    - name: Print OS information
-      when: sysinfo.stdout_lines is defined
-      debug:
-        var: sysinfo.stdout_lines
-
-    - name: Install web server  (state=present is optional)
-      when: os_type == "zlinux"
-      apt:
-        name: nginx
-        state: present
-        update_cache: yes
-        
-    - name: Upload webpage
-      when: os_type == "zLinux"
-      ansible.builtin.copy:
-        src: index.html
-        dest: /var/www/html/index.html
-        mode: '0644'
+      ansible.builtin.wait_for_connection:
