@@ -295,7 +295,7 @@
     },
     "waziDevspacesVersion": {
       "type": "string",
-      "defaultValue": "2.x",
+      "defaultValue": "3.x",
       "allowedValues": [
         "2.x",
         "3.x"
