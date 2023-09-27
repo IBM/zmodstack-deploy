@@ -75,29 +75,6 @@ resource "null_resource" "permission_resource_validation" {
   ]
 }
 
-module "network" {
-  count                           = var.new_or_existing_vpc_subnet == "new" && var.existing_cluster == false ? 1 : 0
-  source                          = "./network"
-  vpc_cidr                        = var.vpc_cidr
-  network_tag_prefix              = var.cluster_name
-  tenancy                         = var.tenancy
-  control_plane_node_subnet_cidr1 = var.control_plane_node_subnet_cidr1
-  control_plane_node_subnet_cidr2 = var.control_plane_node_subnet_cidr2
-  control_plane_node_subnet_cidr3 = var.control_plane_node_subnet_cidr3
-  computenode_subnet_cidr1        = var.computenode_subnet_cidr1
-  computenode_subnet_cidr2        = var.computenode_subnet_cidr2
-  computenode_subnet_cidr3        = var.computenode_subnet_cidr3
-  az                              = var.az
-  availability_zone1              = local.availability_zone1
-  availability_zone2              = local.availability_zone2
-  availability_zone3              = local.availability_zone3
-
-  depends_on = [
-    null_resource.aws_configuration,
-    null_resource.permission_resource_validation,
-  ]
-}
-
 module "ocp" {
   count                                       = var.existing_cluster ? 0 : 1
   source                                      = "./ocp"
