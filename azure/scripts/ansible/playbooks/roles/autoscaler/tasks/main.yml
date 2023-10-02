@@ -4,6 +4,8 @@
     api_version: machine.openshift.io/v1beta1
     kind: MachineSet
     namespace: openshift-machine-api
+  become: true
+  become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"  
   register: machineset
 - name: Set Cluster ID
   ansible.builtin.set_fact:
