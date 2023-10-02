@@ -122,6 +122,18 @@ while [[ $(/usr/bin/ps xua | /usr/bin/grep cloud-init | /usr/bin/grep -v grep) ]
     fi
 done
 
+# TODO - why do we need this?
+# echo $(date) " - Disable and enable repo"
+sudo yum update -y --disablerepo=* --enablerepo="*microsoft*"
+
+if [ $? -eq 0 ]
+then
+    echo $(date) " - Root File System successfully extended"
+else
+    echo $(date) " - Root File System failed to be grown"
+	  exit 20
+fi
+
 # Execute Ansible playbook to deploy OCP Cluster
 ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/deploy.yaml \
   -e INSTALLER_HOME=$INSTALLER_HOME \
