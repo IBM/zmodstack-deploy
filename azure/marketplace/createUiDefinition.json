@@ -76,45 +76,6 @@
             "constraints": {
               "required": true
             }
-          },
-          {
-            "name": "zosCloudBrokerInstall",
-            "type": "Microsoft.Common.CheckBox",
-            "label": "Install z/OS Cloud Broker",
-            "toolTip": "Whether z/OS Cloud Broker should be installed or not."
-          },
-          {
-            "name": "zosConnectInstall",
-            "type": "Microsoft.Common.CheckBox",
-            "label": "Install z/OS Connect",
-            "toolTip": "Whether z/OS Connect should be installed or not."
-		      },	
-          {
-            "name": "waziDevspacesInstall",
-            "type": "Microsoft.Common.CheckBox",
-            "label": "Install Wazi Devspaces",
-            "toolTip": "Whether Wazi Devspaces should be installed or not."
-          },
-          {
-            "name": "waziDevspacesVersion",
-            "type": "Microsoft.Common.DropDown",
-            "label": "Wazi Devspaces Version",
-            "defaultValue": "3.x",
-            "toolTip": "The version of Wazi Devspaces to deploy",
-            "constraints": {
-              "allowedValues": [
-                {
-                  "label": "2.x",
-                  "value": "2.x"
-                },
-                {
-                  "label": "3.x",
-                  "value": "3.x"
-                }
-              ],
-              "required": true
-            },
-            "visible": "[equals(steps('zModStackConfig').waziDevspacesInstall,true)]"
           }
         ]
       },
@@ -508,11 +469,7 @@
       "openshiftPassword": "[steps('OpenshiftConfig').openshiftPassword]",
       "openshiftVersion": "[steps('OpenshiftConfig').openshiftVersion]",
       "apiKey": "[steps('zModStackConfig').apiKey]",
-      "zModStackLicenseAgreement": "[steps('zModStackConfig').zModStackLicenseAgreement]",
-      "zosCloudBrokerInstall": "[steps('zModStackConfig').zosCloudBrokerInstall]",
-      "zosConnectInstall": "[steps('zModStackConfig').zosConnectInstall]",
-      "waziDevspacesInstall": "[steps('zModStackConfig').waziDevspacesInstall]",
-      "waziDevspacesVersion": "[steps('zModStackConfig').waziDevspacesVersion]"
+      "zModStackLicenseAgreement": "[steps('zModStackConfig').zModStackLicenseAgreement]"
     }
   }
 }
