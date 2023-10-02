@@ -1,14 +1,13 @@
 ---
-- name: Get Machine Set
-  ansible.builtin.command: |
-    oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}'
-  register: CLUSTER_ID_OUTPUT
-  changed_when: CLUSTER_ID_OUTPUT.rc != 0
-  become: true
-  become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+- name: Query MachineSet
+  kubernetes.core.k8s_info:
+    api_version: machine.openshift.io/v1beta1
+    kind: MachineSet
+    namespace: openshift-machine-api
+  register: machineset
 - name: Set Cluster ID
   ansible.builtin.set_fact:
-    CLUSTER_ID: "{{ CLUSTER_ID_OUTPUT.stdout | trim }}"
+    CLUSTER_ID: "{{ machineset.resources[0].metadata.labels['machine.openshift.io/cluster-api-cluster'] }}"
 - name: Execute Cluster Autoscaler
   kubernetes.core.k8s:
     state: present

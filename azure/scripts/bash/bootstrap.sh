@@ -9,7 +9,7 @@ sudo dnf install -y git
 
 export GIT_CLONE_DIR=$INSTALLER_HOME/zmodstack-deploy
 mkdir -p $GIT_CLONE_DIR
-git clone --branch dev https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
+git clone --branch playbook-update https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
 
 #Install Ansible
 sudo dnf install -y python3-pip
@@ -22,8 +22,6 @@ ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/predeploy.yaml
 
 echo $(date) " - Azure CLI Login"
 az login --identity
-
-echo $(date) " - ############### Deploy Script - Start ###############"
 
 # FIXME - if the user-assigned identity is given a scope at the subscription level, then the command below will
 # fail because multiple resource groups will be listed
@@ -120,18 +118,6 @@ while [[ $(/usr/bin/ps xua | /usr/bin/grep cloud-init | /usr/bin/grep -v grep) ]
     fi
 done
 
-# TODO - why do we need this?
-#echo $(date) " - Disable and enable repo"
-sudo yum update -y --disablerepo=* --enablerepo="*microsoft*"
-
-if [ $? -eq 0 ]
-then
-    echo $(date) " - Root File System successfully extended"
-else
-    echo $(date) " - Root File System failed to be grown"
-	  exit 20
-fi
-
 #Execute Ansible playbook to deploy OCP Cluster
 ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/deploy.yaml \
   -e INSTALLER_HOME=$INSTALLER_HOME \
@@ -173,5 +159,3 @@ ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/deploy.yaml \
   -e OPENSHIFT_PASSWORD=$OPENSHIFT_PASSWORD \
   -e SUBSCRIPTION_ID=$SUBSCRIPTION_ID \
   -e TENANT_ID=$TENANT_ID
-
-echo $(date) " - ############### Deploy Script - Complete ###############"
