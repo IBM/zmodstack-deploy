@@ -112,7 +112,7 @@
       "value": true
     },
     "waziDevspacesVersion": {
-      "value": "3.0.0"
+      "value": "3.x"
     }
   }
 }
