@@ -12,7 +12,7 @@ ssh_key_name: "{{ ansible_user_id | lower }}"
 # TODO - feed this from pipeline input or SSH key stored in namespace Secret
 # ssh_public_key: "{{lookup('file', '~/.ssh/ibmcloud.pub') }}"
 ssh_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDN6j1lw+N0nu2v+D6EtafPbvfsZdR/VBk/Zl8T1fh2h24Xh5jhHnBgY14ofMxfNlNqHsTc34L1XfUSFeXYrixtkP6MkSYcUc+7Z4qKiSrDYLG69SM26jb58T4i4hrNuVVNWbhZhyxJQHAD3wq9VTDrOkzumgEo5sR21cAJy2hZniSdikuePcuHmxmeqP8H/o6GXcb0VQ/dJb4Vi+IiokluQuuk2+qFPn3x9N+zjm9udgf679qp++PNcxZrfV1bW8eb4AyZeevufjFLWTLBymNaLJyP70S02HxdkaDYmSxYnC/9RD32zem85tcKzXSVd5n9HEa9ZAIA+UaKxk9TtmmPRuWDXq/xSqqSklgy2hponJSPfOpzOajyFdqDaJykhQRtYPwUXtV9rsL8ehIJIf2NNdhc1CykSegQafyqQK7jdwSrudI3CCXGqrW62mA7mDPSJSuo4W4crf1OZaj0Ihso6qxhKDH1Tgfnrp9kQ7cV+v514073xEcgeAVoXCjiYIf6IxNzSQRaSxMnVIQ7rYi1p0AkADiCk/v9IJgU0nTIOR9vcXHIzR6MdF/QRZhhyn1hfiABmL5vD0n1F1Hv88GIRWrF9Zed6rOIAItGjBIsvsATRToQW9lU85BhjHcQYjkXSXt+E+moj/g+PDyU/KCR5EWOOktFa+HC5MD1R2N1iQ== zmodstack-deploy"
-region: "eu-gb"
+region: "jp-tok"
 zone: "{{region}}-1"
 cache_vsi: false
 resource_group_name: "wazi-demo-rg"
