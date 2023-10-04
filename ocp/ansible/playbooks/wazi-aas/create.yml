@@ -153,37 +153,9 @@
         ansible_ssh_extra_args: "-o StrictHostKeyChecking=no"
         ansible_interpreter_python_fallback: "{{ instance.python_interpreters | default(omit) }}"
 
-- name: Check Ansible connection to new VSI
-  hosts: new_vsi
-  gather_facts: false
-  tasks:
-    - name: Wait for VSI to become reachable over SSH
-      ansible.builtin.wait_for_connection:
-
-- name: Deploy application
-  hosts: new_vsi
-  tasks:
-    - name: Collect OS information
-      when: os_type == "zlinux"
-      ansible.builtin.command: cat /proc/sysinfo
-      changed_when: false
-      register: sysinfo
-
-    - name: Print OS information
-      when: sysinfo.stdout_lines is defined
-      ansible.builtin.debug:
-        var: sysinfo.stdout_lines
-
-    - name: Install web server  (state=present is optional)
-      when: os_type == "zlinux"
-      ansible.builtin.apt:
-        name: nginx
-        state: present
-        update_cache: true
-
-    - name: Upload webpage
-      when: os_type == "zLinux"
-      ansible.builtin.copy:
-        src: index.html
-        dest: /var/www/html/index.html
-        mode: '0644'
+# - name: Check Ansible connection to new VSI
+#   hosts: new_vsi
+#   gather_facts: false
+#   tasks:
+#     - name: Wait for VSI to become reachable over SSH
+#       ansible.builtin.wait_for_connection:
