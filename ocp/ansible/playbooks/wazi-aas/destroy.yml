@@ -6,7 +6,6 @@
     - name: Clear cache if we have changed the target zone
       when: (cache_zone is undefined) or (zone != cache_zone)
       ansible.builtin.meta: clear_facts
-
 - name: Destroy IBM Cloud VPC VSI
   hosts: localhost
   environment:
@@ -16,7 +15,7 @@
       ibm.cloudcollection.ibm_is_floating_ip:
         state: absent
         id: "{{ fip.id }}"
-        resource_group: "{{ resource_group }}"
+        resource_group: "{{ vpc.resource_group }}"
         target: "{{ vsi.primary_network_interface[0]['id'] }}"
       when: (fip is defined) and (fip != None)
 
@@ -32,14 +31,13 @@
         id: "{{ vsi.id }}"
         vpc: "{{ vpc.id }}"
         profile: "{{ instance.profile }}"
-        # image: "{{ (image_dict|dict2items|selectattr('key', 'match', instance.image)|list|first).value }}"
-        image: r018-6d668004-2cdf-47ee-8efe-abbe8b8b578a
+        image: "{{ (image_dict | dict2items | selectattr('key', 'match', instance.image) | list | first).value }}"
         keys:
           - "{{ ssh_key.id }}"
         primary_network_interface:
           - subnet: "{{ subnet.id }}"
         zone: "{{ zone }}"
-        resource_group: "{{ resource_group }}"
+        resource_group: "{{ vpc.resource_group }}"
       when: (vsi is defined) and (vsi != None)
 
     - name: Remove VSI fact
@@ -49,22 +47,22 @@
         vsi: null
 
     # - name: Remove SSH Key
-    #   ibm_is_ssh_key:
+    #   ibm.cloudcollection.ibm_is_ssh_key:
     #     state: absent
     #     id: "{{ ssh_key.id }}"
-    #     resource_group: "{{ resource_group }}"
+    #     resource_group: "{{ vpc.resource_group }}"
     #   when: ssh_key is defined
 
-    - name: Remove VPC Subnet
-      ibm.cloudcollection.ibm_is_subnet:
-        state: absent
-        id: "{{ subnet.id }}"
-        resource_group: "{{ resource_group }}"
-      when: subnet is defined
+    # - name: Remove VPC Subnet
+    #   ibm.cloudcollection.ibm_is_subnet:
+    #     state: absent
+    #     id: "{{ subnet.id }}"
+    #     resource_group: "{{ vpc.resource_group }}"
+    #   when: subnet is defined
 
-    - name: Remove VPC
-      ibm.cloudcollection.ibm_is_vpc:
-        state: absent
-        id: "{{ vpc.id }}"
-        resource_group: "{{ resource_group }}"
-      when: vpc is defined
+    # - name: Remove VPC
+    #   ibm.cloudcollection.ibm_is_vpc:
+    #     state: absent
+    #     id: "{{ vpc.id }}"
+    #     resource_group: "{{ vpc.resource_group }}"
+    #   when: vpc is defined

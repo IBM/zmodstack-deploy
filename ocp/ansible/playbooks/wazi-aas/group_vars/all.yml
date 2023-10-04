@@ -1,9 +1,9 @@
 os_type: zos
 name_prefix: "zmodstack-deploy"
 instance:
-  name: "{{ name_prefix }}-zvsi"
+  name: "{{ name_prefix }}-zos-vsi"
   profile: mz2o-2x16
-  image: .*zos.*
+  image: ibm-zos.*
   username: IBMUSER
   python_interpreters:
     - /usr/lpp/IBM/cyp/v3r9/pyz/bin/python3
@@ -15,5 +15,5 @@ ssh_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDN6j1lw+N0nu2v+D6EtafPbvf
 region: "eu-gb"
 zone: "{{region}}-1"
 cache_vsi: false
-resource_group: "8d923eb7bb0a450baa9bafb46aba797e"
+resource_group_name: "wazi-demo-rg"
 total_ipv4_address_count: 256
