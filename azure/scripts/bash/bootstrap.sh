@@ -122,6 +122,7 @@ while [[ $(/usr/bin/ps xua | /usr/bin/grep cloud-init | /usr/bin/grep -v grep) ]
     fi
 done
 
+
 # TODO - why do we need this?
 # echo $(date) " - Disable and enable repo"
 sudo yum update -y --disablerepo=* --enablerepo="*microsoft*"
