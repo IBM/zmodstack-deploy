@@ -12,7 +12,7 @@
   kubernetes.core.k8s:
     state: present
     namespace: "wazi-devspaces"
-    src: "files/operator-group.yml"
+    src: "files/operator-group.yaml"
 
 - name: "Create ansible-workspace directory - IBM Wazi for DevSpaces"
   ansible.builtin.file:
