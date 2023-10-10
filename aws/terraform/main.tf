@@ -17,13 +17,13 @@ locals {
   availability_zone1              = var.availability_zone1 == "" ? data.aws_availability_zones.azs.names[0] : var.availability_zone1
   availability_zone2              = var.az == "multi_zone" && var.availability_zone2 == "" ? data.aws_availability_zones.azs.names[1] : var.availability_zone2
   availability_zone3              = var.az == "multi_zone" && var.availability_zone3 == "" ? data.aws_availability_zones.azs.names[2] : var.availability_zone3
-  vpc_id                          = var.new_or_existing_vpc_subnet == "new" ? module.network[0].vpcid : var.vpc_id
-  control_plane_node_subnet1_id   = var.new_or_existing_vpc_subnet == "new" ? module.network[0].control_plane_node_subnet1_id : var.control_plane_node_subnet1_id
-  control_plane_node_subnet2_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].control_plane_node_subnet2_id[0] : var.control_plane_node_subnet2_id
-  control_plane_node_subnet3_id   = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].control_plane_node_subnet3_id[0] : var.control_plane_node_subnet3_id
-  computenode_subnet1_id          = var.new_or_existing_vpc_subnet == "new" ? module.network[0].computenode_subnet1_id : var.computenode_subnet1_id
-  computenode_subnet2_id          = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].computenode_subnet2_id[0] : var.computenode_subnet2_id
-  computenode_subnet3_id          = var.new_or_existing_vpc_subnet == "new" && var.az == "multi_zone" ? module.network[0].computenode_subnet3_id[0] : var.computenode_subnet3_id
+  vpc_id                          = var.vpc_id
+  control_plane_node_subnet1_id   = var.control_plane_node_subnet1_id
+  control_plane_node_subnet2_id   = var.control_plane_node_subnet2_id
+  control_plane_node_subnet3_id   = var.control_plane_node_subnet3_id
+  computenode_subnet1_id          = var.computenode_subnet1_id
+  computenode_subnet2_id          = var.computenode_subnet2_id
+  computenode_subnet3_id          = var.computenode_subnet3_id
   single_zone_subnets             = [local.computenode_subnet1_id]
   multi_zone_subnets              = [local.computenode_subnet1_id, local.computenode_subnet2_id, local.computenode_subnet3_id]
   openshift_api                   = var.existing_cluster ? var.existing_openshift_api : module.ocp[0].openshift_api
@@ -119,7 +119,6 @@ module "ocp" {
   external_registry_password                  = var.external_registry_password
 
   depends_on = [
-    module.network,
     null_resource.aws_configuration,
     null_resource.permission_resource_validation,
   ]
