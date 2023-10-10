@@ -21,7 +21,7 @@ components:
             targetPort: 9080
         env:
           - name: ZCON_DESIGNER_PROJECT
-            value: {{ project_workspace }}/CatalogManagerApi
+            value: {{ playbook_dir }}/ansible-workspace/zosconnect/CatalogManagerApi
         image: 'icr.io/zosconnect/ibm-zcon-designer:{{ designer_image_version }}'
         memoryLimit: 4927M
         mountSources: true
