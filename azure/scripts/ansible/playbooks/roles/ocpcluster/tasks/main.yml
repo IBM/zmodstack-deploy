@@ -67,7 +67,7 @@
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
   register: command_output
-  changed_when: command_output.rc != 0
+  changed_when: true
 - name: Create a directory kube for bootstrap admin user
   ansible.builtin.file:
     path: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube"
@@ -87,19 +87,19 @@
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
   register: command_output
-  changed_when: command_output.rc != 0
+  changed_when: true
 - name: Create OpenShift User
   ansible.builtin.command: "htpasswd -c -B -b /tmp/.htpasswd {{ OPENSHIFT_USERNAME }} {{ OPENSHIFT_PASSWORD }}"
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
   register: command_output
-  changed_when: command_output.rc != 0
+  changed_when: true
 - name: Create Secret
   ansible.builtin.command: oc create secret generic htpass-secret --from-file=htpasswd=/tmp/.htpasswd -n openshift-config
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
   register: command_output
-  changed_when: command_output.rc != 0
+  changed_when: true
 - name: Setup Authentication
   kubernetes.core.k8s:
     state: present
@@ -111,7 +111,7 @@
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
   register: command_output
-  changed_when: command_output.rc != 0
+  changed_when: true
 - name: Install IBM Operator Catalogue
   kubernetes.core.k8s:
     state: present

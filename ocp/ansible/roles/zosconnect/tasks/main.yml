@@ -57,7 +57,7 @@
 # download the global-pull secret
 - name: Download the Global-pull secret
   ansible.builtin.shell: |
-    oc get secret/pull-secret -n openshift-config --template='{{index .data ".dockerconfigjson" | base64decode}}' > /tmp/global-pull-secret-download.json
+    oc get secret/pull-secret -n openshift-config --template='{{ '{{' }} index .data ".dockerconfigjson" | base64decode {{ '}}' }}' > /tmp/global-pull-secret-download.json
 
 #extract api key from global pull secret for cp.icr.io
 - name: extract the API key for cp.icr.io 
