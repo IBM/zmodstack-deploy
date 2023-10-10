@@ -2,7 +2,6 @@
 # *************************************
 # IBM Wazi for DevSpaces Variables
 # *************************************
-ansible_workspace: "/home/ec2-user/zmodstack/ansible-workspace"
 devspaces:
   name: "wazi-devspaces"
   kind: "CheCluster"
