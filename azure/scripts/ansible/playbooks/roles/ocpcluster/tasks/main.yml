@@ -68,14 +68,14 @@
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
   register: command_output
   changed_when: true
-- name: Create a directory kube for kubeconfig file
+- name: Create a directory kube for bootstrap admin user
   ansible.builtin.file:
     path: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube"
     state: directory
     owner: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
     group: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
     mode: '0775'
-- name: Copy kubeconfig file to kube directory
+- name: Copy kubeconfig file to kube directory of bootstrap admin user
   ansible.builtin.copy:
     src: "{{ INSTALLER_HOME }}/openshiftfourx/auth/kubeconfig"
     dest: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube/config"
@@ -118,3 +118,13 @@
     src: files/ibm-operator-catalog.yaml
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+- name: Create a directory kube for root user
+  ansible.builtin.file:
+    path: "~/.kube"
+    state: directory
+    mode: '0775'  
+- name: Copy kubeconfig file to kube directory of root user
+  ansible.builtin.copy:
+    src: "{{ INSTALLER_HOME }}/openshiftfourx/auth/kubeconfig"
+    dest: "~/.kube/config"
+    mode: '0644'
