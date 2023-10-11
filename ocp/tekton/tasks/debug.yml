@@ -7,7 +7,7 @@ spec:
     - name: image
       type: string
       description: The image to launch for debugging
-      default: registry.redhat.io/ubi8/ubi-minimal
+      default: icr.io/zmodstack/deploy/tekton-ansible:latest
     - name: command
       description: A command to run within the debug Pod, defaults to sleep to allow user to open a Pod terminal
       type: string
