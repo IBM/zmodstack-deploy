@@ -1,3 +1,5 @@
+---
+# vars file for wazi-aas
 os_type: zos
 name_prefix: "zmodstack-deploy"
 instance:

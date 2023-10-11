@@ -5,9 +5,9 @@ metadata:
 spec:
   description: A Wazi as a Service instance in IBM Cloud
   endpointType: remote
-  host: 161.156.198.94
-  port: 22
-  variables:
-    - name: foo
-      type: string
-      value: bar
+  host: "{{ zvsi_host }}"
+  port: "{{ zvsi_ssh_port }}"
+  # variables:
+  #   - name: foo
+  #     type: string
+  #     value: bar
