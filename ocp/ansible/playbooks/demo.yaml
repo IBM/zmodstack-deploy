@@ -3,7 +3,7 @@
   hosts: localhost
   # gather_facts: false
   tasks:
-    - name: Create a Wazi as a service instance
+    - name: Run the Wazi-aaS role to create an instance
       ansible.builtin.include_role:
         name: "wazi-aas"
       vars:
@@ -11,7 +11,7 @@
       tags:
         - create
 
-    - name: Delete a Wazi as a service instance
+    - name: Run the Wazi-aaS role to delete an instance
       ansible.builtin.include_role:
         name: "wazi-aas"
       vars:
