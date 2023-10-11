@@ -22,6 +22,5 @@ spec:
       script: |
         #!/bin/bash
         set -ex
-        ANSIBLE_HOME=$(workspaces.ws.path)/$(params.project-dir)
         $(params.ansible-command)
       workingDir: '$(workspaces.ws.path)/$(params.project-dir)'
