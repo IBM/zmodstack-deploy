@@ -1,11 +1,5 @@
 FROM registry.access.redhat.com/ubi9/ubi-minimal
 
-# Set pipx env vars to allow usage for all users
-ENV PIPX_HOME=/opt/pipx \
-    PIPX_BIN_DIR=/usr/local/bin \
-    ANSIBLE_HOME=/opt/ansible \
-    PIP_ROOT_USER_ACTION=ignore
-
 # Install pip & dependencies for rust compiler (needed for s390x image)
 RUN microdnf update && \
     microdnf install -y pip gcc libffi-devel python-devel openssl-devel && \

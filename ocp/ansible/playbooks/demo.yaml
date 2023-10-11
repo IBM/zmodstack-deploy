@@ -5,7 +5,8 @@
   tasks:
     - name: Run the Wazi-aaS role to create an instance
       ansible.builtin.include_role:
-        name: "wazi-aas"
+        # name: "wazi-aas"
+        name: "{{ playbook_dir }}/../roles/wazi-aas"
       vars:
         action: create
       tags:
@@ -13,7 +14,8 @@
 
     - name: Run the Wazi-aaS role to delete an instance
       ansible.builtin.include_role:
-        name: "wazi-aas"
+        # name: "wazi-aas"
+        name: "{{ playbook_dir }}/../roles/wazi-aas"
       vars:
         action: delete
       tags:
