@@ -1,7 +1,7 @@
 version: "3.2"
 services:
     zosConnect:
-        image: icr.io/zosconnect/ibm-zcon-designer:3.0.71
+        image: 'icr.io/zosconnect/ibm-zcon-designer:{{ designer_image_version }}'
         environment:
             - CICS_USER="{{ cicsUsername }}"
             - CICS_PASSWORD="{{ cicsPassword }}"
