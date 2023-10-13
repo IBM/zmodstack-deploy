@@ -1,0 +1,21 @@
+- name: Create z/OS Cloud Broker ZosEndpoint
+  hosts: localhost
+  tasks:
+    - name: Apply a ZosEndpoint configuration with zos-vsi connection details
+      kubernetes.core.k8s:
+        state: present
+        namespace: ibm-zmodstack-cloudbroker
+        src: zosendpoint.yml
+      # when
+
+    - ibm.zoscb.endpoints:
+        state: present
+        namespace: ibm-zmodstack-cloudbroker
+        host:
+        port:
+        vars: 
+
+    - ibm.zoscb.operatorcollections:
+        state: present 
+        name: CICS 
+        version: 1.0.1

@@ -8,3 +8,4 @@ collections:
     version: 2.2.0
   - name: containers.podman
     version: 1.10.2
+  - name: ibm.cloudcollection
