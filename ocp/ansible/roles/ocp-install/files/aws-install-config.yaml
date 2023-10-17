@@ -1,0 +1,67 @@
+apiVersion: v1
+baseDomain: {{ base_domain }}
+compute:
+- hyperthreading: Enabled
+  name: worker
+  platform:
+    aws:
+      zones:
+      - {{ availability_zone1 }}
+      {%- if multi_zone %}
+      - {{ availability_zone2 }}
+      - {{ availability_zone3 }}
+      {%- endif %}
+      type: {{ computenode_instance_type }}
+      rootVolume:
+        size: {{ computenode_instance_volume_size }}
+        type: {{ computenode_instance_volume_type }}
+  replicas: {{ computenode_replica_count }}
+controlPlane:
+  hyperthreading: Enabled
+  name: master
+  platform:
+    aws:
+      zones:
+      - {{ availability_zone1 }}
+      {%- if multi_zone %}
+      - {{ availability_zone2 }}
+      - {{ availability_zone3 }}
+      {%- endif %}
+      type: {{ control_plane_node_instance_type }}
+      rootVolume:
+        size: {{ control_plane_node_instance_volume_size }}
+        type: {{ control_plane_node_instance_volume_type }}
+  replicas: {{ control_plane_node_replica_count }}
+metadata:
+  name: {{ cluster_name }}
+networking:
+  clusterNetwork:
+  - cidr: {{ cluster_network_cidr }}
+    hostPrefix: {{ cluster_network_host_prefix }}
+  machineNetwork:
+  - cidr: {{ machine_network_cidr }}
+  networkType: OpenShiftSDN
+  serviceNetwork:
+  - {{ service_network_cidr }}
+platform:
+  aws:
+    region: {{ region }}
+    subnets:
+    - {{ control_plane_node_subnet1_id }}
+    {%- if multi_zone %}
+    - {{ control_plane_node_subnet2_id }}
+    - {{ control_plane_node_subnet3_id }}
+    {%- endif %}
+    - {{ computenode_subnet1_id }}
+    {%- if multi_zone %}
+    - {{ computenode_subnet2_id }}
+    - {{ computenode_subnet3_id }}
+    {%- endif %}
+    userTags: 
+      "zmodstack:provisioner": openshift-install
+      "zmodstack:cfn-stack-name": {{ cluster_name }}
+publish: {{ priate_or_public }}
+pullSecret: {{ playbook_dir }}/pull-secret
+sshKey: |
+  {{ public_ssh_key }}
+fips: {{ enable_fips }}

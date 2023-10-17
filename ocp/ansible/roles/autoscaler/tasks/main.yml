@@ -1,0 +1,40 @@
+---
+- include_vars: autoscaler.yml
+
+- name: Query MachineSet
+  kubernetes.core.k8s_info:
+    api_version: machine.openshift.io/v1beta1
+    kind: MachineSet
+    namespace: openshift-machine-api
+  register: machineset
+
+- name: Set Cluster ID
+  ansible.builtin.set_fact:
+    CLUSTER_ID: "{{ machineset.resources[0].metadata.labels['machine.openshift.io/cluster-api-cluster'] }}"
+
+- name: Execute Cluster Autoscaler
+  kubernetes.core.k8s:
+    state: present
+    src: files/cluster-autoscaler.yaml
+
+- name: Jinja Conversion for Machine Autoscaler Yaml
+  ansible.builtin.template:
+    src: files/machine-autoscaler.yaml
+    dest: {{ playbook_dir }}/installer-workspace/machine-autoscaler.yaml
+    mode: '0644'
+
+- name: Execute Machine Autoscaler
+  kubernetes.core.k8s:
+    state: present
+    src: {{ playbook_dir }}/installer-workspace/machine-autoscaler.yaml
+
+- name: Jinja Conversion for Machine Health Check Yaml
+  ansible.builtin.template:
+    src: files/machine-health-check.yaml
+    dest: {{ playbook_dir }}/installer-workspace/machine-health-check.yaml
+    mode: '0644'
+
+- name: Execute Machine Health Check
+  kubernetes.core.k8s:
+    state: present
+    src: {{ playbook_dir }}/installer-workspace/machine-health-check.yaml

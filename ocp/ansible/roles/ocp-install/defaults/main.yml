@@ -1,0 +1,53 @@
+---
+# defaults file for Openshift cluster install
+##### AWS Configuration #####
+region: "us-west-2"
+key_name: "openshift-key"
+tenancy: "default"
+
+##############################
+# New Network
+##############################
+vpc_cidr: "10.0.0.0/16"
+control_plane_node_subnet_cidr1: "10.0.0.0/20"
+control_plane_node_subnet_cidr2: "10.0.16.0/20"
+control_plane_node_subnet_cidr3: "10.0.32.0/20"
+computenode_subnet_cidr1: "10.0.128.0/20"
+computenode_subnet_cidr2: "10.0.144.0/20"
+computenode_subnet_cidr3: "10.0.160.0/20"
+cluster_name: "zmodstack-ocp"
+az: "single_zone"
+
+#######################################
+# Existing Openshift Cluster Variables
+#######################################
+existing_cluster: false
+existing_openshift_api: ""
+existing_openshift_username: ""
+existing_openshift_password: ""
+existing_openshift_token: ""
+##################################
+
+##################################
+# New Openshift Cluster Variables
+##################################
+computenode_instance_type: "m5.4xlarge"
+computenode_instance_volume_size: 150
+computenode_instance_volume_type: "gp2"
+computenode_replica_count: 3
+control_plane_node_instance_type: "m5.2xlarge"
+control_plane_node_instance_volume_size: 150
+control_plane_node_instance_volume_type: "gp2"
+control_plane_node_replica_count: 3
+cluster_network_cidr: "172.20.0.0/14"
+cluster_network_host_prefix: 23
+service_network_cidr: "172.30.0.0/16"
+private_cluster: false
+enable_fips: false
+enable_autoscaler: false
+
+##########################################################
+accept_license: "reject"
+external_registry: "cp.icr.io"
+external_registry_username: "cp"
+openshift_version: "4.12"

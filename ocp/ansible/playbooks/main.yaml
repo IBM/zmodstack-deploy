@@ -3,7 +3,7 @@
 ###############################################################################
 
 ---
-- name: Deploy IBM ZmodStack on AWS
+- name: Deploy IBM ZmodStack
   hosts: localhost
   become: false
   collections:
@@ -16,10 +16,9 @@
   tasks:
     # ****************************************************************************************************************************
     # *
-    # *  Playbook section for creating all ZmodSTack resources on AWS
+    # *  Playbook section for creating all ZmodSTack resources
     # *
     # ****************************************************************************************************************************
- 
     - name: Deploy IBM z/OS Cloud and Modenization Stack - Openshift z/OS Cloud Broker Operator
       block:
         # ****************************************************************************************************************************

@@ -561,68 +561,46 @@ Resources:
             chown -fR ec2-user:ec2-user /home/ec2-user/zmodstack
             source /home/ec2-user/zmodstack/aws/scripts/bootnode-bootstrap.sh
 
-            # Begin Terraform execution
-            cd /home/ec2-user/zmodstack/aws/terraform
+            # Begin OCP cluster Installation
+            cd /home/ec2-user/zmodstack/ocp/ansible/
             aws s3 cp s3://${S3BucketName}/zmodstack/ocp/pull-secret.json ./pull-secret
-            
-            echo "Creating terraform variables file"
-            echo "openshift_pull_secret_file_path=\"./pull-secret\"" > terraform.tfvars
-            echo "access_key_id=\"${IAMUserAccessKey}\"" >> terraform.tfvars
-            echo "secret_access_key=\"${IAMUserSecret}\"" >> terraform.tfvars
-            echo "region=\"${AWS::Region}\"" >> terraform.tfvars
-            echo "stack_name=\"${AWS::StackName}\"" >> terraform.tfvars
-            echo "az=\"${AZ}\"" >> terraform.tfvars
-            echo "private_cluster=\"${PrivateCluster}\"" >> terraform.tfvars
-            echo "public_ssh_key=\"`cat /home/ec2-user/.ssh/id_rsa.pub`\"" >> terraform.tfvars
-            echo "base_domain=\"${DomainName}\"" >> terraform.tfvars
-            echo "cluster_name=\"${ClusterName}\"" | tr '[:upper:]' '[:lower:]' >> terraform.tfvars
-            echo "openshift_version=\"${OpenshiftVersion}\"" >> terraform.tfvars
-            echo "openshift_username=\"${OpenshiftUsername}\"" >> terraform.tfvars
-            echo "openshift_password=\"${OpenshiftPassword}\"" >> terraform.tfvars
-            echo "external_registry_password=\"${APIKey}\"" >> terraform.tfvars
-            echo "accept_license=\"${LicenseAgreement}\"" >> terraform.tfvars
-            echo "new_or_existing_vpc_subnet=\"exist\"" >> terraform.tfvars
-            echo "vpc_id=\"${VPCID}\"" >> terraform.tfvars
-            echo "control_plane_node_subnet1_id=\"${PublicSubnet1ID}\"" >> terraform.tfvars
-            echo "control_plane_node_subnet2_id=\"${PublicSubnet2ID}\"" >> terraform.tfvars
-            echo "control_plane_node_subnet3_id=\"${PublicSubnet3ID}\"" >> terraform.tfvars
-            echo "computenode_subnet1_id=\"${PrivateSubnet1ID}\"" >> terraform.tfvars
-            echo "computenode_subnet2_id=\"${PrivateSubnet2ID}\"" >> terraform.tfvars
-            echo "computenode_subnet3_id=\"${PrivateSubnet3ID}\"" >> terraform.tfvars
-            echo "vpc_cidr=\"${VPCCIDR}\"" >> terraform.tfvars
-            echo "availability_zone1=\"${AvailabilityZone1}\"" >> terraform.tfvars
-            echo "availability_zone2=\"${AvailabilityZone2}\"" >> terraform.tfvars
-            echo "availability_zone3=\"${AvailabilityZone3}\"" >> terraform.tfvars
-            echo "control_plane_node_instance_type=\"${ControlPlaneNodeInstanceType}\"" >> terraform.tfvars
-            echo "control_plane_node_replica_count=${NumberOfControlPlaneNode}" >> terraform.tfvars
-            echo "computenode_instance_type=\"${ComputeInstanceType}\"" >> terraform.tfvars
-            echo "computenode_replica_count=${NumberOfCompute}" >> terraform.tfvars
-            echo "enable_permission_quota_check=\"false\"" >> terraform.tfvars
-            
-            export TF_LOG=DEBUG
-            export TF_LOG_PATH=/home/ec2-user/zmodstack/aws/terraform/tf-trace.log
-            terraform init -input=false
-            terraform plan -out=tfplan -input=false
-            terraform apply -input=false tfplan
+            JSON_STRING=$(jq -n \
+            --arg access_key_id "${IAMUserAccessKey}" \
+            --arg secret_access_key "${IAMUserSecret}" \
+            --arg region "${AWS::Region}" \
+            --arg stack_name "${AWS::StackName}" \
+            --arg az "${AZ}" \
+            --arg private_cluster "${PrivateCluster}" \
+            --arg public_ssh_key "`cat /home/ec2-user/.ssh/id_rsa.pub`" \
+            --arg base_domain "${DomainName}" \
+            --arg cluster_name "${ClusterName}" \
+            --arg openshift_version "${OpenshiftVersion}" \
+            --arg openshift_username "${OpenshiftUsername}" \
+            --arg openshift_password "${OpenshiftPassword}" \
+            --arg external_registry_password "${APIKey}" \
+            --arg accept_license "${LicenseAgreement}" \
+            --arg vpc_id "${VPCID}" \
+            --arg control_plane_node_subnet1_id "${PublicSubnet1ID}" \
+            --arg control_plane_node_subnet2_id "${PublicSubnet2ID}" \
+            --arg control_plane_node_subnet3_id "${PublicSubnet3ID}" \
+            --arg computenode_subnet1_id "${PrivateSubnet1ID}" \
+            --arg computenode_subnet2_id "${PrivateSubnet2ID}" \
+            --arg computenode_subnet3_id "${PrivateSubnet3ID}" \
+            --arg vpc_cidr "${VPCCIDR}" \
+            --arg availability_zone1 "${AvailabilityZone1}" \
+            --arg availability_zone2 "${AvailabilityZone2}" \
+            --arg availability_zone3 "${AvailabilityZone3}" \
+            --arg control_plane_node_instance_type "${ControlPlaneNodeInstanceType}" \
+            --arg control_plane_node_replica_count ${NumberOfControlPlaneNode} \
+            --arg computenode_instance_type "${ComputeInstanceType}" \
+            --arg computenode_replica_count ${NumberOfCompute} \
+            '{ access_key_id: $access_key_id, secret_access_key: $secret_access_key, region: $region, stack_name: $stack_name, az: $az, private_cluster: $private_cluster, public_ssh_key: $public_ssh_key, base_domain: $base_domain, cluster_name: $cluster_name, openshift_version: $openshift_version, openshift_username: $openshift_username, openshift_password: $openshift_password, external_registry_password: $external_registry_password, accept_license: $accept_license, vpc_id: $vpc_id, control_plane_node_subnet1_id: $control_plane_node_subnet1_id, control_plane_node_subnet2_id: $control_plane_node_subnet2_id, control_plane_node_subnet3_id: $control_plane_node_subnet3_id, computenode_subnet1_id: $computenode_subnet1_id, computenode_subnet2_id: $computenode_subnet2_id, computenode_subnet3_id: $computenode_subnet3_id, vpc_cidr: $vpc_cidr, availability_zone1: $availability_zone1, availability_zone2: $availability_zone2, availability_zone3: $availability_zone3, control_plane_node_instance_type: $control_plane_node_instance_type, control_plane_node_replica_count: $control_plane_node_replica_count, computenode_instance_type: $computenode_instance_type, computenode_replica_count: $computenode_replica_count, zoscb: $zoscb, zosconnect: $zosconnect, wazidevspaces: $wazidevspaces, wazidevspacesversion: $wazidevspacesversion }')
+            printf '%s\n' "$JSON_STRING" > /home/ec2-user/zmodstack/ocp/ansible/extravars.json
+            pip3 install --user -r /home/ec2-user/zmodstack/ocp/ansible/requirements.txt            
 
-            # Retreieve terraform exit code
-            ecode=$?
-            
-            # Setup kubeconfig for ec2-user
-            cp /home/ec2-user/zmodstack/aws/terraform/installer-files/auth/kubeconfig /root/.kube/
-            mv /root/.kube/kubeconfig /root/.kube/config
-            export KUBECONFIG=$KUBECONFIG:/root/.kube/config
-            echo 'export KUBECONFIG=$KUBECONFIG:/root/.kube/config' >> ~/.bash_profile
+      
 
             #initiate ansible-playbooks to install z-mod-stack
-            JSON_STRING=$(jq -n \
-                  --arg zoscb ${ZosCloudBroker} \
-                  --arg zosconnect ${ZosConnect} \
-                  --arg wazidevspaces ${WaziDevspaces} \
-                  --arg wazidevspacesversion ${WaziDevspacesVersion} \
-                  '{ zoscb: $zoscb, zosconnect: $zosconnect, wazidevspaces: $wazidevspaces, wazidevspacesversion: $wazidevspacesversion }')
-            printf '%s\n' "$JSON_STRING" > /home/ec2-user/zmodstack/ocp/ansible/extravars.json
-            pip3 install --user -r /home/ec2-user/zmodstack/ocp/ansible/requirements.txt
             ansible-galaxy collection install -r /home/ec2-user/zmodstack/ocp/ansible/requirements.yml
             cd /home/ec2-user/zmodstack/ocp/ansible && ansible-playbook playbooks/main.yaml --extra-vars "@extravars.json" 
 
