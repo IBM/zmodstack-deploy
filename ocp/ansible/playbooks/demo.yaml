@@ -9,21 +9,21 @@
       tags:
         - ssh
 
-    # - name: Run the Wazi-aaS role to create an instance
-    #   ansible.builtin.import_role:
-    #     name: "wazi-aas"
-    #   vars:
-    #     action: create
-    #   tags:
-    #     - create
+    - name: Run the Wazi-aaS role to create an instance
+      ansible.builtin.import_role:
+        name: "wazi-aas"
+      vars:
+        action: create
+      tags:
+        - create
 
-    # - name: Run the Wazi-aaS role to delete an instance
-    #   ansible.builtin.import_role:
-    #     name: "wazi-aas"
-    #   vars:
-    #     action: delete
-    #   tags:
-    #     - delete
+    - name: Run the Wazi-aaS role to delete an instance
+      ansible.builtin.import_role:
+        name: "wazi-aas"
+      vars:
+        action: delete
+      tags:
+        - delete
 
     # - name: Create z/OS Cloud Broker ZosEndpoint CR
     #   ansible.builtin.include_role:
