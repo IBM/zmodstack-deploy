@@ -65,6 +65,7 @@
     dest: {{ playbook_dir }}/installer-workspace/aws_nlb.yaml
     mode: '0644'
 
+
 - name: Install IBM Operator Catalogue
   kubernetes.core.k8s:
     state: present
@@ -105,10 +106,34 @@
   register: command_output
   changed_when: true
 
+- name: Get pull-secret
+  ansible.builtin.command: oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}'
+  register: pull_secret_data
+
+- name: Decode pull-secret
+  ansible.builtin.command: echo "{{ pull_secret_data.stdout }}" | base64 -d
+  register: decoded_pull_secret
+
+- name: Update decoded pull-secret
+  ansible.builtin.command: echo "{{ decoded_pull_secret.stdout }}" | sed -e 's|:{|:{"{{ var.external_registry }}":{"username":"{{ var.external_registry_username }}","password":"{{ var.external_registry_password }}"},|' > /tmp/dockerconfig.json
+
+- name: Set data secret/pull-secret
+  ansible.builtin.command: oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
+
+- name: Wait for 3m until the nodes restart after applying the global pull secret
+  pause:
+    seconds: 300
+
 - name: Install IBM Operator Catalogue
   kubernetes.core.k8s:
     state: present
     src: files/ibm-operator-catalog.yaml
+
+- name: Patch previous default storageclass
+  ansible.builtin.command: >
+    oc patch storageclass $(oc get sc | grep "(default)" | awk '{print $1}') -p '{"metadata": {"annotations": {"storageclass.kubernetes.io/is-default-class": "false"}}}'
+  register: command_output
+  changed_when: true
 
 - name: Create the default gp3 storage class 
   kubernetes.core.k8s:

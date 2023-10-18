@@ -476,8 +476,8 @@ Resources:
             /home/ec2-user/destroy.sh:
               content: |
                 echo "$1 - Destroy"
-                cd /home/ec2-user/zmodstack/aws/terraform
-                sudo terraform destroy --var-file=terraform.tfvars --auto-approve | tee terraform_destroy.log
+                cd /home/ec2-user/zmodstack/ocp/ansible/installer-workspace
+                openshift-install create cluster --dir={{ playbook_dir }}/installer-workspace/ --log-level=debug
                 aws ssm put-parameter --name $1"_CleanupStatus" --type "String" --value "READY" --overwrite
               mode: '000777'
             /root/.aws/config:
@@ -564,6 +564,7 @@ Resources:
             # Begin OCP cluster Installation
             cd /home/ec2-user/zmodstack/ocp/ansible/
             aws s3 cp s3://${S3BucketName}/zmodstack/ocp/pull-secret.json ./pull-secret
+            clustername_lower ="$(tr [A-Z] [a-z] <<< "$ClusterName")"
             JSON_STRING=$(jq -n \
             --arg access_key_id "${IAMUserAccessKey}" \
             --arg secret_access_key "${IAMUserSecret}" \
@@ -573,7 +574,7 @@ Resources:
             --arg private_cluster "${PrivateCluster}" \
             --arg public_ssh_key "`cat /home/ec2-user/.ssh/id_rsa.pub`" \
             --arg base_domain "${DomainName}" \
-            --arg cluster_name "${ClusterName}" \
+            --arg cluster_name "$clustername_lower" \
             --arg openshift_version "${OpenshiftVersion}" \
             --arg openshift_username "${OpenshiftUsername}" \
             --arg openshift_password "${OpenshiftPassword}" \
@@ -598,16 +599,13 @@ Resources:
             printf '%s\n' "$JSON_STRING" > /home/ec2-user/zmodstack/ocp/ansible/extravars.json
             pip3 install --user -r /home/ec2-user/zmodstack/ocp/ansible/requirements.txt            
 
-      
-
             #initiate ansible-playbooks to install z-mod-stack
             ansible-galaxy collection install -r /home/ec2-user/zmodstack/ocp/ansible/requirements.yml
+            cd /home/ec2-user/zmodstack/ocp/ansible && ansible-playbook playbooks/ocp-install.yaml --extra-vars "@extravars.json" 
             cd /home/ec2-user/zmodstack/ocp/ansible && ansible-playbook playbooks/main.yaml --extra-vars "@extravars.json" 
 
             # Copy values logs to S3
             aws s3 cp /var/log/cloud-init-output.log s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_cloud-init-output.log
-            aws s3 cp /home/ec2-user/zmodstack/aws/terraform/tf-trace.log s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_tf-trace.log
-            aws s3 cp /home/ec2-user/zmodstack/aws/terraform/terraform.tfstate s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_terraform.tfstate
             
             # send completion signal
             ln -s /aws-cfn-bootstrap-2.0/cfnbootstrap /usr/lib/python3.8/site-packages/cfnbootstrap
