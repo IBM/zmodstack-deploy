@@ -49,10 +49,12 @@
   when: secret.resources | length == 1
   ansible.builtin.copy:
     content: "{{ secret.resources[0].data['ssh-priv-key'] | b64decode }}"
-    dest: "{{ path_ssh_key }}"
+    # dest: "{{ path_ssh_key }}"
+    dest: "{{ path_workspace }}/.ssh/{{ ssh_key_name }}"
 
 - name: Copy SSH public key from OCP Secret into workspace
   when: secret.resources | length == 1
   ansible.builtin.copy:
     content: "{{ secret.resources[0].data['ssh-pub-key'] | b64decode }}"
-    dest: "{{ path_ssh_key }}.pub"
+    # dest: "{{ path_ssh_key }}.pub"
+    dest: "{{ path_workspace }}/.ssh/{{ ssh_key_name }}.pub"
