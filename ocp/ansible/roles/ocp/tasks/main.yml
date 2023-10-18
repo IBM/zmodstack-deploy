@@ -7,6 +7,8 @@
     namespace: ibm-zmodstack-deploy
   register: secret
   ignore_errors: true
+  # hide ansible logs since they will contain base64 encoded priv key
+  no_log: true
 
 - name: Inspect OCP Secret
   debug: 
@@ -42,3 +44,15 @@
             ssh-pub-key: "{{ lookup('file', '{{ path_ssh_key }}.pub') }}"
       # hide ansible logs since they will contain base64 encoded priv key
       no_log: true
+
+- name: Copy SSH private key from OCP Secret into workspace
+  when: secret.resources | length == 1
+  ansible.builtin.copy:
+    content: "{{ secret.resources[0].data['ssh-priv-key'] | b64decode }}"
+    dest: "{{ path_ssh_key }}"
+
+- name: Copy SSH public key from OCP Secret into workspace
+  when: secret.resources | length == 1
+  ansible.builtin.copy:
+    content: "{{ secret.resources[0].data['ssh-pub-key'] | b64decode }}"
+    dest: "{{ path_ssh_key }}.pub"
