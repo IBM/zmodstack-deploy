@@ -60,7 +60,7 @@ platform:
     userTags: 
       "zmodstack:provisioner": openshift-install
       "zmodstack:cfn-stack-name": {{ cluster_name }}
-publish: {{ priate_or_public }}
+publish: External
 pullSecret: {{ playbook_dir }}/pull-secret
 sshKey: |
   {{ public_ssh_key }}
