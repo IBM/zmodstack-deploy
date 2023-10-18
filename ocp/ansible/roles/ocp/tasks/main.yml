@@ -1,0 +1,44 @@
+---
+- name: "Check if OCP namespace contains Secret ({{ ssh_secret }})"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: "{{ ssh_secret }}"
+    namespace: ibm-zmodstack-deploy
+  register: secret
+  ignore_errors: true
+
+- name: Inspect OCP Secret
+  debug: 
+    var: secret
+    verbosity: 2
+
+- name: Generate SSH key and store in Kubernetes Secret
+  when: secret.resources | length == 0
+  block:
+    - name: Generate a new RSA 4096 bit SSH key
+      community.crypto.openssh_keypair:
+        path: "{{ path_ssh_key }}"
+        comment: zmodstack-deploy
+      register: sshkey
+
+    - name: Display SSH key generation results
+      debug:
+        var: sshkey
+        verbosity: 2
+
+    - name: Generate OCP Secret with SSH key details
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: "{{ ssh_secret }}"
+            namespace: ibm-zmodstack-deploy
+          type: Opaque
+          stringData:
+            ssh-priv-key: "{{ lookup('file', '{{ path_ssh_key }}') }}"
+            ssh-pub-key: "{{ lookup('file', '{{ path_ssh_key }}.pub') }}"
+      # hide ansible logs since they will contain base64 encoded priv key
+      no_log: true

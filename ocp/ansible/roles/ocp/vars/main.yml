@@ -1,0 +1,4 @@
+---
+# vars file for ocp
+path_ssh_key: ~/.ssh/zmodstack-deploy
+ssh_secret: zmodstack-deploy-ssh

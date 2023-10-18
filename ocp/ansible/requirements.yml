@@ -9,3 +9,4 @@ collections:
   - name: containers.podman
     version: 1.10.2
   - name: ibm.cloudcollection
+  - name: community.crypto
