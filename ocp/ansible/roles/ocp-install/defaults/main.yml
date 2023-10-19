@@ -17,7 +17,7 @@ computenode_subnet_cidr2: "10.0.144.0/20"
 computenode_subnet_cidr3: "10.0.160.0/20"
 cluster_name: "zmodstack-ocp"
 az: "single_zone"
-
+machine_network_cidr: "10.0.0.0/16"
 #######################################
 # Existing Openshift Cluster Variables
 #######################################

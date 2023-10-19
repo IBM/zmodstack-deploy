@@ -23,63 +23,71 @@
 
 - name: Create Installer workspace directory - OpenShift Insatllation
   ansible.builtin.file:
-    path: {{ playbook_dir }}/installer-workspace
+    path: "{{ playbook_dir }}/installer-workspace"
     state: directory
 
 - name: Download OpenShift install binary
   ansible.builtin.get_url:
     url: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-{{ openshift_version }}/openshift-install-linux.tar.gz"
-    dest: {{ playbook_dir }}/installer-workspace
+    dest: "{{ playbook_dir }}/installer-workspace"
     mode: '0644'
 
 - name: Download OpenShift client binary
   ansible.builtin.get_url:
     url: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-{{ openshift_version }}/openshift-client-linux.tar.gz"
-    dest: {{ playbook_dir }}/installer-workspace
+    dest: "{{ playbook_dir }}/installer-workspace"
     mode: '0644'
 
 - name: Extract OpenShift install binary
   ansible.builtin.unarchive:
-    src: {{ playbook_dir }}/installer-workspace/openshift-install-linux.tar.gz
-    dest: {{ playbook_dir }}/installer-workspace
+    src: "{{ playbook_dir }}/installer-workspace/openshift-install-linux.tar.gz"
+    dest: "{{ playbook_dir }}/installer-workspace"
 
 - name: Extract OpenShift client binary
   ansible.builtin.unarchive:
-    src: {{ playbook_dir }}/installer-workspace/openshift-client-linux.tar.gz
-    dest: /usr/bin
+    src: "{{ playbook_dir }}/installer-workspace/openshift-client-linux.tar.gz"
+    dest: "/usr/bin"
+
+- name: Set the az
+  set_fact:  
+    az: "{{lookup('env', 'az')}}"
+
+- name: Set Fact for multi_zone
+  set_fact:
+    multi_zone: "{% if az =='multi_zone' %}true{% else %}false{% endif %}"
 
 - name: Jinja Conversion for Install Config yaml
   ansible.builtin.template:
-    src: files/aws-install-config.yaml
-    dest: {{ playbook_dir }}/installer-workspace/install-config.yaml
+    src: "files/aws-install-config.yaml"
+    dest: "{{ playbook_dir }}/installer-workspace/install-config.yaml"
     mode: '0644'
 
 - name: OCP install
-  ansible.builtin.command: {{ playbook_dir }}/installer-workspace/openshift-install create cluster --dir={{ playbook_dir }}/installer-workspace/ --log-level=debug
+  ansible.builtin.command: "{{ playbook_dir }}/installer-workspace/openshift-install create cluster --dir={{ playbook_dir }}/installer-workspace/ --log-level=debug"
   register: command_output
   changed_when: true
 
 - name: Jinja Conversion for NLB yaml
   ansible.builtin.template:
-    src: files/aws_nlb.yaml
-    dest: {{ playbook_dir }}/installer-workspace/aws_nlb.yaml
+    src: "files/aws_nlb.yaml"
+    dest: "{{ playbook_dir }}/installer-workspace/aws_nlb.yaml"
     mode: '0644'
 
 
 - name: Install IBM Operator Catalogue
   kubernetes.core.k8s:
     state: present
-    src: {{ playbook_dir }}/installer-workspace/aws_nlb.yaml
+    src: "{{ playbook_dir }}/installer-workspace/aws_nlb.yaml"
 
 - name: Create kube dir to store and configure kubeconfig
   ansible.builtin.file:
-    path: /root/.kube
+    path: "/root/.kube"
     state: directory
 
 - name: Copy kubeconfig file to kube directory of admin user
   ansible.builtin.copy:
-    src: {{ playbook_dir }}/installer-workspace/auth/kubeconfig
-    dest: /root/.kube/config
+    src: "{{ playbook_dir }}/installer-workspace/auth/kubeconfig"
+    dest: "/root/.kube/config"
 
 - name: Switch to Machine API project
   ansible.builtin.command: oc project openshift-machine-api
@@ -127,7 +135,7 @@
 - name: Install IBM Operator Catalogue
   kubernetes.core.k8s:
     state: present
-    src: files/ibm-operator-catalog.yaml
+    src: "files/ibm-operator-catalog.yaml"
 
 - name: Patch previous default storageclass
   ansible.builtin.command: >
@@ -138,4 +146,4 @@
 - name: Create the default gp3 storage class 
   kubernetes.core.k8s:
     state: present
-    src: files/gp3_immediate_storageclass.yaml
+    src: "files/gp3_immediate_storageclass.yaml"

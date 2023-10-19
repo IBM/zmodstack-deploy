@@ -1,3 +1,4 @@
+#jinja2: trim_blocks:False
 apiVersion: v1
 baseDomain: {{ base_domain }}
 compute:
@@ -15,7 +16,7 @@ compute:
       rootVolume:
         size: {{ computenode_instance_volume_size }}
         type: {{ computenode_instance_volume_type }}
-  replicas: {{ computenode_replica_count }}
+      replicas: {{ computenode_replica_count }}
 controlPlane:
   hyperthreading: Enabled
   name: master
@@ -31,7 +32,7 @@ controlPlane:
       rootVolume:
         size: {{ control_plane_node_instance_volume_size }}
         type: {{ control_plane_node_instance_volume_type }}
-  replicas: {{ control_plane_node_replica_count }}
+      replicas: {{ control_plane_node_replica_count }}
 metadata:
   name: {{ cluster_name }}
 networking:
@@ -40,7 +41,7 @@ networking:
     hostPrefix: {{ cluster_network_host_prefix }}
   machineNetwork:
   - cidr: {{ machine_network_cidr }}
-  networkType: OpenShiftSDN
+    networkType: OpenShiftSDN
   serviceNetwork:
   - {{ service_network_cidr }}
 platform:
@@ -57,11 +58,10 @@ platform:
     - {{ computenode_subnet2_id }}
     - {{ computenode_subnet3_id }}
     {%- endif %}
-    userTags: 
+    userTags:
       "zmodstack:provisioner": openshift-install
       "zmodstack:cfn-stack-name": {{ cluster_name }}
-publish: External
-pullSecret: {{ playbook_dir }}/pull-secret
-sshKey: |
-  {{ public_ssh_key }}
+publish: "External"
+pullSecret: '{{ lookup('file', '{{ playbook_dir }}/pull-secret') }}'
+sshKey: {{ public_ssh_key }}
 fips: {{ enable_fips }}
