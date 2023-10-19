@@ -581,7 +581,7 @@ Resources:
             --arg external_registry_password "${APIKey}" \
             --arg accept_license "${LicenseAgreement}" \
             --arg vpc_id "${VPCID}" \
-            --arg machine_network_cidr "${VPCID}" \
+            --arg machine_network_cidr "${VPCCIDR}" \
             --arg control_plane_node_subnet1_id "${PublicSubnet1ID}" \
             --arg control_plane_node_subnet2_id "${PublicSubnet2ID}" \
             --arg control_plane_node_subnet3_id "${PublicSubnet3ID}" \
