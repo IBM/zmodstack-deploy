@@ -12,7 +12,8 @@ instance:
     - /usr/lpp/IBM/cyp/v3r8/pyz/bin/python3
 ssh_key_name: zmodstack-deploy
 ssh_public_key: "{{lookup('file', '~/.ssh/zmodstack-deploy.pub') }}"
-region: "eu-gb"
+# region: "eu-gb"
+region: us-east
 zone: "{{region}}-1"
 cache_vsi: false
 resource_group_name: "zmodstack-deploy"
