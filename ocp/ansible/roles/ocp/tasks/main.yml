@@ -57,7 +57,6 @@
     - name: Copy SSH private key
       ansible.builtin.copy:
         content: "{{ secret.resources[0].data['ssh-priv-key'] | b64decode }}"
-        # dest: "{{ path_ssh_key }}"
         dest: "{{ path_workspace }}/.ssh/{{ ssh_key_name }}"
         mode: '0400'
 
@@ -65,6 +64,5 @@
       when: secret.resources | length == 1
       ansible.builtin.copy:
         content: "{{ secret.resources[0].data['ssh-pub-key'] | b64decode }}"
-        # dest: "{{ path_ssh_key }}.pub"
         dest: "{{ path_workspace }}/.ssh/{{ ssh_key_name }}.pub"
         mode: '0644'

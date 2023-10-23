@@ -136,6 +136,7 @@
     ansible_ssh_extra_args: "-o StrictHostKeyChecking=no"
     ansible_interpreter_python_fallback: "{{ instance.python_interpreters | default(omit) }}"
 
-- name: Wait for VSI to become reachable over SSH
-  ansible.builtin.wait_for_connection:
-  delegate_to: "{{ fip.address }}"
+# TODO - Check once zvsi has ssh enabled by default
+# - name: Wait for VSI to become reachable over SSH
+#   ansible.builtin.wait_for_connection:
+#   delegate_to: "{{ fip.address }}"
