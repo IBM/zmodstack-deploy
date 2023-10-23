@@ -26,14 +26,14 @@
     #     - delete
 
     - name: Create z/OS Cloud Broker ZosEndpoint CR
-      ansible.builtin.include_role:
+      ansible.builtin.import_role:
         name: "zoscb"
         tasks_from: zosendpoint
       tags:
         - zoscb
 
     - name: Create z/OS Cloud Broker ZosEndpoint CR
-      ansible.builtin.include_role:
+      ansible.builtin.import_role:
         name: "zoscb"
         tasks_from: operatorcollection
       tags:
