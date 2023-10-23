@@ -6,4 +6,4 @@ spec:
   description: A Wazi as a Service instance in IBM Cloud
   endpointType: remote
   host: "{{ zvsi_host }}"
-  port: "{{ zvsi_ssh_port }}"
+  port: "{{ zvsi_ssh_port | int }}"
