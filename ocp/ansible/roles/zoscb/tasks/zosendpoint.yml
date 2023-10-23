@@ -2,7 +2,7 @@
   kubernetes.core.k8s:
     state: present
     namespace: ibm-zmodstack-cloudbroker
-    template: 'templates/zosendpoint.yml.j2'
+    template: templates/zosendpoint.yml.j2
   vars:
     # TODO - replace with value from zvsi provisioning
     zvsi_host: 52.116.124.125
