@@ -10,3 +10,8 @@ broker_instance:
 broker_subscription:
   name: "ibm-zoscb"
   apiVersion: "operators.coreos.com/v1alpha1"
+
+operators:
+  cics:
+    name: zos-cics-ts-operator.ibm.1.0.0
+    url: https://galaxy.ansible.com/download/ibm-zos_cics_operator-1.0.0.tar.gz
