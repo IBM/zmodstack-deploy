@@ -67,18 +67,6 @@
   register: command_output
   changed_when: true
 
-- name: Jinja Conversion for NLB yaml
-  ansible.builtin.template:
-    src: "files/aws_nlb.yaml"
-    dest: "{{ playbook_dir }}/installer-workspace/aws_nlb.yaml"
-    mode: '0644'
-
-
-- name: Install IBM Operator Catalogue
-  kubernetes.core.k8s:
-    state: present
-    src: "{{ playbook_dir }}/installer-workspace/aws_nlb.yaml"
-
 - name: Create kube dir to store and configure kubeconfig
   ansible.builtin.file:
     path: "/root/.kube"
@@ -114,6 +102,17 @@
   register: command_output
   changed_when: true
 
+- name: Jinja Conversion for NLB yaml
+  ansible.builtin.template:
+    src: "files/aws_nlb.yaml"
+    dest: "{{ playbook_dir }}/installer-workspace/aws_nlb.yaml"
+    mode: '0644'
+
+- name: Create AWS Network Load Balancer
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/installer-workspace/aws_nlb.yaml"
+
 - name: Get pull-secret
   ansible.builtin.command: oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}'
   register: pull_secret_data
@@ -122,11 +121,8 @@
   ansible.builtin.command: echo "{{ pull_secret_data.stdout }}" | base64 -d
   register: decoded_pull_secret
 
-- name: Update decoded pull-secret
-  ansible.builtin.command: echo "{{ decoded_pull_secret.stdout }}" | sed -e 's|:{|:{"{{ var.external_registry }}":{"username":"{{ var.external_registry_username }}","password":"{{ var.external_registry_password }}"},|' > /tmp/dockerconfig.json
-
-- name: Set data secret/pull-secret
-  ansible.builtin.command: oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
+- name: Update decoded pull-secret and set the new global pull secret
+  ansible.builtin.command: echo "{{ decoded_pull_secret.stdout }}" | sed -e 's|:{|:{"{{ external_registry }}":{"username":"{{ external_registry_username }}","password":"{{ external_registry_password }}"},|' > /tmp/dockerconfig.json && oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
 
 - name: Wait for 3m until the nodes restart after applying the global pull secret
   pause:
@@ -137,9 +133,13 @@
     state: present
     src: "files/ibm-operator-catalog.yaml"
 
-- name: Patch previous default storageclass
-  ansible.builtin.command: >
-    oc patch storageclass $(oc get sc | grep "(default)" | awk '{print $1}') -p '{"metadata": {"annotations": {"storageclass.kubernetes.io/is-default-class": "false"}}}'
+- name: Register the default storage class
+  ansible.builtin.command: oc get sc | grep "(default)" | awk '{print $1}'
+  register: storage_class_info
+  changed_when: true
+
+- name: Patch the previous default storage class
+  ansible.builtin.command: oc patch storageclass "{{ default_storageclass.stdout }}" -p '{"metadata"":" {"annotations"":" {"storageclass.kubernetes.io/is-default-class"":" "false"}}}'
   register: command_output
   changed_when: true
 
