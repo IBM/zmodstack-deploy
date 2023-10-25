@@ -608,6 +608,9 @@ Resources:
             ansible-galaxy collection install -r /home/ec2-user/zmodstack/ocp/ansible/requirements.yml
             cd /home/ec2-user/zmodstack/ocp/ansible && ansible-playbook playbooks/ocp-install.yaml --extra-vars "@extravars.json" 
             cd /home/ec2-user/zmodstack/ocp/ansible && ansible-playbook playbooks/main.yaml --extra-vars "@extravars.json" 
+            
+            # Retreieve ansible exit code
+            ecode=$?
 
             # Copy values logs to S3
             aws s3 cp /var/log/cloud-init-output.log s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_cloud-init-output.log
