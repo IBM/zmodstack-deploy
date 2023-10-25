@@ -595,7 +595,7 @@ Resources:
             --arg control_plane_node_replica_count ${NumberOfControlPlaneNode} \
             --arg computenode_instance_type "${ComputeInstanceType}" \
             --arg computenode_replica_count ${NumberOfCompute} \
-            --arg autoscaler "false"
+            --arg autoscaler "false" \
             --arg zoscb ${ZosCloudBroker} \
             --arg zosconnect ${ZosConnect} \
             --arg wazidevspaces ${WaziDevspaces} \
