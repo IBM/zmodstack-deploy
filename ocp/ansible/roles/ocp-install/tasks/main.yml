@@ -119,10 +119,7 @@
     state: directory
 
 - name: Get secret pull-secret
-  ansible.builtin.shell: oc get secret/pull-secret -n openshift-config --template='{{'{{'}}index .data ".dockerconfigjson" | base64decode{{'}}'}}' > /tmp/dockerconfig.json
-
-- name: Login and save credentials in json
-  ansible.builtin.command: oc registry login --registry={{ external_registry }} --auth-basic="{{ external_registry_username }}:{{ external_registry_password}}" --to=/tmp/dockerconfig.json
+  ansible.builtin.shell: oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | sed -e 's|:{|:{"{{ external_registry }}":{"username":"{{ external_registry_username }}","password":"{{ external_registry_password }}"},|' > /tmp/dockerconfig.json
 
 - name: Set data in pull-secret
   ansible.builtin.command: oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
