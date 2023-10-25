@@ -51,3 +51,6 @@ accept_license: "reject"
 external_registry: "cp.icr.io"
 external_registry_username: "cp"
 openshift_version: "4.12"
+
+###########################################################
+autoscaler: false

@@ -113,16 +113,19 @@
     state: present
     src: "{{ playbook_dir }}/installer-workspace/aws_nlb.yaml"
 
-- name: Get pull-secret
-  ansible.builtin.command: oc get secret/pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}'
-  register: pull_secret_data
+- name: Create temporary directory if it does not exist
+  ansible.builtin.file:
+    path: /tmp
+    state: directory
 
-- name: Decode pull-secret
-  ansible.builtin.command: echo "{{ pull_secret_data.stdout }}" | base64 -d
-  register: decoded_pull_secret
+- name: Get secret pull-secret
+  ansible.builtin.shell: oc get secret/pull-secret -n openshift-config --template='{{'{{'}}index .data ".dockerconfigjson" | base64decode{{'}}'}}' > /tmp/dockerconfig.json
 
-- name: Update decoded pull-secret and set the new global pull secret
-  ansible.builtin.command: echo "{{ decoded_pull_secret.stdout }}" | sed -e 's|:{|:{"{{ external_registry }}":{"username":"{{ external_registry_username }}","password":"{{ external_registry_password }}"},|' > /tmp/dockerconfig.json && oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
+- name: Login and save credentials in json
+  ansible.builtin.command: oc registry login --registry={{ external_registry }} --auth-basic="{{ external_registry_username }}:{{ external_registry_password}}" --to=/tmp/dockerconfig.json
+
+- name: Set data in pull-secret
+  ansible.builtin.command: oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/dockerconfig.json
 
 - name: Wait for 3m until the nodes restart after applying the global pull secret
   pause:
@@ -133,13 +136,22 @@
     state: present
     src: "files/ibm-operator-catalog.yaml"
 
-- name: Register the default storage class
-  ansible.builtin.command: oc get sc | grep "(default)" | awk '{print $1}'
-  register: storage_class_info
-  changed_when: true
+- name: Retrieve the default storage class
+  ansible.builtin.command: oc get sc
+  register: storage_class_output
+
+- name: Filter default storage class
+  ansible.builtin.command: grep "(default)"
+  args:
+    stdin: "{{ storage_class_output.stdout }}"
+  register: filtered_output
+
+- name: Extract default storage class name
+  ansible.builtin.set_fact:
+    default_storageclass: "{{ filtered_output.stdout_lines[0].split()[0] }}"
 
 - name: Patch the previous default storage class
-  ansible.builtin.command: oc patch storageclass "{{ default_storageclass.stdout }}" -p '{"metadata"":" {"annotations"":" {"storageclass.kubernetes.io/is-default-class"":" "false"}}}'
+  ansible.builtin.command: oc patch storageclass {{ default_storageclass }} -p '{"metadata"{{':'}} {"annotations"{{':'}} {"storageclass.kubernetes.io/is-default-class"{{':'}} "false"}}}'
   register: command_output
   changed_when: true
 
