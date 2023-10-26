@@ -17,24 +17,51 @@
     state: present
     src: files/cluster-autoscaler.yaml
 
-- name: Jinja Conversion for Machine Autoscaler Yaml
+- name: Jinja Conversion for Machine Autoscaler Yaml 
   ansible.builtin.template:
-    src: files/machine-autoscaler.yaml
-    dest: {{ playbook_dir }}/installer-workspace/machine-autoscaler.yaml
+    src: files/machine-autoscaler1z.yaml
+    dest: "{{ playbook_dir }}/installer-workspace/machine-autoscaler1z.yaml"
     mode: '0644'
 
-- name: Execute Machine Autoscaler
+- name: Execute Machine Autoscaler for availability_zone1
   kubernetes.core.k8s:
     state: present
-    src: {{ playbook_dir }}/installer-workspace/machine-autoscaler.yaml
+    src: "{{ playbook_dir }}/installer-workspace/machine-autoscaler1z.yaml"
+
+- name: Jinja Conversion for Machine Autoscaler Yaml
+  ansible.builtin.template:
+    src: files/machine-autoscaler3z.yaml
+    dest: "{{ playbook_dir }}/installer-workspace/machine-autoscaler3z.yaml"
+    mode: '0644'
+  when: az == "multi_zone"
+
+- name: Execute Machine Autoscaler for availability_zone2 and availability_zone3
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/installer-workspace/machine-autoscaler3z.yaml"
+  when: az == "multi_zone"
 
 - name: Jinja Conversion for Machine Health Check Yaml
   ansible.builtin.template:
-    src: files/machine-health-check.yaml
-    dest: {{ playbook_dir }}/installer-workspace/machine-health-check.yaml
+    src: files/machine-health-check1z.yaml
+    dest: "{{ playbook_dir }}/installer-workspace/machine-health-check1z.yaml"
     mode: '0644'
 
-- name: Execute Machine Health Check
+- name: Execute Machine Health Check availability_zone1
   kubernetes.core.k8s:
     state: present
-    src: {{ playbook_dir }}/installer-workspace/machine-health-check.yaml
+    src: "{{ playbook_dir }}/installer-workspace/machine-health-check1z.yaml"
+
+- name: Jinja Conversion for Machine Health Check Yaml
+  ansible.builtin.template:
+    src: files/machine-health-check3z.yaml
+    dest: "{{ playbook_dir }}/installer-workspace/machine-health-check3z.yaml"
+    mode: '0644'
+  when: az == "multi_zone"
+
+- name: Execute Machine Health Check availability_zone2 and availability_zone3
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/installer-workspace/machine-health-check3z.yaml"
+  when: az == "multi_zone"
+  
