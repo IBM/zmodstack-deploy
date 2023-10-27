@@ -1,12 +1,12 @@
 apiVersion: zoscb.ibm.com/v2beta2
 kind: SubOperatorConfig
 metadata:
-  name: zos-cics-ts-operator.ibm.1.0.0-soc-pvpgm
+  generateName: {{ oc.name }}-soc-
   namespace: ibm-zmodstack-cloudbroker
   {# ownerReferences:
     - apiVersion: zoscb.ibm.com/v2beta2
       kind: OperatorCollection
-      name: zos-cics-ts-operator.ibm.1.0.0
+      name: {{ oc.name }}
       uid: 5ba96af0-7731-440a-8b1a-bbb31f71b5ce #}
 spec:
   credentialType: shared
@@ -15,4 +15,4 @@ spec:
       zosendpoints:
         - credentialName: zvsi-credential
           name: zvsi
-  operatorCollection: zos-cics-ts-operator.ibm.1.0.0
+  operatorCollection: {{ oc.name }}

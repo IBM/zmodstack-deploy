@@ -38,3 +38,10 @@
         tasks_from: operatorcollection
       tags:
         - zoscb
+
+    - name: Create z/OS Cloud Broker ZosEndpoint CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: suboperatorconfig
+      tags:
+        - zoscb
