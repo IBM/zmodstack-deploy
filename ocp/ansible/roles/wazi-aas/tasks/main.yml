@@ -1,0 +1,14 @@
+---
+# tasks file for wazi-aas
+- name: Create a z/OS virtual server instance
+  ansible.builtin.import_tasks: create.yml
+  environment: 
+    IC_REGION: "{{ region }}"
+  when: action == "create"
+
+
+- name: Delete a z/OS virtual server instance
+  ansible.builtin.import_tasks: delete.yml
+  environment: 
+    IC_REGION: "{{ region }}"
+  when: action == "delete"

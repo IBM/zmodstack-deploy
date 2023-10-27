@@ -104,6 +104,18 @@
     },
     "zModStackLicenseAgreement": {
       "value": "accept"
+    },
+    "zosCloudBrokerInstall": {
+      "value": true
+    },
+    "zosConnectInstall": {
+      "value": true
+    },
+    "waziDevspacesInstall": {
+      "value": true
+    },
+    "waziDevspacesVersion": {
+      "value": "3.x"
     }
   }
 }

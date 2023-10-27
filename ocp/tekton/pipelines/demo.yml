@@ -1,0 +1,55 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: demo
+spec:
+  params:
+    - name: ibmcloud_apikey
+      type: string
+  tasks:
+    - name: git-clone
+      params:
+        - name: url
+          value: 'https://github.com/IBM/zmodstack-deploy.git'
+        - name: revision
+          value: tekton
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: zmodstack-deploy
+    - name: create-zos-vsi
+      params:
+        - name: project-dir
+          value: ocp/ansible
+        - name: ansible-command
+          value: >-
+            IC_API_KEY=$(params.ibmcloud_apikey) ansible-playbook
+            playbooks/demo.yaml --tags "create"
+      runAfter:
+        - git-clone
+      taskRef:
+        kind: Task
+        name: ansible
+      workspaces:
+        - name: ws
+          workspace: zmodstack-deploy
+    - name: destroy-zos-vsi
+      params:
+        - name: project-dir
+          value: ocp/ansible
+        - name: ansible-command
+          value: >-
+            IC_API_KEY=$(params.ibmcloud_apikey) ansible-playbook
+            playbooks/demo.yaml --tags "delete"
+      runAfter:
+        - create-zos-vsi
+      taskRef:
+        kind: Task
+        name: ansible
+      workspaces:
+        - name: ws
+          workspace: zmodstack-deploy
+  workspaces:
+    - name: zmodstack-deploy
