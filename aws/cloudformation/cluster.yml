@@ -742,4 +742,5 @@ Outputs:
 
   WaziDevspacesConsole:
     Description: The URL for the Wazi Devspaces UI.
+    Condition: WaziDevspacesCheck
     Value: !GetAtt WaziDevspacesURL.Value
