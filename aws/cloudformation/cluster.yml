@@ -427,6 +427,7 @@ Resources:
 
   WaziDevspacesURL:
     Type: AWS::SSM::Parameter
+    Condition: WaziDevspacesCheck
     Properties:
       Name: !Sub "${AWS::StackName}-WaziDevspacesURL"
       Type: String
