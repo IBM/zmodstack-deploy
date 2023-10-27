@@ -2,7 +2,7 @@
 kind: MachineAutoscaler
 apiVersion: autoscaling.openshift.io/v1beta1
 metadata:
-  name: {{ cluster_name }}-autoscaler-compute-{{ availability_zone2 }}
+  name: {{ clusterid }}-autoscaler-compute-{{ availability_zone2 }}
   namespace: openshift-machine-api
 spec:
   minReplicas: 1
@@ -10,12 +10,12 @@ spec:
   scaleTargetRef:
     apiVersion: machine.openshift.io/v1beta1
     kind: MachineSet
-    name: {{ cluster_name }}-worker-{{ availability_zone2 }}
+    name: {{ clusterid }}-worker-{{ availability_zone2 }}
 ---
 kind: MachineAutoscaler
 apiVersion: autoscaling.openshift.io/v1beta1
 metadata:
-  name: {{ cluster_name }}-autoscaler-compute-{{ availability_zone3 }}
+  name: {{ clusterid }}-autoscaler-compute-{{ availability_zone3 }}
   namespace: openshift-machine-api
 spec:
   minReplicas: 1
@@ -23,4 +23,4 @@ spec:
   scaleTargetRef:
     apiVersion: machine.openshift.io/v1beta1
     kind: MachineSet
-    name: {{ cluster_name }}-worker-{{ availability_zone3 }}
+    name: {{ clusterid }}-worker-{{ availability_zone3 }}

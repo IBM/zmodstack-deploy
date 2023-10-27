@@ -8,9 +8,17 @@
     namespace: openshift-machine-api
   register: machineset
 
-- name: Set Cluster ID
+- name: Get ClusterID 
+  ansible.builtin.command: oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}'
+  register: clusterid_output
+
+- name: Set clusterID as fact
   ansible.builtin.set_fact:
-    CLUSTER_ID: "{{ machineset.resources[0].metadata.labels['machine.openshift.io/cluster-api-cluster'] }}"
+    clusterid: "{{ clusterid_output.stdout }}"
+
+- name: debug
+  ansible.builtin.debug:
+    var: clusterid
 
 - name: Execute Cluster Autoscaler
   kubernetes.core.k8s:

@@ -2,14 +2,14 @@
 apiVersion: machine.openshift.io/v1beta1
 kind: MachineHealthCheck
 metadata:
-  name: {{ cluster_name }}-health-check-compute-{{ availability_zone1 }}
+  name: {{ clusterid }}-health-check-compute-{{ availability_zone1 }}
   namespace: openshift-machine-api
 spec:
   selector:
     matchLabels:
       machine.openshift.io/cluster-api-machine-role: compute
       machine.openshift.io/cluster-api-machine-type: compute
-      machine.openshift.io/cluster-api-machineset: {{ cluster_name }}-worker-{{ availability_zone1 }}
+      machine.openshift.io/cluster-api-machineset: {{ clusterid }}-worker-{{ availability_zone1 }}
   unhealthyConditions:
   - type:    "Ready"
     timeout: "300s"
