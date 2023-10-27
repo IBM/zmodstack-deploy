@@ -17,13 +17,13 @@
       tags:
         - create
 
-    - name: Run the Wazi-aaS role to delete an instance
-      ansible.builtin.import_role:
-        name: "wazi-aas"
-      vars:
-        action: delete
-      tags:
-        - delete
+    # - name: Run the Wazi-aaS role to delete an instance
+    #   ansible.builtin.import_role:
+    #     name: "wazi-aas"
+    #   vars:
+    #     action: delete
+    #   tags:
+    #     - delete
 
     - name: Create z/OS Cloud Broker ZosEndpoint CR
       ansible.builtin.import_role:

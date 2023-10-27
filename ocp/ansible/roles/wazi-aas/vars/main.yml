@@ -5,8 +5,8 @@ name_prefix: "zmodstack-deploy"
 instance:
   name: "{{ name_prefix }}-zos-vsi"
   profile: mz2o-2x16
-  # image: zmodstackadcd*
-  image: ibm-zos.*
+  image: zmodstackadcd*
+  # image: ibm-zos.*
   username: IBMUSER
   python_interpreters:
     - /usr/lpp/IBM/cyp/v3r9/pyz/bin/python3
