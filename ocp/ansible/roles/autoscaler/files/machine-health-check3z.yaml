@@ -1,0 +1,40 @@
+---
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineHealthCheck
+metadata:
+  name: {{ clusterid }}-health-check-compute-{{ availability_zone2 }}
+  namespace: openshift-machine-api
+spec:
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-machine-role: compute
+      machine.openshift.io/cluster-api-machine-type: compute
+      machine.openshift.io/cluster-api-machineset: {{ clusterid }}-worker-{{ availability_zone2 }}
+  unhealthyConditions:
+  - type:    "Ready"
+    timeout: "300s"
+    status: "False"
+  - type:    "Ready"
+    timeout: "300s"
+    status: "Unknown"
+  maxUnhealthy: "30%"
+---
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineHealthCheck
+metadata:
+  name: {{ clusterid }}-health-check-compute-{{ availability_zone3 }}
+  namespace: openshift-machine-api
+spec:
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-machine-role: compute
+      machine.openshift.io/cluster-api-machine-type: compute
+      machine.openshift.io/cluster-api-machineset: {{ clusterid }}-worker-{{ availability_zone3 }}
+  unhealthyConditions:
+  - type:    "Ready"
+    timeout: "300s"
+    status: "False"
+  - type:    "Ready"
+    timeout: "300s"
+    status: "Unknown"
+  maxUnhealthy: "30%"
