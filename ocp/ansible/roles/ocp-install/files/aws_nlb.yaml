@@ -1,0 +1,15 @@
+#jinja2: trim_blocks:False
+apiVersion: operator.openshift.io/v1
+kind: IngressController
+metadata:
+  name: default
+  namespace: openshift-ingress-operator
+spec:
+  endpointPublishingStrategy:
+    type: LoadBalancerService
+    loadBalancer:
+      scope: {% if private_cluster=='true' %}"Internal"{% else %}"External"{% endif %}
+      providerParameters:
+        type: AWS
+        aws:
+          type: NLB
