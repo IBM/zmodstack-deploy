@@ -19,20 +19,7 @@
     # *  Playbook section for creating all ZmodSTack resources
     # *
     # ****************************************************************************************************************************
-    - name: Deploy IBM z/OS Cloud and Modenization Stack - Openshift z/OS Cloud Broker Operator
-      block:
-        # ****************************************************************************************************************************
-        # *
-        # Install IBM z/OS Cloud Broker
-        # *
-        # ****************************************************************************************************************************
-
-        # Dynamically INCLUDE ansible role
-        - name: Include z/OS Dev Install role/task tagged for z/OS Cloud Broker
-          ansible.builtin.include_role:
-            name: "zoscb"
-          when: zoscb | bool
-
+    
     # ****************************************************************************************************************************
     # *
     # Install IBM z/OS Connect
@@ -57,3 +44,17 @@
         name: "wazi-devspaces"
         tasks_from: "{{ 'wazi-devspaces3.yaml' if wazidevspacesversion== '3.x' else 'wazi-devspaces2.yaml' }}"
       when: wazidevspaces | bool
+
+    # ****************************************************************************************************************************
+    # *
+    # Install IBM z/OS Cloud Broker
+    # *
+    # ****************************************************************************************************************************
+
+    - name: Deploy IBM z/OS Cloud and Modenization Stack - Openshift z/OS Cloud Broker Operator
+      block:
+        # Dynamically INCLUDE ansible role
+        - name: Include z/OS Dev Install role/task tagged for z/OS Cloud Broker
+          ansible.builtin.include_role:
+            name: "zoscb"
+          when: zoscb | bool
