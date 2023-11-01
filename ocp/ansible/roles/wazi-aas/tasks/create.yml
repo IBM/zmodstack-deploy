@@ -92,7 +92,8 @@
     id: "{{ vsi.id | default(omit) }}"
     vpc: "{{ vpc.id }}"
     profile: "{{ instance.profile }}"
-    image: "{{ (image_dict | dict2items | selectattr('key', 'match', instance.image) | list | first).value }}"
+    # image: "{{ (image_dict | dict2items | selectattr('key', 'match', instance.image) | list | first).value }}"
+    image: r014-b01b36b9-1cd5-4205-958e-842e2a7063b4
     keys:
       - "{{ ssh_key.id }}"
     primary_network_interface:
@@ -134,3 +135,8 @@
     groups: new_vsi
     ansible_ssh_extra_args: "-o StrictHostKeyChecking=no"
     ansible_interpreter_python_fallback: "{{ instance.python_interpreters | default(omit) }}"
+
+# TODO - Check once zvsi has ssh enabled by default
+# - name: Wait for VSI to become reachable over SSH
+#   ansible.builtin.wait_for_connection:
+#   delegate_to: "{{ fip.address }}"

@@ -22,5 +22,6 @@ spec:
       script: |
         #!/bin/bash
         set -ex
+        ln -s $(workspaces.ws.path)/.ssh ~ 
         $(params.ansible-command)
       workingDir: '$(workspaces.ws.path)/$(params.project-dir)'

@@ -3,6 +3,12 @@
   hosts: localhost
   # gather_facts: false
   tasks:
+    - name: Check for and create Secret if necessary
+      ansible.builtin.import_role:
+        name: ocp
+      tags:
+        - ssh
+
     - name: Run the Wazi-aaS role to create an instance
       ansible.builtin.import_role:
         name: "wazi-aas"
