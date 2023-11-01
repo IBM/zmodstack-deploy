@@ -1,5 +1,0 @@
-.DS*
-terraform.tfstate*
-.terraform*
-pull-secret
-installer-files

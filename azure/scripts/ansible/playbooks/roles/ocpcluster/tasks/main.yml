@@ -67,15 +67,15 @@
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
   register: command_output
-  changed_when: command_output.rc != 0
-- name: Create a directory kube for kubeconfig file
+  changed_when: true
+- name: Create a directory kube for bootstrap admin user
   ansible.builtin.file:
     path: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube"
     state: directory
     owner: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
     group: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
     mode: '0775'
-- name: Copy kubeconfig file to kube directory
+- name: Copy kubeconfig file to kube directory of bootstrap admin user
   ansible.builtin.copy:
     src: "{{ INSTALLER_HOME }}/openshiftfourx/auth/kubeconfig"
     dest: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube/config"
@@ -87,19 +87,19 @@
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
   register: command_output
-  changed_when: command_output.rc != 0
+  changed_when: true
 - name: Create OpenShift User
   ansible.builtin.command: "htpasswd -c -B -b /tmp/.htpasswd {{ OPENSHIFT_USERNAME }} {{ OPENSHIFT_PASSWORD }}"
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
   register: command_output
-  changed_when: command_output.rc != 0
+  changed_when: true
 - name: Create Secret
   ansible.builtin.command: oc create secret generic htpass-secret --from-file=htpasswd=/tmp/.htpasswd -n openshift-config
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
   register: command_output
-  changed_when: command_output.rc != 0
+  changed_when: true
 - name: Setup Authentication
   kubernetes.core.k8s:
     state: present
@@ -111,10 +111,20 @@
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
   register: command_output
-  changed_when: command_output.rc != 0
+  changed_when: true
 - name: Install IBM Operator Catalogue
   kubernetes.core.k8s:
     state: present
     src: files/ibm-operator-catalog.yaml
   become: true
   become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+- name: Create a directory kube for root user
+  ansible.builtin.file:
+    path: "~/.kube"
+    state: directory
+    mode: '0775'  
+- name: Copy kubeconfig file to kube directory of root user
+  ansible.builtin.copy:
+    src: "{{ INSTALLER_HOME }}/openshiftfourx/auth/kubeconfig"
+    dest: "~/.kube/config"
+    mode: '0644'

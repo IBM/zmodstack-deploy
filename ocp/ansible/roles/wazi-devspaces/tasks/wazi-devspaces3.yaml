@@ -5,19 +5,19 @@
 
 - name: "Create ansible-workspace directory - IBM Wazi for DevSpaces"
   ansible.builtin.file:
-    path: "{{ ansible_workspace }}/generated_yamls"
+    path: "{{ playbook_dir }}/ansible-workspace/wazi-devspace/generated_yamls"
     state: directory
 
 - name: "Create subscription.yaml file - IBM Wazi for DevSpaces"
   ansible.builtin.template:
     src: files/wazi-devspaces-subscription.yaml.j2
-    dest: "{{ ansible_workspace }}/generated_yamls/wazi-devspaces-subscription.yaml"
+    dest: "{{ playbook_dir }}/ansible-workspace/wazi-devspace/generated_yamls/wazi-devspaces-subscription.yaml"
 
 - name: "Create IBM Wazi for DevSpaces Subscription with Native YAML API"
   kubernetes.core.k8s:
     state: present
     namespace: "openshift-operators"
-    src: "{{ ansible_workspace }}/generated_yamls/wazi-devspaces-subscription.yaml"
+    src: "{{ playbook_dir }}/ansible-workspace/wazi-devspace/generated_yamls/wazi-devspaces-subscription.yaml"
 
 #install IBM Wazi for DevSpaces in openshift-operators namespace to install by default on all namespaces
 - name: "Retrieve IBM Wazi for DevSpaces subscription info"
@@ -45,13 +45,13 @@
 - name: "Create license.yaml - IBM Wazi for DevSpaces"
   ansible.builtin.template:
     src: files/wazi-license.yaml.j2
-    dest: "{{ ansible_workspace }}/generated_yamls/wazi-license.yaml"
+    dest: "{{ playbook_dir }}/ansible-workspace/wazi-devspace/generated_yamls/wazi-license.yaml"
 
 - name: "Accept wazi DevSpaces License with Native YAML API - IBM Wazi for DevSpaces"
   kubernetes.core.k8s:
     state: present
     namespace: "openshift-operators"
-    src: "{{ ansible_workspace }}/generated_yamls/wazi-license.yaml"
+    src: "{{ playbook_dir }}/ansible-workspace/wazi-devspace/generated_yamls/wazi-license.yaml"
 
 # Wait for 50 secconds until wazi license is up (status block unavailable for verification)
 - name: Wait for 50sec for wazi License setup
