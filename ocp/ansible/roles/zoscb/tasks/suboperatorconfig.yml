@@ -15,3 +15,7 @@
   failed_when: mapped_suboperator.failed == true
   retries: 5
   delay: 30
+
+- debug: msg="{{ mapped_suboperator.stdout }}"
+- debug: msg="{{ mapped_suboperator.stderr }}"
+- debug: msg="{{ mapped_suboperator }}"
