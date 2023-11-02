@@ -84,14 +84,14 @@
       vars:
         oc_name: zpm
 
-    # - name: Create z/OS Cloud Broker ZPM Region Instance CR
-    #   ansible.builtin.import_role:
-    #     name: "zoscb"
-    #     tasks_from: zpmsregion_instance
-    #   tags:
-    #     - zpm
-    #   vars:
-    #     oc_name: zpm
+    - name: Create z/OS Cloud Broker ZPM Region Instance CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: zpm_instance
+      tags:
+        - zpm
+      vars:
+        oc_name: zpm
 
     - name: Create z/OS Cloud Broker IMS OperatorCollection CR
       ansible.builtin.import_role:
