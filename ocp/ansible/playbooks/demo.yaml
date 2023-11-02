@@ -66,6 +66,15 @@
       vars:
         oc_name: cics
 
+    - name: Create z/OS Cloud Broker ZPM OperatorCollection CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: operatorcollection
+      tags:
+        - zpm
+      vars: 
+        oc_name: zpm
+
 
     - name: Create z/OS Cloud Broker IMS OperatorCollection CR
       ansible.builtin.import_role:
