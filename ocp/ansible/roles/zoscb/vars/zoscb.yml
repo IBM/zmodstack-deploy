@@ -26,6 +26,6 @@ username: ibmuser
 secret:
   username: "{{ username }}"
   # ssh_key: "{{ lookup('file', '{{ path_ssh_key }}') }}"
-  ssh_key: "{{ lookup('file', './ocp/ansible/roles/zoscb/vars/vault-value') }}"
+  # ssh_key: "{{ lookup('file', '{{ playbook_dir }}/vault-value') }}"
 
 zvsi_endpoint_name: zvsi
