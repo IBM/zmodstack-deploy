@@ -1,6 +1,6 @@
 - include_vars: zoscb.yml
 
-- name: Map the CICS Operator Collection
+- name: "Map the {{ oc_name }} Operator Collection"
   kubernetes.core.k8s:
     state: present
     namespace: ibm-zmodstack-cloudbroker
@@ -9,25 +9,21 @@
     # TODO - replace with value from zvsi provisioning
     # oc_name: zos-cics-ts-operator.ibm.1.0.0
     # oc_url: https://galaxy.ansible.com/download/ibm-zos_cics_operator-1.0.0.tar.gz
-    oc: "{{ operators.cics }}"
+    oc: "{{ operators[oc_name]}}"
   register: mapped_suboperator
-  # until: mapped_suboperator.status.phase == Successful
-  # failed_when: mapped_suboperator.status.phase == Failed
-  # retries: 5
-  # delay: 30
 
 - name: Print SOC value
   ansible.builtin.debug:
     var: mapped_suboperator
 
-- name: "Ensure successful installation of the {{ operators.cics.name }} suboperator before proceeding"
+- name: "Ensure successful installation of the {{ operators[oc_name].name }} suboperator before proceeding"
   kubernetes.core.k8s_info:
     kind: ClusterServiceVersion
     namespace: ibm-zmodstack-cloudbroker
     api_version: operators.coreos.com/v1alpha1
     label_selectors:
       - "instance-name = zoscloudbroker"
-      - "suboperatorconfig.name = {{ operators.cics.name }}"
+      - "suboperatorconfig.name = {{ operators[oc_name].name }}"
   register: deploy_csv_subop
   until:
     - deploy_csv_subop.resources is defined and deploy_csv_subop.resources | length > 0

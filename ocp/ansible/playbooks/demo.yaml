@@ -31,13 +31,6 @@
         tasks_from: zosendpoint
       tags:
         - zoscb
-
-    - name: Create z/OS Cloud Broker OperatorCollection CR
-      ansible.builtin.import_role:
-        name: "zoscb"
-        tasks_from: operatorcollection
-      tags:
-        - zoscb
     
     - name: Create z/OS Cloud Broker Credential 
       ansible.builtin.import_role:
@@ -46,16 +39,29 @@
       tags:
         - zoscb
 
-    - name: Create z/OS Cloud Broker SuboperatorConfig CR
+    - name: Create z/OS Cloud Broker CICS OperatorCollection CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: operatorcollection
+      tags:
+        - cics
+      vars:
+        oc_name: cics
+
+    - name: Create z/OS Cloud Broker CICS SuboperatorConfig CR
       ansible.builtin.import_role:
         name: "zoscb"
         tasks_from: suboperatorconfig
       tags:
-        - zoscb
+        - cics
+      vars:
+        oc_name: cics
 
-    - name: Create z/OS Cloud Broker Suboperator Instance CR
+    - name: Create z/OS Cloud Broker CICS Suboperator Instance CR
       ansible.builtin.import_role:
         name: "zoscb"
         tasks_from: cicstsregion_instance
       tags:
-        - zoscb
+        - cics
+      vars:
+        oc_name: cics
