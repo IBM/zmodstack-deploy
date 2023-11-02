@@ -18,12 +18,12 @@
     namespace: ibm-zmodstack-cloudbroker
     name: cics-ts-region-instance
     api_version: suboperator.zoscb.ibm.com/v1minor0patch0
-  register: go_instance_info
-  until: "go_instance_info.resources is defined and
-        go_instance_info.resources | length > 0 and
-        'status' in go_instance_info.resources[0] and
-        (go_instance_info.resources[0].status.phase == 'Succeeded' or go_instance_info.resources[0].status.phase == 'Failed')"
-  failed_when: "'status' in go_instance_info.resources[0] and
-                go_instance_info.resources[0].status.phase != 'Succeeded'"
+  register: cics_instance_info
+  until: "cics_instance_info.resources is defined and
+        cics_instance_info.resources | length > 0 and
+        'status' in cics_instance_info.resources[0] and
+        (cics_instance_info.resources[0].status.phase == 'Succeeded' or cics_instance_info.resources[0].status.phase == 'Failed')"
+  failed_when: "'status' in cics_instance_info.resources[0] and
+                cics_instance_info.resources[0].status.phase != 'Succeeded'"
   retries: 120
   delay: 10
