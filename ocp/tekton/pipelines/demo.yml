@@ -63,7 +63,9 @@ spec:
             IC_API_KEY=$(params.ibmcloud_apikey) ansible-playbook
             playbooks/demo.yaml --tags "delete"
       runAfter:
-        - deploy-cics
+        - config-ims
+        - config-zpm
+        - config-cics
       taskRef:
         kind: Task
         name: ansible
@@ -98,12 +100,40 @@ spec:
       workspaces:
         - name: ws
           workspace: zmodstack-deploy
-    - name: deploy-cics
+    - name: config-zpm
+      params:
+        - name: project-dir
+          value: ocp/ansible
+        - name: ansible-command
+          value: ansible-playbook playbooks/demo.yaml --tags "zpm"
+      runAfter:
+        - config-zoscb
+      taskRef:
+        kind: Task
+        name: ansible
+      workspaces:
+        - name: ws
+          workspace: zmodstack-deploy
+    - name: config-cics
       params:
         - name: project-dir
           value: ocp/ansible
         - name: ansible-command
           value: ansible-playbook playbooks/demo.yaml --tags "cics"
+      runAfter:
+        - config-zoscb
+      taskRef:
+        kind: Task
+        name: ansible
+      workspaces:
+        - name: ws
+          workspace: zmodstack-deploy
+    - name: config-ims
+      params:
+        - name: project-dir
+          value: ocp/ansible
+        - name: ansible-command
+          value: ansible-playbook playbooks/demo.yaml --tags "ims"
       runAfter:
         - config-zoscb
       taskRef:
