@@ -1,0 +1,14 @@
+apiVersion: suboperator.zoscb.ibm.com/v1minor0patch0
+kind: ZosPackageManager
+metadata:
+  name: zpm-instance
+  namespace: ibm-zmodstack-cloudbroker
+spec:
+  credential: zvsi-credential
+  zosendpoint: zvsi
+  accept: true
+  java_home: /usr/lpp/java/current_64
+  zpm_install_path: /z-stack/zarin/install1x
+  zpm_products_hlq: ZPM
+  zpm_registry_location: icr.io/zpm
+  zpm_state_path: /z-stack/zarin/state1x
