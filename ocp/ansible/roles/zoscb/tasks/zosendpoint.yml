@@ -7,5 +7,6 @@
     template: templates/zosendpoint.yml.j2
   vars:
     # TODO - replace with value from zvsi provisioning
-    zvsi_host: "{{ lookup('file', '{{ path_workspace }}/ip-address.txt') }}"
+    # zvsi_host: "{{ lookup('file', '{{ path_workspace }}/ip-address.txt') }}"
+    zvsi_host: 141.125.158.214
     zvsi_ssh_port: 22
