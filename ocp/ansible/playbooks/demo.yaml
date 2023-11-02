@@ -52,3 +52,10 @@
         tasks_from: suboperatorconfig
       tags:
         - zoscb
+
+    - name: Create z/OS Cloud Broker Suboperator Instance CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: cicstsregion_instance
+      tags:
+        - zoscb
