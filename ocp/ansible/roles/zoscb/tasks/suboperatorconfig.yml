@@ -11,8 +11,8 @@
     # oc_url: https://galaxy.ansible.com/download/ibm-zos_cics_operator-1.0.0.tar.gz
     oc: "{{ operators.cics }}"
   register: mapped_suboperator
-  until: mapped_suboperator.failed == false
-  failed_when: mapped_suboperator.failed == true
+  until: mapped_suboperator.status.phase == Successful
+  failed_when: mapped_suboperator.status.phase == Failed
   retries: 5
   delay: 30
 
