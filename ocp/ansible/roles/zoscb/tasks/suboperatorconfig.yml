@@ -16,6 +16,6 @@
   retries: 5
   delay: 30
 
-- debug: msg="{{ mapped_suboperator.stdout }}"
-- debug: msg="{{ mapped_suboperator.stderr }}"
-- debug: msg="{{ mapped_suboperator }}"
+- name: Print SOC value
+  ansible.builtin.debug:
+    var: mapped_suboperator
