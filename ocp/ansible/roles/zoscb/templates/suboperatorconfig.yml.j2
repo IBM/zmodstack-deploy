@@ -1,13 +1,10 @@
 apiVersion: zoscb.ibm.com/v2beta2
 kind: SubOperatorConfig
 metadata:
-  generateName: {{ oc.name }}-soc-
+  name: {{ oc.name }}
   namespace: ibm-zmodstack-cloudbroker
-  {# ownerReferences:
-    - apiVersion: zoscb.ibm.com/v2beta2
-      kind: OperatorCollection
-      name: {{ oc.name }}
-      uid: 5ba96af0-7731-440a-8b1a-bbb31f71b5ce #}
+  labels:
+    instance-name: zoscloudbroker
 spec:
   credentialType: shared
   mapping:

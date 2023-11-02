@@ -15,3 +15,17 @@ operators:
   cics:
     name: zos-cics-ts-operator.ibm.1.0.0
     url: https://galaxy.ansible.com/download/ibm-zos_cics_operator-1.0.0.tar.gz
+
+
+path_workspace: "/workspace/ws"
+ssh_key_name: zmodstack-deploy
+path_ssh_key: "~/.ssh/{{ ssh_key_name }}"
+ssh_secret: zmodstack-deploy-ssh
+username: ibmuser
+
+secret:
+  username: "{{ username }}"
+  # ssh_key: "{{ lookup('file', '{{ path_ssh_key }}') }}"
+  ssh_key: "{{ lookup('file', './ocp/ansible/roles/zoscb/vars/vault-value') }}"
+
+zvsi_endpoint_name: zvsi
