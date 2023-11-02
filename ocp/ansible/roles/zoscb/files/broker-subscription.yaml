@@ -9,5 +9,4 @@ spec:
   name: "ibm-zoscb"
   source: "ibm-operator-catalog"
   sourceNamespace: "openshift-marketplace"
-  startingCSV: "ibm-zoscb.v2.2.0"
   apiVersion: operators.coreos.com/v1alpha1
