@@ -1,3 +1,5 @@
+- include_vars: zoscb.yml
+
 - name: Apply a ZosEndpoint configuration with zos-vsi connection details
   kubernetes.core.k8s:
     state: present
@@ -5,5 +7,5 @@
     template: templates/zosendpoint.yml.j2
   vars:
     # TODO - replace with value from zvsi provisioning
-    zvsi_host: 52.116.124.125
+    zvsi_host: "{{ lookup('file', '{{ path_workspace }}/ip-address.txt') }}"
     zvsi_ssh_port: 22

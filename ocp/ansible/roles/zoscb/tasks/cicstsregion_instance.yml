@@ -1,10 +1,10 @@
 - include_vars: zoscb.yml
 
-- name: Map the CICS Operator Collection
+- name: Install a CICS TS Region Instance
   kubernetes.core.k8s:
     state: present
     namespace: ibm-zmodstack-cloudbroker
-    template: templates/suboperatorconfig.yml.j2
+    template: templates/cicstsregion.yml.j2
   vars:
     # TODO - replace with value from zvsi provisioning
     # oc_name: zos-cics-ts-operator.ibm.1.0.0
