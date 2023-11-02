@@ -3,8 +3,27 @@ kind: Pipeline
 metadata:
   name: demo
 spec:
+  finally:
+    - name: debug
+      params:
+        - name: image
+          value: 'icr.io/zmodstack/deploy/tekton-ansible:latest'
+        - name: command
+          value: sleep 6000
+      taskRef:
+        kind: Task
+        name: debug
+      workspaces:
+        - name: ws
+          workspace: zmodstack-deploy
   params:
-    - name: ibmcloud_apikey
+    - default: 
+      description: 
+      name: ibmcloud_apikey
+      type: string
+    - default: 'false'
+      description: Delete the zvsi instance
+      name: zvsi_delete
       type: string
   tasks:
     - name: git-clone
@@ -12,7 +31,7 @@ spec:
         - name: url
           value: 'https://github.com/IBM/zmodstack-deploy.git'
         - name: revision
-          value: tekton
+          value: issue-58
       taskRef:
         kind: ClusterTask
         name: git-clone
@@ -28,7 +47,7 @@ spec:
             IC_API_KEY=$(params.ibmcloud_apikey) ansible-playbook
             playbooks/demo.yaml --tags "create"
       runAfter:
-        - git-clone
+        - create-ssh-key
       taskRef:
         kind: Task
         name: ansible
@@ -44,7 +63,49 @@ spec:
             IC_API_KEY=$(params.ibmcloud_apikey) ansible-playbook
             playbooks/demo.yaml --tags "delete"
       runAfter:
+        - deploy-cics
+      taskRef:
+        kind: Task
+        name: ansible
+      workspaces:
+        - name: ws
+          workspace: zmodstack-deploy
+    - name: create-ssh-key
+      params:
+        - name: project-dir
+          value: ocp/ansible
+        - name: ansible-command
+          value: ansible-playbook playbooks/demo.yaml --tags "ssh"
+      runAfter:
+        - git-clone
+      taskRef:
+        kind: Task
+        name: ansible
+      workspaces:
+        - name: ws
+          workspace: zmodstack-deploy
+    - name: config-zoscb
+      params:
+        - name: project-dir
+          value: ocp/ansible
+        - name: ansible-command
+          value: ansible-playbook playbooks/demo.yaml --tags "zoscb"
+      runAfter:
         - create-zos-vsi
+      taskRef:
+        kind: Task
+        name: ansible
+      workspaces:
+        - name: ws
+          workspace: zmodstack-deploy
+    - name: deploy-cics
+      params:
+        - name: project-dir
+          value: ocp/ansible
+        - name: ansible-command
+          value: ansible-playbook playbooks/demo.yaml --tags "cics"
+      runAfter:
+        - config-zoscb
       taskRef:
         kind: Task
         name: ansible
