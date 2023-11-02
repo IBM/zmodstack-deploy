@@ -119,7 +119,6 @@ param apiKey string
 
 @description('OpenShift Version')
 @allowed([
-  '4.10'
   '4.11'
   '4.12'
   '4.13'
