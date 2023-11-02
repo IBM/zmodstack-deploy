@@ -7,3 +7,7 @@ spec:
   endpointType: remote
   host: {{ zvsi_host }}
   port: {{ zvsi_ssh_port | int }}
+  variables:
+    - name: ansible_python_interpreter
+      type: string
+      value: /usr/lpp/IBM/cyp/pyz/bin/python3
