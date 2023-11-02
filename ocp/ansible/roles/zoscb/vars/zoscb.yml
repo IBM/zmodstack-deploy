@@ -15,7 +15,9 @@ operators:
   cics:
     name: zos-cics-ts-operator.ibm.1.0.0
     url: https://galaxy.ansible.com/download/ibm-zos_cics_operator-1.0.0.tar.gz
-
+  ims:
+    name: zos-ims-operator.ibm.1.2.0
+    url: https://galaxy.ansible.com/api/v3/plugin/ansible/content/published/collections/artifacts/ibm-zos_ims_operator-1.2.0.tar.gz
 
 path_workspace: "/workspace/ws"
 ssh_key_name: zmodstack-deploy

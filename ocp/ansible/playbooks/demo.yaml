@@ -57,7 +57,7 @@
       vars:
         oc_name: cics
 
-    - name: Create z/OS Cloud Broker CICS Suboperator Instance CR
+    - name: Create z/OS Cloud Broker CICS Region Instance CR
       ansible.builtin.import_role:
         name: "zoscb"
         tasks_from: cicstsregion_instance
@@ -65,3 +65,31 @@
         - cics
       vars:
         oc_name: cics
+
+
+    - name: Create z/OS Cloud Broker IMS OperatorCollection CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: operatorcollection
+      tags:
+        - ims
+      vars:
+        oc_name: ims
+
+    - name: Create z/OS Cloud Broker IMS SuboperatorConfig CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: suboperatorconfig
+      tags:
+        - ims
+      vars:
+        oc_name: ims
+
+    - name: Create z/OS Cloud Broker IMS TMDB Instance CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: tmdb_instance
+      tags:
+        - ims
+      vars:
+        oc_name: ims
