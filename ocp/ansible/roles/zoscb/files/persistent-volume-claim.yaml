@@ -5,8 +5,9 @@ metadata:
   name: "zoscloudbroker"
 spec:
   accessModes:
-    - "ReadWriteMany"
+    - "ReadWriteOnce"
   resources:
     requests:
       storage: "5Gi"
   volumeMode: "Filesystem"
+  storageClassName: gp3-immediate

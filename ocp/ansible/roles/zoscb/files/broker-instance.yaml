@@ -8,19 +8,15 @@ spec:
     accept: true
   multiNamespace: true
   logLevel: "trace"
-  resources:
-      limits:
-        cpu: "200m" #"200m"
-        memory: "256Mi" #"256Mi"
-        ephemeral-storage: "500Mi"
-      requests:
-        cpu: "100m"  #"100m"
-        memory: "128Mi" #"128Mi"
-        ephemeral-storage: "500Mi"
+  galaxyConfig:
+    enabled: true
+    galaxyURL: 'https://galaxy.ansible.com'
   storage:
     configure: false
-    enabled: false
+    enabled: true
     pvc: "zoscloudbroker"
     size: "5Gi"
     volumeMode: "Filesystem"
-    accessModes: "ReadWriteMany"
+  managerResources: {}
+  catalogResources: {}
+  uiResources: {}
