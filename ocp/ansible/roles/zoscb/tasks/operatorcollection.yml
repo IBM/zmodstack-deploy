@@ -3,7 +3,7 @@
 - name: "Import the {{ oc_name }} Operator Collection"
   kubernetes.core.k8s:
     state: present
-    namespace: demo-js
+    namespace: ibm-zmodstack-deploy
     template: templates/operatorcollection.yml.j2
   vars:
     # TODO - replace with value from zvsi provisioning

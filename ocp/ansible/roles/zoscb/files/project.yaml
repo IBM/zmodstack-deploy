@@ -2,7 +2,7 @@
 kind: Project
 apiVersion: "project.openshift.io/v1"
 metadata:
-  name: "demo-js"
+  name: "ibm-zmodstack-deploy"
   annotations:
     openshift.io/description: "Project for Zmodstack" #${PROJECT_DESCRIPTION}
     openshift.io/display-name: "** IBM Z MOD STACK **" #${PROJECT_DISPLAYNAME}

@@ -3,7 +3,7 @@
 - name: "Map the {{ oc_name }} Operator Collection"
   kubernetes.core.k8s:
     state: present
-    namespace: demo-js
+    namespace: ibm-zmodstack-deploy
     template: templates/suboperatorconfig.yml.j2
   vars:
     # TODO - replace with value from zvsi provisioning
@@ -19,7 +19,7 @@
 - name: "Ensure successful installation of the {{ operators[oc_name].name }} suboperator before proceeding"
   kubernetes.core.k8s_info:
     kind: ClusterServiceVersion
-    namespace: demo-js
+    namespace: ibm-zmodstack-deploy
     api_version: operators.coreos.com/v1alpha1
     label_selectors:
       - "instance-name = zoscloudbroker"

@@ -2,13 +2,13 @@ apiVersion: zoscb.ibm.com/v2beta2
 kind: SubOperatorConfig
 metadata:
   name: {{ oc.name }}
-  namespace: demo-js
+  namespace: ibm-zmodstack-deploy
   labels:
     instance-name: zoscloudbroker
 spec:
   credentialType: shared
   mapping:
-    - namespace: demo-js
+    - namespace: ibm-zmodstack-deploy
       zosendpoints:
         - credentialName: zvsi-credential
           name: zvsi
