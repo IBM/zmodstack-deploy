@@ -24,6 +24,12 @@
     #     action: delete
     #   tags:
     #     - delete
+    
+    - name: Install z/OS Cloud Broker
+      ansible.builtin.import_role:
+        name: "zoscb"
+      tags:
+        - zoscb
 
     - name: Create z/OS Cloud Broker ZosEndpoint CR
       ansible.builtin.import_role:

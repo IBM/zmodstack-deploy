@@ -8,5 +8,9 @@
   vars:
     # TODO - replace with value from zvsi provisioning
     # zvsi_host: "{{ lookup('file', '{{ path_workspace }}/ip-address.txt') }}"
-    zvsi_host: 141.125.158.214
+    zvsi_host: 141.125.111.88
     zvsi_ssh_port: 22
+    variables:
+      - name: ansible_python_interpreter
+        type: string
+        value: /usr/lpp/IBM/cyp/pyz/bin/python3
