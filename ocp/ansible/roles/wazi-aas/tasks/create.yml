@@ -158,6 +158,10 @@
     cacheable: true
     fip: "{{ fip_create_output.resource }}"
 
+- name: Write IP to File
+  when: fip_create_output.resource is defined
+  copy: content="{{ fip.address }}" dest="{{ path_workspace }}/ip-address.txt"
+
 - name: Print Floating IP Address
   ansible.builtin.debug:
     msg: "IP Address: {{ fip.address }}"

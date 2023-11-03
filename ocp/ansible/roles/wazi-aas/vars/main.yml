@@ -1,7 +1,7 @@
 ---
 # vars file for wazi-aas
 os_type: zos
-name_prefix: "zmodstack-deploy-izzy"
+name_prefix: "zmodstack-deploy-josh"
 instance:
   name: "{{ name_prefix }}-zos-vsi"
   profile: mz2o-2x16
@@ -19,6 +19,7 @@ zone: "{{region}}-1"
 cache_vsi: false
 resource_group_name: "zmodstack-deploy"
 total_ipv4_address_count: 256
+path_workspace: "/workspace/ws"
 
 # New variables for data volume
 data_volume_name: "zmodstack-deploy-dv"
