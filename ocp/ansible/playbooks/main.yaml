@@ -14,7 +14,7 @@
   gather_facts: false
   pre_tasks:
     - name: Retrieve the default storage class
-      ansible.builtin.command: oc get sc
+      ansible.builtin.command: oc get sc --kubeconfig ~/.kube/config
       register: sc_output
 
     - name: Filter default storage class

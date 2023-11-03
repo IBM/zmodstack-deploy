@@ -294,9 +294,9 @@ Conditions:
     - !Condition 1AZCondition
     - !Condition 3AZCondition
   AZValidationFail: !Not [ !Condition AZValidation ]
-  ZosCloudBrokerCheck: !Equals [true, !Ref ZosCloudBroker]
-  ZosConnectCheck: !Equals [true, !Ref ZosConnect]
-  WaziDevspacesCheck: !Equals [true, !Ref WaziDevspaces]
+  WaziDevspacesCheck: !And 
+    - !Equals [true, !Ref WaziDevspaces]
+    - !Condition AZValidation
 
 Resources:
   VPCStack:
@@ -365,6 +365,10 @@ Resources:
         OpenshiftVersion: !Ref OpenshiftVersion
         OpenshiftUsername: !Ref OpenshiftUsername
         OpenshiftPassword: !Ref OpenshiftPassword
+        ZosCloudBroker: !Ref ZosCloudBroker
+        ZosConnect: !Ref ZosConnect
+        WaziDevspaces: !Ref WaziDevspaces
+        WaziDevspacesVersion: !Ref WaziDevspacesVersion
 
 Outputs:
   BootnodePublicIp:
@@ -381,7 +385,7 @@ Outputs:
     Value: !GetAtt 'ZModStack.Outputs.OpenshiftPassword'
   WaziDevspacesConsole:
     Description: The URL for the Wazi Devspaces UI.
-    Condition: AZValidation
+    Condition: WaziDevspacesCheck
     Value: !GetAtt 'ZModStack.Outputs.WaziDevspacesConsole'
   AZValidationError:
     Description: Error when the AZ conditions fail

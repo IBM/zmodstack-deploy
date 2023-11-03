@@ -3,16 +3,28 @@
 
 # Create namespace for cloudbroker
 # Tasks file for zoscb
+
+ - name: Create API project workspace directory - IBM Z/OS CloudBroker
+   ansible.builtin.file:
+     path: "{{ playbook_dir }}/ansible-workspace/zoscb"
+     state: directory
+
 - name: "Create project with Native YAML API for Z/OS CloudBroker"
   kubernetes.core.k8s:
     state: present
     src: "files/project.yaml"
 
+- name: Jinja Conversion for Cloudbroker PersistentVolumeClaim yaml
+  ansible.builtin.template:
+    src: "files/persistent-volume-claim.yaml"
+    dest: "{{ playbook_dir }}/ansible-workspace/zoscb/persistent-volume-claim.yaml"
+    mode: '0644'
+
 - name: "Create PVC with Native YAML API for Z/OS CloudBroker"
   kubernetes.core.k8s:
     state: present
     namespace: "ibm-zmodstack-cloudbroker"
-    src: "files/persistent-volume-claim.yaml"
+    src: "{{ playbook_dir }}/ansible-workspace/zoscb/persistent-volume-claim.yaml"
 
 - name: "Create Operator Group with Native YAML API for Z/OS CloudBroker"
   kubernetes.core.k8s:
@@ -51,14 +63,14 @@
 - name: Jinja Conversion for Cloudbroker instance yaml
   ansible.builtin.template:
     src: "files/broker-instance.yaml"
-    dest: "{{ playbook_dir }}/installer-workspace/broker-instance.yaml"
+    dest: "{{ playbook_dir }}/ansible-workspace/zoscb/broker-instance.yaml"
     mode: '0644'
 
 - name: "Create brokerInstance with Native YAML API for Z/OS CloudBroker"
   kubernetes.core.k8s:
     state: present
     namespace: "ibm-zmodstack-cloudbroker"
-    src:  "{{ playbook_dir }}/installer-workspace/broker-instance.yaml"
+    src:  "{{ playbook_dir }}/ansible-workspace/zoscb/broker-instance.yaml"
     wait: true
     wait_condition:
       type: Succeeded

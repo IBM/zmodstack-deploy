@@ -301,8 +301,6 @@ Rules:
 Conditions:
   3AZConditionCheck: !Equals [!Ref NumberOfAZs, '3']
   AcceptLicense: !Equals [!Ref LicenseAgreement, 'I agree']
-  ZosCloudBrokerCheck: !Equals [true, !Ref ZosCloudBroker]
-  ZosConnectCheck: !Equals [true, !Ref ZosConnect]
   WaziDevspacesCheck: !Equals [true, !Ref WaziDevspaces]
 
 Resources:

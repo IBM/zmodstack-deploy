@@ -5,8 +5,9 @@ metadata:
   name: "zoscloudbroker"
 spec:
   accessModes:
-    - "ReadWriteMany"
+    - "ReadWriteOnce"
   resources:
     requests:
       storage: "5Gi"
+  storageClassName: {{ current_default_sc }}
   volumeMode: "Filesystem"
