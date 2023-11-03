@@ -3,6 +3,11 @@
 
 # Create namespace for cloudbroker
 # Tasks file for zoscb
+- name: "Create the RoleBinding for the Pipeline Service Account"
+  kubernetes.core.k8s:
+    state: present
+    src: "files/rolebindings.yaml"
+    
 - name: "Create project with Native YAML API for Z/OS CloudBroker"
   kubernetes.core.k8s:
     state: present
