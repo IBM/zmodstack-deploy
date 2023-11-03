@@ -100,7 +100,7 @@
       }
     },
     "openshiftVersion": {
-      "value": "4.12"
+      "value": "4.13"
     },
     "zModStackLicenseAgreement": {
       "value": "accept"

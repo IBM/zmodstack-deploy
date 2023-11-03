@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.22.6.54827",
-      "templateHash": "3532252152706504062"
+      "templateHash": "4400483232631361122"
     }
   },
   "parameters": {
@@ -238,11 +238,12 @@
     },
     "openshiftVersion": {
       "type": "string",
-      "defaultValue": "4.12",
+      "defaultValue": "4.13",
       "allowedValues": [
         "4.11",
         "4.12",
-        "4.13"
+        "4.13",
+        "4.14"
       ],
       "metadata": {
         "description": "OpenShift Version"

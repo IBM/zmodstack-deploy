@@ -122,8 +122,9 @@ param apiKey string
   '4.11'
   '4.12'
   '4.13'
+  '4.14'
 ])
-param openshiftVersion string = '4.12'
+param openshiftVersion string = '4.13'
 
 @description('Accept License Agreement')
 @allowed([
