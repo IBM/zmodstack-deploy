@@ -214,7 +214,7 @@ Parameters:
   OpenshiftVersion:
     Description: The OpenShift version that should be deployed. The latest stable version of the selected version will be deployed. 
     Type: String
-    Default: "4.12"
+    Default: "4.13"
     AllowedValues:
       - "4.11"
       - "4.12"
