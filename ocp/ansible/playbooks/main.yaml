@@ -12,7 +12,21 @@
     ansible_python_interpreter: /usr/bin/python3
   
   gather_facts: false
+  pre_tasks:
+    - name: Retrieve the default storage class
+      ansible.builtin.command: oc get sc
+      register: sc_output
 
+    - name: Filter default storage class
+      ansible.builtin.command: grep "(default)"
+      args:
+        stdin: "{{ sc_output.stdout }}"
+      register: filtered_sc_output
+
+    - name: Extract default storage class name
+      ansible.builtin.set_fact:
+        current_default_sc: "{{ filtered_sc_output.stdout_lines[0].split()[0] }}"
+  
   tasks:
     # ****************************************************************************************************************************
     # *

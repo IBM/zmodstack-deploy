@@ -4,23 +4,19 @@ apiVersion: "zoscb.ibm.com/v2beta1"
 metadata:
   name: "zoscloudbroker"
 spec:
+  catalogResources: {}
+  galaxyConfig:
+    enabled: true
+    galaxyURL: 'https://galaxy.ansible.com'
   license:
     accept: true
-  multiNamespace: true
-  logLevel: "trace"
-  resources:
-      limits:
-        cpu: "200m" #"200m"
-        memory: "256Mi" #"256Mi"
-        ephemeral-storage: "500Mi"
-      requests:
-        cpu: "100m"  #"100m"
-        memory: "128Mi" #"128Mi"
-        ephemeral-storage: "500Mi"
+  logLevel: debug
+  managerResources: {}
   storage:
-    configure: false
+    accessModes: ReadWriteMany
+    configure: true
     enabled: false
-    pvc: "zoscloudbroker"
-    size: "5Gi"
-    volumeMode: "Filesystem"
-    accessModes: "ReadWriteMany"
+    size: 5Gi
+    storageClassName: {{ current_default_sc }}
+    volumeMode: Filesystem
+  uiResources: {}

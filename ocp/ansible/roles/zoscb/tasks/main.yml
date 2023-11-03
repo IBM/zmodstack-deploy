@@ -48,11 +48,17 @@
       - broker_subscription_info.resources[0].status.state == "AtLatestKnown"
       - broker_subscription_info.resources[0].status.conditions[0].reason == "AllCatalogSourcesHealthy"
 
+- name: Jinja Conversion for Cloudbroker instance yaml
+  ansible.builtin.template:
+    src: "files/broker-instance.yaml"
+    dest: "{{ playbook_dir }}/installer-workspace/broker-instance.yaml"
+    mode: '0644'
+
 - name: "Create brokerInstance with Native YAML API for Z/OS CloudBroker"
   kubernetes.core.k8s:
     state: present
     namespace: "ibm-zmodstack-cloudbroker"
-    src: "files/broker-instance.yaml"
+    src:  "{{ playbook_dir }}/installer-workspace/broker-instance.yaml"
     wait: true
     wait_condition:
       type: Succeeded
