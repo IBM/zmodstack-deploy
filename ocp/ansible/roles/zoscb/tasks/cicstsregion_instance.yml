@@ -3,7 +3,7 @@
 - name: Install a CICS TS Region Instance
   kubernetes.core.k8s:
     state: present
-    namespace: ibm-zmodstack-deploy
+    namespace: ibm-zmodstack-cloudbroker
     template: templates/cicstsregion.yml.j2
   vars:
     # TODO - replace with value from zvsi provisioning
@@ -15,7 +15,7 @@
 - name: Wait for installation of sub-operator CR CICS TS Region Instance
   kubernetes.core.k8s_info:
     kind: CICSTSRegion
-    namespace: ibm-zmodstack-deploy
+    namespace: ibm-zmodstack-cloudbroker
     name: cics-ts-region-instance
     api_version: suboperator.zoscb.ibm.com/v1minor0patch0
   register: cics_instance_info

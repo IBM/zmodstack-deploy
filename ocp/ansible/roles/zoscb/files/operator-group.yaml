@@ -5,4 +5,4 @@ metadata:
   name: "ibm-zmodstack"
 spec:
   targetNamespaces:
-    - "ibm-zmodstack-deploy"
+    - "ibm-zmodstack-cloudbroker"

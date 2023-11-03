@@ -3,7 +3,7 @@
 - name: Install a TMDB Instance
   kubernetes.core.k8s:
     state: present
-    namespace: ibm-zmodstack-deploy
+    namespace: ibm-zmodstack-cloudbroker
     template: templates/tmdb.yml.j2
   vars:
     # TODO - replace with value from zvsi provisioning
@@ -15,7 +15,7 @@
 - name: Wait for installation of sub-operator CR TMDB Instance
   kubernetes.core.k8s_info:
     kind: TMDB
-    namespace: ibm-zmodstack-deploy
+    namespace: ibm-zmodstack-cloudbroker
     name: tmdb-instance
     api_version: suboperator.zoscb.ibm.com/v1minor0patch0
   register: tmdb_instance_info
