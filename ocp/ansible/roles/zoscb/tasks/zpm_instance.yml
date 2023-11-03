@@ -3,7 +3,7 @@
 - name: Install a ZPM Instance
   kubernetes.core.k8s:
     state: present
-    namespace: demo-iz
+    namespace: demo-js
     template: templates/zpm.yml.j2
   vars:
     # TODO - replace with value from zvsi provisioning
@@ -15,7 +15,7 @@
 - name: Wait for installation of sub-operator CR ZPM Instance
   kubernetes.core.k8s_info:
     kind: ZosPackageManager
-    namespace: demo-iz
+    namespace: demo-js
     name: zpm-instance
     api_version: suboperator.zoscb.ibm.com/v2minor0patch1
   register: zpm_instance_info

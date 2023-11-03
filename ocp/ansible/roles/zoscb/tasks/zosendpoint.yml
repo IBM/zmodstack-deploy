@@ -3,7 +3,7 @@
 - name: Apply a ZosEndpoint configuration with zos-vsi connection details
   kubernetes.core.k8s:
     state: present
-    namespace: demo-iz
+    namespace: demo-js
     template: templates/zosendpoint.yml.j2
   vars:
     # TODO - replace with value from zvsi provisioning

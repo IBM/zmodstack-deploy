@@ -11,25 +11,25 @@
 - name: "Create PVC with Native YAML API for Z/OS CloudBroker"
   kubernetes.core.k8s:
     state: present
-    namespace: "demo-iz"
+    namespace: "demo-js"
     src: "files/persistent-volume-claim.yaml"
 
 - name: "Create Operator Group with Native YAML API for Z/OS CloudBroker"
   kubernetes.core.k8s:
     state: present
-    namespace: "demo-iz"
+    namespace: "demo-js"
     src: "files/operator-group.yaml"
 
 - name: "Create brokerInstance Subscription with Native YAML API for Z/OS CloudBroker"
   kubernetes.core.k8s:
     state: present
-    namespace: "demo-iz"
+    namespace: "demo-js"
     src: "files/broker-subscription.yaml"
 
 - name: "Retrieve subscription info for Z/OS CloudBroker"
   kubernetes.core.k8s_info:
     kind: Subscription
-    namespace: "demo-iz"
+    namespace: "demo-js"
     name: "{{ broker_subscription.name }}"
     api_version: "{{ broker_subscription.apiVersion }}"
   register: broker_subscription_info
@@ -51,7 +51,7 @@
 - name: "Create brokerInstance with Native YAML API for Z/OS CloudBroker"
   kubernetes.core.k8s:
     state: present
-    namespace: "demo-iz"
+    namespace: "demo-js"
     src: "files/broker-instance.yaml"
     wait: true
     wait_condition:
@@ -63,13 +63,13 @@
 - name: "Create route with Native YAML API for Z/OS CloudBroker"
   kubernetes.core.k8s:
     state: present
-    namespace: "demo-iz"
+    namespace: "demo-js"
     src: "files/route.yaml"
 
 # tasks to verify the installation
 - name: "Retrieve Z/OS CloudBroker instance Info"
   kubernetes.core.k8s_info:
-    namespace: "demo-iz"
+    namespace: "demo-js"
     kind: "{{ broker_instance.kind }}"
     name: "{{ broker_instance.name }}"
     api_version: "{{ broker_instance.apiVersion }}"
@@ -79,7 +79,7 @@
   ansible.builtin.assert:
     that:
       - "'ibm-zoscb-manager-{{ broker_instance.name }}' in broker_instance_info.resources[0].status.deployment.ready"
-      - "'ibm-zoscb-registry-{{ broker_instance.name }}-demo-iz' in broker_instance_info.resources[0].status.deployment.ready
+      - "'ibm-zoscb-registry-{{ broker_instance.name }}-demo-js' in broker_instance_info.resources[0].status.deployment.ready
         or 'ibm-zoscb-registry-{{ broker_instance.name }}' in broker_instance_info.resources[0].status.deployment.ready"
       - broker_instance_info.resources[0].status.zosCloudBrokerUrl | length > 0
       - broker_instance_info.resources[0].status.licenseacceptance == "Accepted"
