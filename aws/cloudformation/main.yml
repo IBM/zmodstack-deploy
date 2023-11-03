@@ -216,10 +216,10 @@ Parameters:
     Type: String
     Default: "4.12"
     AllowedValues:
-      - "4.10"
       - "4.11"
       - "4.12"
       - "4.13"
+      - "4.14"
   OpenshiftUsername:
     Description: The OpenShift username that will be created as the default cluster-admin. This username will be used to login to the OpenShift Console.
     Type: String

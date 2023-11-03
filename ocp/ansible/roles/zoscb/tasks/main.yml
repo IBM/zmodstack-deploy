@@ -4,10 +4,10 @@
 # Create namespace for cloudbroker
 # Tasks file for zoscb
 
- - name: Create API project workspace directory - IBM Z/OS CloudBroker
-   ansible.builtin.file:
-     path: "{{ playbook_dir }}/ansible-workspace/zoscb"
-     state: directory
+- name: Create API project workspace directory - IBM Z/OS CloudBroker
+  ansible.builtin.file:
+    path: "{{ playbook_dir }}/ansible-workspace/zoscb"
+    state: directory
 
 - name: "Create project with Native YAML API for Z/OS CloudBroker"
   kubernetes.core.k8s:
