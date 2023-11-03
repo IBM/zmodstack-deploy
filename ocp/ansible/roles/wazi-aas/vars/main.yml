@@ -19,7 +19,6 @@ zone: "{{region}}-1"
 cache_vsi: false
 resource_group_name: "zmodstack-deploy"
 total_ipv4_address_count: 256
-path_workspace: "/workspace/ws"
 
 # New variables for data volume
 data_volume_name: "zmodstack-deploy-dv"
@@ -28,3 +27,5 @@ data_volume_capacity: 336  # Set the desired storage size in GB
 data_volume_snapshot: ".*data$"
 delete_volume_on_instance_delete: true
 data_volume_iops: 3000
+
+path_workspace: "/workspace/ws"
