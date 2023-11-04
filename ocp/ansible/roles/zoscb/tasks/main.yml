@@ -1,10 +1,7 @@
 ---
 - include_vars: zoscb.yml
 
-# Create namespace for cloudbroker
-# Tasks file for zoscb
-
-- name: Create API project workspace directory - IBM Z/OS CloudBroker
+- name: Create OCP project for IBM z/OS Cloud Broker
   ansible.builtin.file:
     path: "{{ playbook_dir }}/ansible-workspace/zoscb"
     state: directory
@@ -13,6 +10,18 @@
   kubernetes.core.k8s:
     state: present
     src: "files/project.yaml"
+
+- name: List all storage classes to capture default storage class name
+  kubernetes.core.k8s_info:
+    api_version: storage.k8s.io/v1
+    kind: StorageClass
+  register: storage_classes
+
+- name: Extract default storage class name from annotations
+  ansible.builtin.set_fact:
+    default_sc: "{{ storage_classes | community.general.json_query(query) | first }}"
+  vars:
+    query: resources[?metadata.annotations."storageclass.kubernetes.io/is-default-class"=='true'].metadata.name
 
 - name: Jinja Conversion for Cloudbroker PersistentVolumeClaim yaml
   ansible.builtin.template:
@@ -77,12 +86,6 @@
       status: 'True'
       reason: Success
     wait_timeout: 600
-
-- name: "Create route with Native YAML API for Z/OS CloudBroker"
-  kubernetes.core.k8s:
-    state: present
-    namespace: "ibm-zmodstack-cloudbroker"
-    src: "files/route.yaml"
 
 # tasks to verify the installation
 - name: "Retrieve Z/OS CloudBroker instance Info"
