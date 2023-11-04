@@ -86,7 +86,7 @@
                     items2dict(key_name='name', value_name='id') }}"
 
 - name: Retrieve snapshot list
-  when: snapshots_list is undefined
+  when: snapshots_list is undefined or snapshots_list.resource.snapshots | length == 0
   ibm.cloudcollection.ibm_is_snapshots_info:
     region: "{{ region }}"
   register: snapshots_list
@@ -99,7 +99,7 @@
                     items2dict(key_name='name', value_name='id') }}"
 
 - name: Create Data Volume from Snapshot
-  when: (data_volume is undefined) or (data_volume == None) or (not cache_data_volume)
+  when: (data_volume is undefined or data_volume == None) and (not cache_data_volume)
   ibm.cloudcollection.ibm_is_volume:
     source_snapshot: "{{ (snapshot_dict | dict2items | selectattr('key', 'match', data_volume_snapshot) | list | first).value }}"
     name: "{{ data_volume_name }}"
@@ -117,7 +117,7 @@
     data_volume: "{{ data_volume_create_output.resource }}"
 
 - name: Create VSI
-  when: (vsi is undefined) or (vsi == None) or (not cache_vsi)
+  when: (vsi is undefined) or (vsi == None)
   ibm.cloudcollection.ibm_is_instance:
     name: "{{ instance.name }}"
     state: available
@@ -143,7 +143,7 @@
     vsi: "{{ vsi_create_output.resource }}"
 
 - name: Configure Floating IP Address
-  when: (fip is undefined) or (fip == None) or (not cache_vsi)
+  when: (fip is undefined) or (fip == None)
   ibm.cloudcollection.ibm_is_floating_ip:
     name: "{{ name_prefix }}-fip"
     state: available
@@ -157,6 +157,15 @@
   ansible.builtin.set_fact:
     cacheable: true
     fip: "{{ fip_create_output.resource }}"
+
+- name: Wait for VSI to become reachable over SSH
+  ansible.builtin.wait_for:
+    host: "{{ fip.address }}"
+    port: 22
+    state: started
+    delay: 10  # Optional, adjust as needed
+    timeout: 300  # Optional, adjust as needed
+  delegate_to: localhost
 
 - name: Write IP to File
   when: fip_create_output.resource is defined
