@@ -47,7 +47,7 @@
     id: "{{ subnet.id | default(omit) }}"
     vpc: "{{ vpc.id }}"
     total_ipv4_address_count: "{{ total_ipv4_address_count }}"
-    zone: "{{ zone }}-{{ item }}"
+    zone: "{{ region }}-{{ item }}"
     resource_group: "{{ vpc.resource_group }}"
   with_sequence: start=1 end=3
   register: subnet_create_output
