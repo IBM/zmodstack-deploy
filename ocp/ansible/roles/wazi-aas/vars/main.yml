@@ -22,7 +22,7 @@ total_ipv4_address_count: 256
 
 # New variables for data volume
 data_volume_name: "zmodstack-deploy-dv"
-data_volume_profile: "5iops-tier"
+data_volume_profile: "general-purpose"
 data_volume_capacity: 336  # Set the desired storage size in GB
 data_volume_snapshot: ".*data$"
 delete_volume_on_instance_delete: true
