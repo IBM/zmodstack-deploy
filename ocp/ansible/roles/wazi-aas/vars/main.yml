@@ -5,7 +5,7 @@ name_prefix: "zmodstack-deploy-demo"
 instance:
   name: "{{ name_prefix }}-zos-vsi"
   profile: mz2o-2x16
-  image: zmodstackadcd*
+  image: adcd*
   # image: ibm-zos.*
   username: IBMUSER
   python_interpreters:
