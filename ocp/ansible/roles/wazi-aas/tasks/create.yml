@@ -40,7 +40,7 @@
     vpc: "{{ vpc_create_output.resource }}"
 
 - name: Create VPC Subnets
-  when: subnet is undefined
+  when: subnets is undefined
   ibm.cloudcollection.ibm_is_subnet:
     name: "{{ name_prefix }}-{{ region }}-{{ item }}"
     state: available
@@ -53,7 +53,7 @@
   register: subnet_create_output
 
 - name: set VM Subnets as a list
-  when: subnet is undefined
+  when: subnets is undefined
   ansible.builtin.set_fact:
     cacheable: true
     subnets: "{{ subnet_create_output.results | map(attribute='resource') | list }}"
