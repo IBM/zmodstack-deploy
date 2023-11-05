@@ -20,19 +20,6 @@
     resource_group: "{{ ibm_resource_group_output.resource.id | default(omit) }}"
   register: vpc_create_output
 
-- name: Configure Security Group Rule to open SSH and web server on the VSI
-  when: vpc is undefined
-  ibm.cloudcollection.ibm_is_security_group_rule:
-    state: available
-    group: "{{ vpc_create_output.resource.default_security_group }}"
-    direction: inbound
-    remote: 0.0.0.0/0
-    tcp:
-      - port_max: 22
-        port_min: 22
-      # - port_max: 992
-      #   port_min: 992
-
 - name: Save VPC as fact
   when: vpc is undefined
   ansible.builtin.set_fact:
@@ -62,7 +49,7 @@
   when: ssh_key is undefined
   ibm.cloudcollection.ibm_is_ssh_key:
     name: "{{ ssh_key_name }}"
-    public_key: "{{ ssh_public_key }}"
+    public_key: "{{ ssh_public_key.split()[:2]|join(' ') }}"
     id: "{{ ssh_key.id | default(omit) }}"
     resource_group: "{{ vpc.resource_group }}"
   register: ssh_key_create_output
@@ -128,7 +115,8 @@
     keys:
       - "{{ ssh_key.id }}"
     primary_network_interface:
-      - subnet: "{{ subnets[0].id }}"
+      - subnet: "{{ subnets[1].id }}"
+        name: "eth0"
     volumes:
       - "{{ data_volume.id }}"
     auto_delete_volume: "{{delete_volume_on_instance_delete}}"
@@ -143,17 +131,16 @@
     vsi: "{{ vsi_create_output.resource }}"
 
 - name: Configure Floating IP Address
-  when: (fip is undefined) or (fip == None)
   ibm.cloudcollection.ibm_is_floating_ip:
     name: "{{ name_prefix }}-fip"
     state: available
     id: "{{ fip.id | default(omit) }}"
+    region: "{{ region }}"
     target: "{{ vsi.primary_network_interface[0]['id'] }}"
     resource_group: "{{ vpc.resource_group }}"
   register: fip_create_output
 
 - name: Save Floating IP as fact
-  when: fip_create_output.resource is defined
   ansible.builtin.set_fact:
     cacheable: true
     fip: "{{ fip_create_output.resource }}"
@@ -162,11 +149,22 @@
   when: fip_create_output.resource is defined
   copy: content="{{ fip.address }}" dest="{{ path_workspace }}/ip-address.txt"
 
+- name: Configure Security Group Rule to open SSH on the VSI
+  ibm.cloudcollection.ibm_is_security_group_rule:
+    state: available
+    group: "{{ vpc_create_output.resource.default_security_group }}"
+    direction: inbound
+    remote: 0.0.0.0/0
+    tcp:
+      - port_max: 22
+        port_min: 22
+
 - name: Print Floating IP Address
   ansible.builtin.debug:
     msg: "IP Address: {{ fip.address }}"
 
 - name: Add VSI to Ansible inventory
+  when: fip.address not in groups['new_vsi'] | default([])
   ansible.builtin.add_host:
     name: "{{ fip.address }}"
     ansible_user: "{{ instance.username | default('root') }}"
