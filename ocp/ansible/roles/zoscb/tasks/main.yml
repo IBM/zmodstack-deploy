@@ -1,6 +1,12 @@
 ---
 - include_vars: zoscb.yml
 
+- name: "Create IBM Cloud Pak Foundational Services Subscription with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "openshift-operators"
+    src: "files/foundational-services.yaml"
+
 - name: Create OCP project for IBM z/OS Cloud Broker
   ansible.builtin.file:
     path: "{{ playbook_dir }}/ansible-workspace/zoscb"
