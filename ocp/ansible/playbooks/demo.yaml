@@ -29,7 +29,7 @@
       ansible.builtin.import_role:
         name: "zoscb"
       tags:
-        - zoscb
+        - zoscb-install
 
     - name: Create z/OS Cloud Broker ZosEndpoint CR
       ansible.builtin.import_role:

@@ -54,6 +54,20 @@ spec:
       workspaces:
         - name: ws
           workspace: zmodstack-deploy
+    - name: install-zoscb
+      params:
+        - name: project-dir
+          value: ocp/ansible
+        - name: ansible-command
+          value: ansible-playbook playbooks/demo.yaml --tags "zoscb-install"
+      runAfter:
+        - create-ssh-key
+      taskRef:
+        kind: Task
+        name: ansible
+      workspaces:
+        - name: ws
+          workspace: zmodstack-deploy
     - name: destroy-zos-vsi
       params:
         - name: project-dir
@@ -94,6 +108,7 @@ spec:
           value: ansible-playbook playbooks/demo.yaml --tags "zoscb"
       runAfter:
         - create-zos-vsi
+        - install-zoscb
       taskRef:
         kind: Task
         name: ansible
