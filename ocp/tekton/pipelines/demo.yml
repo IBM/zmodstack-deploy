@@ -128,19 +128,5 @@ spec:
       workspaces:
         - name: ws
           workspace: zmodstack-deploy
-    - name: config-ims
-      params:
-        - name: project-dir
-          value: ocp/ansible
-        - name: ansible-command
-          value: ansible-playbook playbooks/demo.yaml --tags "ims"
-      runAfter:
-        - config-zoscb
-      taskRef:
-        kind: Task
-        name: ansible
-      workspaces:
-        - name: ws
-          workspace: zmodstack-deploy
   workspaces:
     - name: zmodstack-deploy

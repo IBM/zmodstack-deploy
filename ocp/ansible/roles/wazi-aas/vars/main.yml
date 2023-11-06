@@ -1,7 +1,8 @@
 ---
 # vars file for wazi-aas
 os_type: zos
-name_prefix: "zmodstack-deploy-zozo"
+name_prefix: "zmodstack-deploy-demo"
+primary_network_interface_name: "eth0"
 instance:
   name: "{{ name_prefix }}-zos-vsi"
   profile: mz2o-2x16
@@ -29,4 +30,4 @@ data_volume_snapshot: ".*data$"
 delete_volume_on_instance_delete: true
 data_volume_iops: 1000
 
-path_workspace: "/workspace/ws"
+path_workspace: "/Users/izzymusa/repos/zmodstack-deploy/ocp/ansible"

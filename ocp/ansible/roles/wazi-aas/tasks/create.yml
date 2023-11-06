@@ -20,6 +20,19 @@
     resource_group: "{{ ibm_resource_group_output.resource.id | default(omit) }}"
   register: vpc_create_output
 
+- name: Configure Security Group Rule to open SSH and web server on the VSI
+  when: vpc is undefined
+  ibm.cloudcollection.ibm_is_security_group_rule:
+    state: available
+    group: "{{ vpc_create_output.resource.default_security_group }}"
+    direction: inbound
+    remote: 0.0.0.0/0
+    tcp:
+      - port_max: 22
+        port_min: 22
+      # - port_max: 992
+      #   port_min: 992
+
 - name: Save VPC as fact
   when: vpc is undefined
   ansible.builtin.set_fact:
@@ -73,7 +86,7 @@
                     items2dict(key_name='name', value_name='id') }}"
 
 - name: Retrieve snapshot list
-  when: snapshots_list is undefined or snapshots_list.resource.snapshots | length == 0
+  when: snapshots_list is undefined
   ibm.cloudcollection.ibm_is_snapshots_info:
     region: "{{ region }}"
   register: snapshots_list
@@ -116,7 +129,7 @@
       - "{{ ssh_key.id }}"
     primary_network_interface:
       - subnet: "{{ subnets[1].id }}"
-        name: "eth0"
+        name: "{{ primary_network_interface_name }}"
     volumes:
       - "{{ data_volume.id }}"
     auto_delete_volume: "{{delete_volume_on_instance_delete}}"
@@ -131,6 +144,7 @@
     vsi: "{{ vsi_create_output.resource }}"
 
 - name: Configure Floating IP Address
+  when: (fip is undefined) or (fip == None)
   ibm.cloudcollection.ibm_is_floating_ip:
     name: "{{ name_prefix }}-fip"
     state: available
@@ -141,6 +155,7 @@
   register: fip_create_output
 
 - name: Save Floating IP as fact
+  when: fip_create_output.resource is defined
   ansible.builtin.set_fact:
     cacheable: true
     fip: "{{ fip_create_output.resource }}"
@@ -148,17 +163,6 @@
 - name: Write IP to File
   when: fip_create_output.resource is defined
   copy: content="{{ fip.address }}" dest="{{ path_workspace }}/ip-address.txt"
-
-- name: Configure Security Group Rule to open SSH on the VSI
-  ibm.cloudcollection.ibm_is_security_group_rule:
-    state: available
-    group: "{{ vpc_create_output.resource.default_security_group }}"
-    direction: inbound
-    remote: 0.0.0.0/0
-    tcp:
-      - port_max: 22
-        port_min: 22
-
 - name: Print Floating IP Address
   ansible.builtin.debug:
     msg: "IP Address: {{ fip.address }}"
