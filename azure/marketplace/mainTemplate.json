@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.22.6.54827",
-      "templateHash": "4400483232631361122"
+      "templateHash": "1594072601248652050"
     }
   },
   "parameters": {
@@ -102,7 +102,7 @@
     },
     "computeVmSize": {
       "type": "string",
-      "defaultValue": "Standard_D2s_v3",
+      "defaultValue": "Standard_D4s_v3",
       "metadata": {
         "description": "Size of the VM to serve as a Compute node"
       }

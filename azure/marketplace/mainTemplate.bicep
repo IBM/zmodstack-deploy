@@ -48,7 +48,7 @@ param controlplaneDiskType string = 'StandardSSD_LRS'
 param computeInstanceCount int = 3
 
 @description('Size of the VM to serve as a Compute node')
-param computeVmSize string = 'Standard_D2s_v3'
+param computeVmSize string = 'Standard_D4s_v3'
 
 @description('Size of compute VM OSdisk in GB')
 param computeDiskSize int = 100

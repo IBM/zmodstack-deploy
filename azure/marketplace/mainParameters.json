@@ -40,7 +40,7 @@
       "value": 3
     },
     "computeVmSize": {
-      "value": "Standard_D2s_v3"
+      "value": "Standard_D4s_v3"
     },
     "virtualNetworkName": {
       "value": "openshift-vnet"
