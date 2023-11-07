@@ -214,12 +214,12 @@ Parameters:
   OpenshiftVersion:
     Description: The OpenShift version that should be deployed. The latest stable version of the selected version will be deployed. 
     Type: String
-    Default: "4.12"
+    Default: "4.13"
     AllowedValues:
-      - "4.10"
       - "4.11"
       - "4.12"
       - "4.13"
+      - "4.14"
   OpenshiftUsername:
     Description: The OpenShift username that will be created as the default cluster-admin. This username will be used to login to the OpenShift Console.
     Type: String
@@ -258,10 +258,10 @@ Parameters:
   WaziDevspacesVersion:
     Description: Version of Wazi DevSpaces
     Type: String
-    Default: "3.0.0"
+    Default: "3.x"
     AllowedValues:
-      - "3.0.0"
-      - "2.3.0"
+      - "3.x"
+      - "2.x"
 
 Rules:
   LicenseAgreementRule:
@@ -294,17 +294,16 @@ Conditions:
     - !Condition 1AZCondition
     - !Condition 3AZCondition
   AZValidationFail: !Not [ !Condition AZValidation ]
-  ZosCloudBrokerCheck: !Equals [true, !Ref ZosCloudBroker]
-  ZosConnectCheck: !Equals [true, !Ref ZosConnect]
-  WaziDevspacesCheck: !Equals [true, !Ref WaziDevspaces]
+  WaziDevspacesCheck: !And 
+    - !Equals [true, !Ref WaziDevspaces]
+    - !Condition AZValidation
 
 Resources:
   VPCStack:
     Type: AWS::CloudFormation::Stack
     Condition: AZValidation
     Properties:
-      # TemplateURL: https://ibm-zmodstack-public.s3.amazonaws.com/cloudformation/vpc.yml
-      TemplateURL: https://z-mod-stack-aws-dev.s3.us-east-2.amazonaws.com/branches/dev/cloudformation/vpc.yml
+      TemplateURL: https://z-mod-stack-aws-dev.s3.us-east-2.amazonaws.com/branches/release-2023.4.1/cloudformation/vpc.yml
       Tags:
         - Key: zmodstack:provisioner
           Value: cloudformation
@@ -332,7 +331,7 @@ Resources:
     Condition: AZValidation
     Properties:
       # TemplateURL: https://ibm-zmodstack-public.s3.amazonaws.com/cloudformation/cluster.yml
-      TemplateURL: https://z-mod-stack-aws-dev.s3.us-east-2.amazonaws.com/branches/dev/cloudformation/cluster.yml
+      TemplateURL: https://z-mod-stack-aws-dev.s3.us-east-2.amazonaws.com/branches/release-2023.4.1/cloudformation/cluster.yml
       Tags:
         - Key: zmodstack:provisioner
           Value: cloudformation
@@ -366,6 +365,10 @@ Resources:
         OpenshiftVersion: !Ref OpenshiftVersion
         OpenshiftUsername: !Ref OpenshiftUsername
         OpenshiftPassword: !Ref OpenshiftPassword
+        ZosCloudBroker: !Ref ZosCloudBroker
+        ZosConnect: !Ref ZosConnect
+        WaziDevspaces: !Ref WaziDevspaces
+        WaziDevspacesVersion: !Ref WaziDevspacesVersion
 
 Outputs:
   BootnodePublicIp:
@@ -382,7 +385,7 @@ Outputs:
     Value: !GetAtt 'ZModStack.Outputs.OpenshiftPassword'
   WaziDevspacesConsole:
     Description: The URL for the Wazi Devspaces UI.
-    Condition: AZValidation
+    Condition: WaziDevspacesCheck
     Value: !GetAtt 'ZModStack.Outputs.WaziDevspacesConsole'
   AZValidationError:
     Description: Error when the AZ conditions fail

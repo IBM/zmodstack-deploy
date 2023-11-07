@@ -1,22 +1,22 @@
 ---
-kind: "ZosCloudBroker"
-apiVersion: "zoscb.ibm.com/v2beta1"
+kind: ZosCloudBroker
+apiVersion: zoscb.ibm.com/v2beta1
 metadata:
-  name: "zoscloudbroker"
+  name: zoscloudbroker
 spec:
   license:
     accept: true
-  multiNamespace: true
-  logLevel: "trace"
+  multiNamespace: false
+  logLevel: debug
   galaxyConfig:
     enabled: true
     galaxyURL: 'https://galaxy.ansible.com'
   storage:
     configure: false
     enabled: true
-    pvc: "zoscloudbroker"
-    size: "5Gi"
-    volumeMode: "Filesystem"
+    pvc: zoscloudbroker
+    size: 5Gi
+    volumeMode: Filesystem
   managerResources: {}
   catalogResources: {}
   uiResources: {}

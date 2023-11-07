@@ -1,60 +1,56 @@
-###############################################################################
-# © Copyright IBM Corporation 2022
-###############################################################################
-
 ---
-- name: Deploy IBM ZmodStack on AWS
+- name: Deploy IBM Z and Cloud Modernization Stack
   hosts: localhost
-  become: false
-  collections:
-    - ibm.ibm_zos_core
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
-  
   gather_facts: false
+  vars:
+    # ansible_python_interpreter: /usr/bin/python3
+    zosconnect: false
+    wazidevspaces: false
+    zoscb: true
 
   tasks:
-    # ****************************************************************************************************************************
-    # *
-    # *  Playbook section for creating all ZmodSTack resources on AWS
-    # *
-    # ****************************************************************************************************************************
- 
-    - name: Deploy IBM z/OS Cloud and Modenization Stack - Openshift z/OS Cloud Broker Operator
+    - name: Block for zosconnect role
       block:
-        # ****************************************************************************************************************************
-        # *
-        # Install IBM z/OS Cloud Broker
-        # *
-        # ****************************************************************************************************************************
+        - name: Deploy IBM z/OS Connect
+          ansible.builtin.include_role:
+            name: "zosconnect"
+          when: zosconnect | bool
+      rescue:
+        - name: Error in zosconnect role
+          ansible.builtin.debug:
+            msg: "Error in zosconnect role run"
+      always:
+        - name: End of zosconnect role
+          ansible.builtin.debug:
+            msg: "End of zosconnect role run"
 
-        # Dynamically INCLUDE ansible role
-        - name: Include z/OS Dev Install role/task tagged for z/OS Cloud Broker
+    - name: Block for wazi-devspaces role
+      block:
+        - name: Deploy IBM Wazi Dev Spaces
+          ansible.builtin.include_role:
+            name: "wazi-devspaces"
+            tasks_from: "{{ 'wazi-devspaces3.yaml' if wazidevspacesversion == '3.x' else 'wazi-devspaces2.yaml' }}"
+          when: wazidevspaces | bool
+      rescue:
+        - name: Error in wazi-devspaces role
+          ansible.builtin.debug:
+            msg: "Error in wazi-devspaces role run"
+      always:
+        - name: End of wazi-devspaces role
+          ansible.builtin.debug:
+            msg: "End of wazi-devspaces role run"
+
+    - name: Block for zoscb role
+      block:
+        - name: Deploy IBM z/OS Cloud Broker
           ansible.builtin.include_role:
             name: "zoscb"
           when: zoscb | bool
-
-    # ****************************************************************************************************************************
-    # *
-    # Install IBM z/OS Connect
-    # *
-    # ****************************************************************************************************************************
-
-    # Dynamically INCLUDE ansible role
-    - name: Include z/OS Dev Install role/task tagged for z/OS Connect Operator, Designer, server image
-      ansible.builtin.include_role:
-        name: "zosconnect"
-      when: zosconnect | bool
-
-    # ****************************************************************************************************************************
-    # *
-    # Install IBM Wazi for Dev Spaces
-    # *
-    # ****************************************************************************************************************************
-
-    # Dynamically INCLUDE ansible role
-    - name: Include z/OS Dev Install role/task tagged for Red Hat Dev Spaces
-      ansible.builtin.include_role:
-        name: "wazi-devspaces"
-        tasks_from: "{{ 'wazi-devspaces3.yaml' if wazidevspacesversion== '3.0.0' else 'wazi-devspaces2.yaml' }}"
-      when: wazidevspaces | bool
+      rescue:
+        - name: Error in zoscb role
+          ansible.builtin.debug:
+            msg: "Error in zoscb role run"
+      always:
+        - name: End of zoscb role
+          ansible.builtin.debug:
+            msg: "End of zoscb role run"
