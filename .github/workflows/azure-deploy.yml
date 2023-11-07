@@ -1,15 +1,11 @@
 name: Azure Deployment
 
 on:
-  push:
-    paths:
-      - '.github/workflows/azure-deploy.yml'
-      - 'azure/**' 
-      - 'ocp/**'
   pull_request:
     branches:
       - main
       - dev
+      - release-*.*.*
     paths:
       - '.github/workflows/azure-deploy.yml'
       - 'azure/**'
