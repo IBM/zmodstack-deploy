@@ -1,0 +1,37 @@
+name: Azure Test
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - dev
+      - release-*.*.*
+    paths:
+      - '.github/workflows/azure-test.yml'
+      - 'azure/**'
+
+env:
+  ARM_TEMPLATE_BICEP: ./azure/marketplace/mainTemplate.bicep
+  ARM_TEMPLATE_JSON: ./azure/marketplace/mainTemplate.json
+  ARM_TEMPLATE_BICEP_TO_JSON: ./azure/marketplace/mainTemplateBicepToJson.json
+  WORK_DIR: ./azure/marketplace
+
+jobs: 
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Create ARM Template in JSON from ARM Template in Bicep
+      uses: Azure/bicep-build-action@v1.0.1
+      with:
+        bicepFilePath: ${{ env.ARM_TEMPLATE_BICEP }}
+        outputFilePath: ${{ env.ARM_TEMPLATE_BICEP_TO_JSON }} 
+    - name: Check mainTemplate.json is Latest
+      run: diff ${{ env.ARM_TEMPLATE_JSON }} ${{ env.ARM_TEMPLATE_BICEP_TO_JSON }}
+      shell: bash
+      continue-on-error: true  
+    - name: Run ARM-TTK
+      uses: microsoft/action-armttk@v1
+      with:
+        workdir: ${{ env.WORK_DIR }} 
