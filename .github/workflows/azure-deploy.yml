@@ -1,4 +1,4 @@
-name: Azure Deployment
+name: Azure Deploy
 
 on:
   pull_request:
