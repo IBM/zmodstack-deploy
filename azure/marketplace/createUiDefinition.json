@@ -300,7 +300,7 @@
             "label": "Compute Node VM Size",
             "toolTip": "The size of the VMs provisioned for the OCP compute nodes",
             "recommendedSizes": [
-              "Standard_D2s_v3"
+              "Standard_D4s_v3"
             ],
             "constraints": {
               "allowedSizes": [
@@ -453,14 +453,10 @@
             "name": "openshiftVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "OpenShift Version",
-            "defaultValue": "4.12",
+            "defaultValue": "4.13",
             "toolTip": "The version of OpenShift to deploy",
             "constraints": {
               "allowedValues": [
-                {
-                  "label": "4.10",
-                  "value": "4.10"
-                },
                 {
                   "label": "4.11",
                   "value": "4.11"
@@ -472,6 +468,10 @@
                 {
                   "label": "4.13",
                   "value": "4.13"
+                },
+                {
+                  "label": "4.14",
+                  "value": "4.14"
                 }
               ],
               "required": true

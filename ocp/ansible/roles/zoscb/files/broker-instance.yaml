@@ -1,26 +1,22 @@
 ---
-kind: "ZosCloudBroker"
-apiVersion: "zoscb.ibm.com/v2beta1"
+kind: ZosCloudBroker
+apiVersion: zoscb.ibm.com/v2beta1
 metadata:
-  name: "zoscloudbroker"
+  name: zoscloudbroker
 spec:
   license:
     accept: true
-  multiNamespace: true
-  logLevel: "trace"
-  resources:
-      limits:
-        cpu: "200m" #"200m"
-        memory: "256Mi" #"256Mi"
-        ephemeral-storage: "500Mi"
-      requests:
-        cpu: "100m"  #"100m"
-        memory: "128Mi" #"128Mi"
-        ephemeral-storage: "500Mi"
+  multiNamespace: false
+  logLevel: debug
+  galaxyConfig:
+    enabled: true
+    galaxyURL: 'https://galaxy.ansible.com'
   storage:
     configure: false
-    enabled: false
-    pvc: "zoscloudbroker"
-    size: "5Gi"
-    volumeMode: "Filesystem"
-    accessModes: "ReadWriteMany"
+    enabled: true
+    pvc: zoscloudbroker
+    size: 5Gi
+    volumeMode: Filesystem
+  managerResources: {}
+  catalogResources: {}
+  uiResources: {}

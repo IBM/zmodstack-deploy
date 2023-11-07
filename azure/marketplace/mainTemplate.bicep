@@ -48,7 +48,7 @@ param controlplaneDiskType string = 'StandardSSD_LRS'
 param computeInstanceCount int = 3
 
 @description('Size of the VM to serve as a Compute node')
-param computeVmSize string = 'Standard_D2s_v3'
+param computeVmSize string = 'Standard_D4s_v3'
 
 @description('Size of compute VM OSdisk in GB')
 param computeDiskSize int = 100
@@ -119,12 +119,12 @@ param apiKey string
 
 @description('OpenShift Version')
 @allowed([
-  '4.10'
   '4.11'
   '4.12'
   '4.13'
+  '4.14'
 ])
-param openshiftVersion string = '4.12'
+param openshiftVersion string = '4.13'
 
 @description('Accept License Agreement')
 @allowed([
@@ -194,7 +194,7 @@ var privateOrPublicEndpoints = 'public'
 var vTrue = true
 var bootstrapPublicIpDnsLabelName = 'bootstrapdns${uniqueString(resourceGroup().id)}'
 var sshKeyPath = '/home/${bootstrapAdminUsername}/.ssh/authorized_keys'
-var bootstrapScriptUrl = 'https://raw.githubusercontent.com/IBM/zmodstack-deploy/dev/azure/scripts/bash/bootstrap.sh'
+var bootstrapScriptUrl = 'https://raw.githubusercontent.com/IBM/zmodstack-deploy/release-2023.4.1/azure/scripts/bash/bootstrap.sh'
 var bootstrapScriptFileName = 'bootstrap.sh'
 var subscriptionId = subscription().subscriptionId
 var tenantId = subscription().tenantId

@@ -2,11 +2,12 @@
 kind: PersistentVolumeClaim
 apiVersion: "v1"
 metadata:
-  name: "zoscloudbroker"
+  name: zoscloudbroker
 spec:
   accessModes:
-    - "ReadWriteMany"
+    - "ReadWriteOnce"
   resources:
     requests:
       storage: "5Gi"
+  storageClassName: {{ default_sc }}
   volumeMode: "Filesystem"

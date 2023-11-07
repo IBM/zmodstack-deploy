@@ -17,4 +17,4 @@ spec:
     port: 9080
     targetPort: 9080
     type: ClusterIP
-  version: v1.0.6
+  version: v1.0.7

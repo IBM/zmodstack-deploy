@@ -9,4 +9,3 @@ spec:
   name: "ibm-zcon-zosconnect"
   source: "ibm-operator-catalog"
   sourceNamespace: "openshift-marketplace"
-  startingCSV: "ibm-zcon-zosconnect.v1.0.6"

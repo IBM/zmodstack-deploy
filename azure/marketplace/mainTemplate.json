@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.21.1.54444",
-      "templateHash": "18443561609931151967"
+      "version": "0.22.6.54827",
+      "templateHash": "1594072601248652050"
     }
   },
   "parameters": {
@@ -102,7 +102,7 @@
     },
     "computeVmSize": {
       "type": "string",
-      "defaultValue": "Standard_D2s_v3",
+      "defaultValue": "Standard_D4s_v3",
       "metadata": {
         "description": "Size of the VM to serve as a Compute node"
       }
@@ -238,12 +238,12 @@
     },
     "openshiftVersion": {
       "type": "string",
-      "defaultValue": "4.12",
+      "defaultValue": "4.13",
       "allowedValues": [
-        "4.10",
         "4.11",
         "4.12",
-        "4.13"
+        "4.13",
+        "4.14"
       ],
       "metadata": {
         "description": "OpenShift Version"
@@ -343,7 +343,7 @@
     "vTrue": true,
     "bootstrapPublicIpDnsLabelName": "[format('bootstrapdns{0}', uniqueString(resourceGroup().id))]",
     "sshKeyPath": "[format('/home/{0}/.ssh/authorized_keys', parameters('bootstrapAdminUsername'))]",
-    "bootstrapScriptUrl": "https://raw.githubusercontent.com/IBM/zmodstack-deploy/dev/azure/scripts/bash/bootstrap.sh",
+    "bootstrapScriptUrl": "https://raw.githubusercontent.com/IBM/zmodstack-deploy/release-2023.4.1/azure/scripts/bash/bootstrap.sh",
     "bootstrapScriptFileName": "bootstrap.sh",
     "subscriptionId": "[subscription().subscriptionId]",
     "tenantId": "[subscription().tenantId]",

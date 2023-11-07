@@ -4,8 +4,5 @@ apiVersion: "project.openshift.io/v1"
 metadata:
   name: "ibm-zmodstack-zosconnect"
   annotations:
-    openshift.io/description: "Project for Zmodstack" #${PROJECT_DESCRIPTION}
-    openshift.io/display-name: "** IBM Z MOD STACK **" #${PROJECT_DISPLAYNAME}
-spec:
-  finalizers:
-    - kubernetes
+    openshift.io/description: "Project containing the IBM Z and Cloud Modernization Stack z/OS Connect installation"
+    openshift.io/display-name: "IBM z/OS Cloud Broker"

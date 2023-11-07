@@ -40,7 +40,7 @@
       "value": 3
     },
     "computeVmSize": {
-      "value": "Standard_D2s_v3"
+      "value": "Standard_D4s_v3"
     },
     "virtualNetworkName": {
       "value": "openshift-vnet"
@@ -100,7 +100,7 @@
       }
     },
     "openshiftVersion": {
-      "value": "4.12"
+      "value": "4.13"
     },
     "zModStackLicenseAgreement": {
       "value": "accept"

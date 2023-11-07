@@ -1,27 +1,12 @@
-###############################################################################
-# © Copyright IBM Corporation 2022
-###############################################################################
-
----
-- name: Deploy IBM ZmodStack
+- name: Deploy IBM Z and Cloud Modernization Stack
   hosts: localhost
-  become: false
-  collections:
-    - ibm.ibm_zos_core
+  gather_facts: false
   vars:
     ansible_python_interpreter: /usr/bin/python3
-  
-  gather_facts: false
 
   tasks:
-    # ****************************************************************************************************************************
-    # *
-    # *  Playbook section for creating RedHat OpenShift Cluster
-    # *
-    # ****************************************************************************************************************************
-    - name: Deploy RedHat Openshift Cluster
+    - name: Deploy Red Hat Openshift Container Platform (OCP) Cluster
       block:
-        # Dynamically INCLUDE ansible role
         - name: Include ocp-install role/task tagged for Creating the RedHat OpenShift Cluster
           ansible.builtin.include_role:
             name: "ocp-install"

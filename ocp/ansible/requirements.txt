@@ -1,4 +1,5 @@
 kubernetes >= 12.0.0
 PyYAML >= 3.11
 jsonpatch
+jmespath
 

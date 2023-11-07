@@ -4,6 +4,5 @@ apiVersion: "project.openshift.io/v1"
 metadata:
   name: "wazi-devspaces"
   annotations:
-    openshift.io/description: "Project for Zmodstack" #${PROJECT_DESCRIPTION}
-    openshift.io/display-name: "** IBM Z MOD STACK **" #${PROJECT_DISPLAYNAME}
-    openshift.io/requester: admin
+    openshift.io/description: "Project containing the IBM Z and Cloud Modernization Stack Wazi Dev Spaces installation"
+    openshift.io/display-name: "IBM Wazi Dev Spaces"
