@@ -26,4 +26,5 @@
           - PyYAML
           - kubernetes
           - openshift
+          - jmespath
         extra_args: --ignore-installed
