@@ -98,6 +98,24 @@
     snapshot_dict: "{{ snapshots_list.resource.snapshots |
                     items2dict(key_name='name', value_name='id') }}"
 
+# - name: Create Boot Volume
+#   # when: (data_volume is undefined) or (data_volume == None) or (not cache_data_volume)
+#   ibm.cloudcollection.ibm_is_volume:
+#     # source_snapshot: "{{ (snapshot_dict | dict2items | selectattr('key', 'match', data_volume_snapshot) | list | first).value }}"
+#     name: "{{ instance.name }}-boot"
+#     profile: "general-purpose"
+#     capacity: 10
+#     zone: "{{ zone }}"
+#     resource_group: "{{ vpc.resource_group }}"
+#     region: "{{ region }}"
+#   register: boot_volume_create_output
+
+# - name: Save Boot Volume as fact
+#   when: boot_volume_create_output.resource is defined
+#   ansible.builtin.set_fact:
+#     cacheable: true
+#     boot_volume: "{{ boot_volume_create_output.resource }}"
+
 - name: Create Data Volume from Snapshot
   when: (data_volume is undefined) or (data_volume == None) or (not cache_data_volume)
   ibm.cloudcollection.ibm_is_volume:
@@ -131,8 +149,11 @@
     primary_network_interface:
       - subnet: "{{ subnets[1].id }}"
         name: "{{ primary_network_interface_name }}"
-    volumes:
-      - "{{ data_volume.id }}"
+    # boot_volume:
+    #   - id: "{{ boot_volume.id }}"
+    #     name: "{{ instance.name }}-boot"
+    # volumes:
+    #   - "{{ data_volume.id }}"
     auto_delete_volume: "{{delete_volume_on_instance_delete}}"
     zone: "{{ zone }}"
     resource_group: "{{ vpc.resource_group }}"
@@ -143,6 +164,27 @@
   ansible.builtin.set_fact:
     cacheable: true
     vsi: "{{ vsi_create_output.resource }}"
+
+- name: Stop the VSI to mount a data volume
+  ibm.cloudcollection.ibm_is_instance_action:
+    instance: "{{ vsi.id }}"
+    action: stop
+    # force_action: true
+
+- name: Attach Data Volume
+  ibm.cloudcollection.ibm_is_instance_volume_attachment:
+    instance: "{{ vsi.id }}"
+    name: "{{ data_volume.name }}"
+    volume: "{{ data_volume.id }}"
+    delete_volume_on_attachment_delete: true
+    delete_volume_on_instance_delete: true
+  register: vsi_create_output
+
+- name: Start the VSI to mount a data volume
+  ibm.cloudcollection.ibm_is_instance_action:
+    instance: "{{ vsi.id }}"
+    action: start
+    # force_action: true
 
 - name: Configure Floating IP Address
   when: (fip is undefined) or (fip == None)

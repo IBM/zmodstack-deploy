@@ -1,7 +1,7 @@
 ---
 # vars file for wazi-aas
 os_type: zos
-name_prefix: "zmodstack-demo"
+name_prefix: "ivan-vsi-fix"
 primary_network_interface_name: "eth0"
 instance:
   name: "{{ name_prefix }}-zos-vsi"
@@ -24,9 +24,9 @@ resource_group_name: "zmodstack-deploy"
 total_ipv4_address_count: 256
 
 # New variables for data volume
-data_volume_name: "zmodstack-deploy-dv"
+data_volume_name: "{{ name_prefix }}-data"
 data_volume_profile: "general-purpose"
-data_volume_capacity: 336  # Set the desired storage size in GB
+data_volume_capacity: 250  # Set the desired storage size in GB
 data_volume_snapshot: "{{ instance.image }}"
 delete_volume_on_instance_delete: true
 data_volume_iops: 1000
