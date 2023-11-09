@@ -1,0 +1,28 @@
+---
+schemaVersion: 2.2.0
+metadata:
+  name: wazi-devspaces
+  namespace: ocpadmin-devspaces
+attributes:
+  controller.devfile.io/devworkspace-config:
+    name: devworkspace-config
+    namespace: openshift-operators
+  controller.devfile.io/storage-type: per-user
+components:
+  - attributes:
+      controller.devfile.io/merge-contribution: true
+    container:
+      endpoints:
+        - exposure: public
+          name: zosconnect-ui
+          path: /zosConnect/designer/
+          protocol: http
+          targetPort: 9080
+      env:
+        - name: ZCON_DESIGNER_PROJECT
+          value: /projects/zopeneditor-sample/apiProjectWorkspace/apiProject/start
+      image: icr.io/zosconnect/ibm-zcon-designer:3.0.70
+      memoryLimit: 4927M
+      mountSources: true
+      sourceMapping: /projects
+    name: zosconnect
