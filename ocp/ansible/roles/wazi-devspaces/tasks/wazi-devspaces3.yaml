@@ -89,3 +89,15 @@
       - devspaces_info.resources[0].status.chePhase == "Active"
       - devspaces_info.resources[0].status.gatewayPhase == "Established"
       - devspaces_info.resources[0].status.cheURL | length > 0
+
+- name: "Create Devworkspace Template for z/OS Connect Designer with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ocpadmin-devspaces"
+    src: "files/devworkspace-template.yaml"
+
+- name: "Create Devworkspace for z/OS Connect Designer with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ocpadmin-devspaces"
+    src: "files/devworkspace.yaml"
