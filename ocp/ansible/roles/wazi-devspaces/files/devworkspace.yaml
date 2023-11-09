@@ -1,0 +1,26 @@
+---
+apiVersion: workspace.devfile.io/v1alpha2
+kind: DevWorkspace
+metadata:
+  name: wazi-devspaces
+spec:
+  contributions:
+    - kubernetes:
+        name: che-code-wazi-devspaces
+      name: editor
+  routingClass: che
+  started: true
+  template:
+    attributes:
+      controller.devfile.io/devworkspace-config:
+        name: devworkspace-config
+        namespace: openshift-operators
+      controller.devfile.io/storage-type: per-user
+      dw.metadata.annotations:
+        che.eclipse.org/devfile-source: |
+          url:
+            location: >-
+              https://raw.githubusercontent.com/IBM/zmodstack-deploy/issue-69/ocp/ansible/roles/wazi-devspaces/files/devfile.yaml
+          factory:
+            params: >-
+              url=https://raw.githubusercontent.com/IBM/zmodstack-deploy/issue-69/ocp/ansible/roles/wazi-devspaces/files/devfile.yaml
