@@ -1,0 +1,12 @@
+---
+- name: Deploy and configure an e2e zmodstack demo environment
+  hosts: localhost
+  # gather_facts: false
+  tasks:
+    - name: Run the Wazi-aaS role to create an instance
+      ansible.builtin.import_role:
+        name: "wazi-aas"
+      vars:
+        action: create
+      tags:
+        - create

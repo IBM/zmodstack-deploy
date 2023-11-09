@@ -6,8 +6,9 @@ primary_network_interface_name: "eth0"
 instance:
   name: "{{ name_prefix }}-zos-vsi"
   profile: mz2o-2x16
-  image: adcd*
+  # image: adcd*
   # image: ibm-zos.*
+  image: adcdsysparmnv*
   username: IBMUSER
   python_interpreters:
     - /usr/lpp/IBM/cyp/pyz/bin/python3
@@ -15,8 +16,8 @@ instance:
     - /usr/lpp/IBM/cyp/v3r8/pyz/bin/python3
 ssh_key_name: zmodstack-deploy
 ssh_public_key: "{{lookup('file', '~/.ssh/zmodstack-deploy.pub') }}"
-region: eu-gb
-# region: us-east
+# region: eu-gb
+region: us-east
 zone: "{{region}}-2"
 cache_vsi: false
 resource_group_name: "zmodstack-deploy"
@@ -26,7 +27,7 @@ total_ipv4_address_count: 256
 data_volume_name: "zmodstack-deploy-dv"
 data_volume_profile: "general-purpose"
 data_volume_capacity: 336  # Set the desired storage size in GB
-data_volume_snapshot: ".*data$"
+data_volume_snapshot: "{{ instance.image }}"
 delete_volume_on_instance_delete: true
 data_volume_iops: 1000
 
