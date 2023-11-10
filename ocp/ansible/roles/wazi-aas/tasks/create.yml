@@ -1,7 +1,7 @@
 ---
 - name: Save zone as fact
   ansible.builtin.set_fact:
-    cacheable: true
+    # cacheable: true
     cache_zone: "{{ zone }}"
 
 - name: Create Resource Group
@@ -165,11 +165,15 @@
     cacheable: true
     vsi: "{{ vsi_create_output.resource }}"
 
-- name: Stop the VSI to mount a data volume
-  ibm.cloudcollection.ibm_is_instance_action:
-    instance: "{{ vsi.id }}"
-    action: stop
-    # force_action: true
+# - name: Sleep for 15 seconds and continue with play
+#   ansible.builtin.wait_for:
+#     timeout: 15
+
+# - name: Stop the VSI to mount a data volume
+#   ibm.cloudcollection.ibm_is_instance_action:
+#     instance: "{{ vsi.id }}"
+#     action: stop
+#     # force_action: true
 
 - name: Attach Data Volume
   ibm.cloudcollection.ibm_is_instance_volume_attachment:
@@ -180,7 +184,19 @@
     delete_volume_on_instance_delete: true
   register: vsi_create_output
 
-- name: Start the VSI to mount a data volume
+- name: Stop the VSI
+  ibm.cloudcollection.ibm_is_instance_action:
+    instance: "{{ vsi.id }}"
+    action: stop
+    # force_action: true
+
+# - name: Force Stop the VSI
+#   ibm.cloudcollection.ibm_is_instance_action:
+#     instance: "{{ vsi.id }}"
+#     action: stop
+#     force_action: true
+
+- name: Restart the VSI
   ibm.cloudcollection.ibm_is_instance_action:
     instance: "{{ vsi.id }}"
     action: start
@@ -207,9 +223,9 @@
   ansible.builtin.debug:
     msg: "IP Address: {{ fip.address }}"
 
-# - name: Write IP to File
-#   when: fip_create_output.resource is defined
-#   copy: content="{{ fip.address }}" dest="{{ path_workspace }}/ip-address.txt"
+- name: Write IP to File
+  when: fip_create_output.resource is defined
+  copy: content="{{ fip.address }}" dest="{{ path_workspace }}/ip-address.txt"
 
 
 # - name: Add VSI to Ansible inventory
