@@ -1,0 +1,29 @@
+apiVersion: suboperator.zoscb.ibm.com/v1minor2patch0
+kind: TMDB
+metadata:
+  name: tmdb-instance
+  namespace: ibm-zmodstack-cloudbroker
+spec:
+    IMS_CONNECT_PORT: 9900
+    Optional_IMS_Configuration:
+        DFS_AUTH_LIB_HLQ1: IMSTEST
+        DFS_AUTH_LIB_SYSHLQ1: DFSF10
+        DFS_SMS_CLASS: SCIMS
+        DFS_SMS_ENVIRONMENT: true
+        STEPLIB: DFSF10.SDFSRESL
+    accept: true
+    IMS_CONNECT_SSLPORT: 9901
+    ODBM_SSLPORTID: 9801
+    DFS_workingdir: /u/ibmuser
+    DFS_IMSPlex: PLXWZ
+    zosendpoint: zvsi
+    Optional_zOS_Configuration:
+        JOB_CLASS: A
+        MSG_CLASS: H
+        zCloud_CSSLIB: SYS1.CSSLIB
+        zCloud_LERuntime: CEE.SCEERUN
+        zCloud_MACLIB: SYS1.MACLIB
+        zCloud_PROCLIB: SYS1.PROCLIB
+    DFS_IMS_SSID: IMWZ
+    ODBM_PORTID: 9800
+

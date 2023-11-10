@@ -1,21 +1,16 @@
-- name: Create z/OS Cloud Broker ZosEndpoint
-  hosts: localhost
-  tasks:
-    - name: Apply a ZosEndpoint configuration with zos-vsi connection details
-      kubernetes.core.k8s:
-        state: present
-        namespace: ibm-zmodstack-cloudbroker
-        src: zosendpoint.yml
-      # when
+- include_vars: zoscb.yml
 
-    - ibm.zoscb.endpoints:
-        state: present
-        namespace: ibm-zmodstack-cloudbroker
-        host:
-        port:
-        vars: 
-
-    - ibm.zoscb.operatorcollections:
-        state: present 
-        name: CICS 
-        version: 1.0.1
+- name: Apply a ZosEndpoint configuration with zos-vsi connection details
+  kubernetes.core.k8s:
+    state: present
+    namespace: ibm-zmodstack-cloudbroker
+    template: templates/zosendpoint.yml.j2
+  vars:
+    # TODO - replace with value from zvsi provisioning
+    zvsi_host: "{{ lookup('file', '{{ path_workspace }}/ip-address.txt') }}"
+    # zvsi_host: 141.125.111.88
+    zvsi_ssh_port: 22
+    variables:
+      - name: ansible_python_interpreter
+        type: string
+        value: /usr/lpp/IBM/cyp/pyz/bin/python3

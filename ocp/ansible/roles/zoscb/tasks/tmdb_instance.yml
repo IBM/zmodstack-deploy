@@ -1,0 +1,29 @@
+- include_vars: zoscb.yml
+
+- name: Install a TMDB Instance
+  kubernetes.core.k8s:
+    state: present
+    namespace: ibm-zmodstack-cloudbroker
+    template: templates/tmdb.yml.j2
+  vars:
+    # TODO - replace with value from zvsi provisioning
+    # oc_name: zos-tmdb-ts-operator.ibm.1.0.0
+    # oc_url: https://galaxy.ansible.com/download/ibm-zos_tmdb_operator-1.0.0.tar.gz
+    oc: "{{ operators.tmdb }}"
+
+
+- name: Wait for installation of sub-operator CR TMDB Instance
+  kubernetes.core.k8s_info:
+    kind: TMDB
+    namespace: ibm-zmodstack-cloudbroker
+    name: tmdb-instance
+    api_version: suboperator.zoscb.ibm.com/v1minor0patch0
+  register: tmdb_instance_info
+  until: "tmdb_instance_info.resources is defined and
+        tmdb_instance_info.resources | length > 0 and
+        'status' in tmdb_instance_info.resources[0] and
+        (tmdb_instance_info.resources[0].status.phase == 'Succeeded' or tmdb_instance_info.resources[0].status.phase == 'Failed')"
+  failed_when: "'status' in tmdb_instance_info.resources[0] and
+                tmdb_instance_info.resources[0].status.phase != 'Succeeded'"
+  retries: 120
+  delay: 10

@@ -10,3 +10,27 @@ broker_instance:
 broker_subscription:
   name: "ibm-zoscb"
   apiVersion: "operators.coreos.com/v1alpha1"
+
+operators:
+  cics:
+    name: zos-cics-ts-operator.ibm.1.0.1
+    url: https://galaxy.ansible.com/api/v3/plugin/ansible/content/published/collections/artifacts/ibm-zos_cics_operator-1.0.1.tar.gz
+  zpm:
+    name: zos-package-manager.zpm.2.1.0
+    url: https://galaxy.ansible.com/download/ibm-zos_package_manager-2.1.0.tar.gz
+  ims:
+      name: zos-ims-operator.ibm.1.2.0
+      url: https://galaxy.ansible.com/api/v3/plugin/ansible/content/published/collections/artifacts/ibm-zos_ims_operator-1.2.0.tar.gz
+
+path_workspace: "/workspace/ws"
+ssh_key_name: zmodstack-deploy
+path_ssh_key: "~/.ssh/{{ ssh_key_name }}"
+ssh_secret: zmodstack-deploy-ssh
+username: ibmuser
+
+secret:
+  username: "{{ username }}"
+  # ssh_key: "{{ lookup('file', '{{ path_ssh_key }}') }}"
+  # ssh_key: "{{ lookup('file', '{{ playbook_dir }}/vault-value') }}"
+
+zvsi_endpoint_name: zvsi

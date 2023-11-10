@@ -1,0 +1,13 @@
+apiVersion: zoscb.ibm.com/v2beta2
+kind: ZosEndpoint
+metadata:
+  name: {{ zvsi_endpoint_name }}
+spec:
+  description: A Wazi as a Service instance in IBM Cloud
+  endpointType: remote
+  host: {{ zvsi_host }}
+  port: {{ zvsi_ssh_port | int }}
+  variables:
+    - name: ansible_python_interpreter
+      type: string
+      value: /usr/lpp/IBM/cyp/pyz/bin/python3

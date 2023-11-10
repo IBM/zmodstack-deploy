@@ -1,0 +1,29 @@
+- include_vars: zoscb.yml
+
+- name: Install a CICS TS Region Instance
+  kubernetes.core.k8s:
+    state: present
+    namespace: ibm-zmodstack-cloudbroker
+    template: templates/cicstsregion.yml.j2
+  vars:
+    # TODO - replace with value from zvsi provisioning
+    # oc_name: zos-cics-ts-operator.ibm.1.0.0
+    # oc_url: https://galaxy.ansible.com/download/ibm-zos_cics_operator-1.0.0.tar.gz
+    oc: "{{ operators.cics }}"
+
+
+- name: Wait for installation of sub-operator CR CICS TS Region Instance
+  kubernetes.core.k8s_info:
+    kind: CICSTSRegion
+    namespace: ibm-zmodstack-cloudbroker
+    name: cics-ts-region-instance
+    api_version: suboperator.zoscb.ibm.com/v1minor0patch0
+  register: cics_instance_info
+  until: "cics_instance_info.resources is defined and
+        cics_instance_info.resources | length > 0 and
+        'status' in cics_instance_info.resources[0] and
+        (cics_instance_info.resources[0].status.phase == 'Succeeded' or cics_instance_info.resources[0].status.phase == 'Failed')"
+  failed_when: "'status' in cics_instance_info.resources[0] and
+                cics_instance_info.resources[0].status.phase != 'Succeeded'"
+  retries: 120
+  delay: 10

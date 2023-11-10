@@ -1,0 +1,12 @@
+- include_vars: zoscb.yml
+
+- name: "Import the {{ oc_name }} Operator Collection"
+  kubernetes.core.k8s:
+    state: present
+    namespace: ibm-zmodstack-cloudbroker
+    template: templates/operatorcollection.yml.j2
+  vars:
+    # TODO - replace with value from zvsi provisioning
+    # oc_name: zos-cics-ts-operator.ibm.1.0.0
+    # oc_url: https://galaxy.ansible.com/download/ibm-zos_cics_operator-1.0.0.tar.gz
+    oc: "{{ operators[oc_name] }}"

@@ -17,19 +17,111 @@
       tags:
         - create
 
-    - name: Run the Wazi-aaS role to delete an instance
-      ansible.builtin.import_role:
-        name: "wazi-aas"
-      vars:
-        action: delete
-      tags:
-        - delete
-
-    # - name: Create z/OS Cloud Broker ZosEndpoint CR
-    #   ansible.builtin.include_role:
-    #     name: "zoscb"
-    #     tasks_from: zosendpoint
+    # - name: Run the Wazi-aaS role to delete an instance
+    #   ansible.builtin.import_role:
+    #     name: "wazi-aas"
     #   vars:
-    #     # noqa: var-naming[no-role-prefix]
-    #     zvsi_host: "{{ fip.address }}"
-    #     action: create
+    #     action: delete
+    #   tags:
+    #     - delete
+    
+    - name: Install z/OS Cloud Broker
+      ansible.builtin.import_role:
+        name: "zoscb"
+      tags:
+        - zoscb
+
+    - name: Create z/OS Cloud Broker ZosEndpoint CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: zosendpoint
+      tags:
+        - zoscb
+    
+    - name: Create z/OS Cloud Broker Credential 
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: secret
+      tags:
+        - zoscb
+
+    - name: Create z/OS Cloud Broker CICS OperatorCollection CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: operatorcollection
+      tags:
+        - cics
+      vars:
+        oc_name: cics
+
+    - name: Create z/OS Cloud Broker CICS SuboperatorConfig CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: suboperatorconfig
+      tags:
+        - cics
+      vars:
+        oc_name: cics
+
+    - name: Create z/OS Cloud Broker CICS Region Instance CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: cicstsregion_instance
+      tags:
+        - cics
+      vars:
+        oc_name: cics
+
+    - name: Create z/OS Cloud Broker ZPM OperatorCollection CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: operatorcollection
+      tags:
+        - zpm
+      vars: 
+        oc_name: zpm
+
+    - name: Create z/OS Cloud Broker ZPM SuboperatorConfig CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: suboperatorconfig
+      tags:
+        - zpm
+      vars:
+        oc_name: zpm
+
+    - name: Create z/OS Cloud Broker ZPM Region Instance CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: zpm_instance
+      tags:
+        - zpm
+      vars:
+        oc_name: zpm
+
+    - name: Create z/OS Cloud Broker IMS OperatorCollection CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: operatorcollection
+      tags:
+        - ims
+      vars:
+        oc_name: ims
+
+    - name: Create z/OS Cloud Broker IMS SuboperatorConfig CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: suboperatorconfig
+      tags:
+        - ims
+      vars:
+        oc_name: ims
+
+    - name: Create z/OS Cloud Broker IMS TMDB Instance CR
+      ansible.builtin.import_role:
+        name: "zoscb"
+        tasks_from: tmdb_instance
+      tags:
+        - ims
+      vars:
+        oc_name: ims

@@ -1,0 +1,40 @@
+- include_vars: zoscb.yml
+
+- name: "Map the {{ oc_name }} Operator Collection"
+  kubernetes.core.k8s:
+    state: present
+    namespace: ibm-zmodstack-cloudbroker
+    template: templates/suboperatorconfig.yml.j2
+  vars:
+    # TODO - replace with value from zvsi provisioning
+    # oc_name: zos-cics-ts-operator.ibm.1.0.0
+    # oc_url: https://galaxy.ansible.com/download/ibm-zos_cics_operator-1.0.0.tar.gz
+    oc: "{{ operators[oc_name]}}"
+  register: mapped_suboperator
+
+- name: Print SOC value
+  ansible.builtin.debug:
+    var: mapped_suboperator
+
+- name: "Ensure successful installation of the {{ operators[oc_name].name }} suboperator before proceeding"
+  kubernetes.core.k8s_info:
+    kind: ClusterServiceVersion
+    namespace: ibm-zmodstack-cloudbroker
+    api_version: operators.coreos.com/v1alpha1
+    label_selectors:
+      - "instance-name = zoscloudbroker"
+      - "suboperatorconfig.name = {{ operators[oc_name].name }}"
+  register: deploy_csv_subop
+  until:
+    - deploy_csv_subop.resources is defined and deploy_csv_subop.resources | length > 0
+    - "'status' in deploy_csv_subop.resources[0]"
+    - deploy_csv_subop.resources[0].status.phase == 'Succeeded' or
+        (deploy_csv_subop.resources[0].status.phase == 'Failed' and
+        deploy_csv_subop.resources[0].status.message != "install timeout" and
+        deploy_csv_subop.resources[0].status.reason != "InstallCheckFailed" )
+  failed_when:
+    - deploy_csv_subop.resources[0].status.phase == "Failed"
+    - "'status' in deploy_csv_subop.resources[0] and
+                deploy_csv_subop.resources[0].status.phase != 'Succeeded'"
+  retries: 120
+  delay: 10

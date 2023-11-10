@@ -1,4 +1,6 @@
 .DS_Store
 .local
 .cache
+.vscode
+.idea
 ansible-workspace

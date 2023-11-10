@@ -1,8 +1,0 @@
-- name: Import the CICS Operator Collection
-  hosts: localhost
-  tasks:
-    - name: Import the CICS Operator Collection
-      kubernetes.core.k8s:
-        state: present
-        namespace: ibm-zmodstack-cloudbroker
-        src: oc-cics.yml

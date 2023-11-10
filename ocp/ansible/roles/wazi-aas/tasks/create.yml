@@ -39,29 +39,30 @@
     cacheable: true
     vpc: "{{ vpc_create_output.resource }}"
 
-- name: Create VPC Subnet
-  when: subnet is undefined
+- name: Create VPC Subnets
+  when: subnets is undefined
   ibm.cloudcollection.ibm_is_subnet:
-    name: "{{ name_prefix }}-{{ zone }}"
+    name: "{{ name_prefix }}-{{ region }}-{{ item }}"
     state: available
     id: "{{ subnet.id | default(omit) }}"
     vpc: "{{ vpc.id }}"
     total_ipv4_address_count: "{{ total_ipv4_address_count }}"
-    zone: "{{ zone }}"
+    zone: "{{ region }}-{{ item }}"
     resource_group: "{{ vpc.resource_group }}"
+  with_sequence: start=1 end=3
   register: subnet_create_output
 
-- name: Save VPC Subnet as fact
-  when: subnet is undefined
+- name: set VM Subnets as a list
+  when: subnets is undefined
   ansible.builtin.set_fact:
     cacheable: true
-    subnet: "{{ subnet_create_output.resource }}"
+    subnets: "{{ subnet_create_output.results | map(attribute='resource') | list }}"
 
 - name: Upload SSH Key
   when: ssh_key is undefined
   ibm.cloudcollection.ibm_is_ssh_key:
     name: "{{ ssh_key_name }}"
-    public_key: "{{ ssh_public_key }}"
+    public_key: "{{ ssh_public_key.split()[:2]|join(' ') }}"
     id: "{{ ssh_key.id | default(omit) }}"
     resource_group: "{{ vpc.resource_group }}"
   register: ssh_key_create_output
@@ -84,8 +85,39 @@
     image_dict: "{{ images_list.resource.images |
                     items2dict(key_name='name', value_name='id') }}"
 
+- name: Retrieve snapshot list
+  when: snapshots_list is undefined
+  ibm.cloudcollection.ibm_is_snapshots_info:
+    region: "{{ region }}"
+  register: snapshots_list
+
+- name: Set snapshot name/id dictionary fact
+  when: snapshots_list is defined and snapshots_list.resource.snapshots | length > 0
+  ansible.builtin.set_fact:
+    cacheable: true
+    snapshot_dict: "{{ snapshots_list.resource.snapshots |
+                    items2dict(key_name='name', value_name='id') }}"
+
+- name: Create Data Volume from Snapshot
+  when: (data_volume is undefined) or (data_volume == None) or (not cache_data_volume)
+  ibm.cloudcollection.ibm_is_volume:
+    source_snapshot: "{{ (snapshot_dict | dict2items | selectattr('key', 'match', data_volume_snapshot) | list | first).value }}"
+    name: "{{ data_volume_name }}"
+    profile: "{{ data_volume_profile }}"
+    capacity: "{{ data_volume_capacity }}"
+    zone: "{{ zone }}"
+    resource_group: "{{ vpc.resource_group }}"
+    region: "{{ region }}"
+  register: data_volume_create_output
+
+- name: Save Data Volume as fact
+  when: data_volume_create_output.resource is defined
+  ansible.builtin.set_fact:
+    cacheable: true
+    data_volume: "{{ data_volume_create_output.resource }}"
+
 - name: Create VSI
-  when: (vsi is undefined) or (vsi == None) or (not cache_vsi)
+  when: (vsi is undefined) or (vsi == None)
   ibm.cloudcollection.ibm_is_instance:
     name: "{{ instance.name }}"
     state: available
@@ -97,7 +129,11 @@
     keys:
       - "{{ ssh_key.id }}"
     primary_network_interface:
-      - subnet: "{{ subnet.id }}"
+      - subnet: "{{ subnets[1].id }}"
+        name: "{{ primary_network_interface_name }}"
+    volumes:
+      - "{{ data_volume.id }}"
+    auto_delete_volume: "{{delete_volume_on_instance_delete}}"
     zone: "{{ zone }}"
     resource_group: "{{ vpc.resource_group }}"
   register: vsi_create_output
@@ -109,11 +145,12 @@
     vsi: "{{ vsi_create_output.resource }}"
 
 - name: Configure Floating IP Address
-  when: (fip is undefined) or (fip == None) or (not cache_vsi)
+  when: (fip is undefined) or (fip == None)
   ibm.cloudcollection.ibm_is_floating_ip:
     name: "{{ name_prefix }}-fip"
     state: available
     id: "{{ fip.id | default(omit) }}"
+    region: "{{ region }}"
     target: "{{ vsi.primary_network_interface[0]['id'] }}"
     resource_group: "{{ vpc.resource_group }}"
   register: fip_create_output
@@ -124,11 +161,15 @@
     cacheable: true
     fip: "{{ fip_create_output.resource }}"
 
+- name: Write IP to File
+  when: fip_create_output.resource is defined
+  copy: content="{{ fip.address }}" dest="{{ path_workspace }}/ip-address.txt"
 - name: Print Floating IP Address
   ansible.builtin.debug:
     msg: "IP Address: {{ fip.address }}"
 
 - name: Add VSI to Ansible inventory
+  when: fip.address not in groups['new_vsi'] | default([])
   ansible.builtin.add_host:
     name: "{{ fip.address }}"
     ansible_user: "{{ instance.username | default('root') }}"

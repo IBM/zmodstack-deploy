@@ -1,12 +1,15 @@
 apiVersion: zoscb.ibm.com/v2beta2
 kind: SubOperatorConfig
 metadata:
-  name: zos-cics-ts-operator.ibm.1.0.0-soc
+  name: {{ oc.name }}
+  namespace: ibm-zmodstack-cloudbroker
+  labels:
+    instance-name: zoscloudbroker
 spec:
   credentialType: shared
   mapping:
     - namespace: ibm-zmodstack-cloudbroker
       zosendpoints:
-        - credentialName: zos-cics-ts-operator-zvsi-credential
+        - credentialName: zvsi-credential
           name: zvsi
-  operatorCollection: zos-cics-ts-operator.ibm.1.0.0
+  operatorCollection: {{ oc.name }}
