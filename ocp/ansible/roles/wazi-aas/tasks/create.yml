@@ -1,7 +1,7 @@
 ---
 - name: Save zone as fact
   ansible.builtin.set_fact:
-    cacheable: true
+    # cacheable: true
     cache_zone: "{{ zone }}"
 
 - name: Create Resource Group
@@ -28,10 +28,8 @@
     direction: inbound
     remote: 0.0.0.0/0
     tcp:
-      - port_max: 22
+      - port_max: 23
         port_min: 22
-      # - port_max: 992
-      #   port_min: 992
 
 - name: Save VPC as fact
   when: vpc is undefined
@@ -98,8 +96,26 @@
     snapshot_dict: "{{ snapshots_list.resource.snapshots |
                     items2dict(key_name='name', value_name='id') }}"
 
+# - name: Create Boot Volume
+#   # when: (data_volume is undefined) or (data_volume == None) or (not cache_data_volume)
+#   ibm.cloudcollection.ibm_is_volume:
+#     # source_snapshot: "{{ (snapshot_dict | dict2items | selectattr('key', 'match', data_volume_snapshot) | list | first).value }}"
+#     name: "{{ instance.name }}-boot"
+#     profile: "general-purpose"
+#     capacity: 10
+#     zone: "{{ zone }}"
+#     resource_group: "{{ vpc.resource_group }}"
+#     region: "{{ region }}"
+#   register: boot_volume_create_output
+
+# - name: Save Boot Volume as fact
+#   when: boot_volume_create_output.resource is defined
+#   ansible.builtin.set_fact:
+#     cacheable: true
+#     boot_volume: "{{ boot_volume_create_output.resource }}"
+
 - name: Create Data Volume from Snapshot
-  when: (data_volume is undefined) or (data_volume == None) or (not cache_data_volume)
+  # when: (data_volume is undefined) or (data_volume == None) or (not cache_data_volume)
   ibm.cloudcollection.ibm_is_volume:
     source_snapshot: "{{ (snapshot_dict | dict2items | selectattr('key', 'match', data_volume_snapshot) | list | first).value }}"
     name: "{{ data_volume_name }}"
@@ -124,15 +140,18 @@
     id: "{{ vsi.id | default(omit) }}"
     vpc: "{{ vpc.id }}"
     profile: "{{ instance.profile }}"
-    # image: "{{ (image_dict | dict2items | selectattr('key', 'match', instance.image) | list | first).value }}"
-    image: r014-b01b36b9-1cd5-4205-958e-842e2a7063b4
+    image: "{{ (image_dict | dict2items | selectattr('key', 'match', instance.image) | list | first).value }}"
+    # image: r014-b01b36b9-1cd5-4205-958e-842e2a7063b4
     keys:
       - "{{ ssh_key.id }}"
     primary_network_interface:
       - subnet: "{{ subnets[1].id }}"
         name: "{{ primary_network_interface_name }}"
-    volumes:
-      - "{{ data_volume.id }}"
+    # boot_volume:
+    #   - id: "{{ boot_volume.id }}"
+    #     name: "{{ instance.name }}-boot"
+    # volumes:
+    #   - "{{ data_volume.id }}"
     auto_delete_volume: "{{delete_volume_on_instance_delete}}"
     zone: "{{ zone }}"
     resource_group: "{{ vpc.resource_group }}"
@@ -143,6 +162,43 @@
   ansible.builtin.set_fact:
     cacheable: true
     vsi: "{{ vsi_create_output.resource }}"
+
+# - name: Sleep for 15 seconds and continue with play
+#   ansible.builtin.wait_for:
+#     timeout: 15
+
+# - name: Stop the VSI to mount a data volume
+#   ibm.cloudcollection.ibm_is_instance_action:
+#     instance: "{{ vsi.id }}"
+#     action: stop
+#     # force_action: true
+
+- name: Attach Data Volume
+  ibm.cloudcollection.ibm_is_instance_volume_attachment:
+    instance: "{{ vsi.id }}"
+    name: "{{ data_volume.name }}"
+    volume: "{{ data_volume.id }}"
+    delete_volume_on_attachment_delete: true
+    delete_volume_on_instance_delete: true
+  register: vsi_create_output
+
+- name: Stop the VSI
+  ibm.cloudcollection.ibm_is_instance_action:
+    instance: "{{ vsi.id }}"
+    action: stop
+    # force_action: true
+
+# - name: Force Stop the VSI
+#   ibm.cloudcollection.ibm_is_instance_action:
+#     instance: "{{ vsi.id }}"
+#     action: stop
+#     force_action: true
+
+- name: Restart the VSI
+  ibm.cloudcollection.ibm_is_instance_action:
+    instance: "{{ vsi.id }}"
+    action: start
+    # force_action: true
 
 - name: Configure Floating IP Address
   when: (fip is undefined) or (fip == None)
@@ -161,21 +217,23 @@
     cacheable: true
     fip: "{{ fip_create_output.resource }}"
 
-- name: Write IP to File
-  when: fip_create_output.resource is defined
-  copy: content="{{ fip.address }}" dest="{{ path_workspace }}/ip-address.txt"
 - name: Print Floating IP Address
   ansible.builtin.debug:
     msg: "IP Address: {{ fip.address }}"
 
-- name: Add VSI to Ansible inventory
-  when: fip.address not in groups['new_vsi'] | default([])
-  ansible.builtin.add_host:
-    name: "{{ fip.address }}"
-    ansible_user: "{{ instance.username | default('root') }}"
-    groups: new_vsi
-    ansible_ssh_extra_args: "-o StrictHostKeyChecking=no"
-    ansible_interpreter_python_fallback: "{{ instance.python_interpreters | default(omit) }}"
+- name: Write IP to File
+  when: fip_create_output.resource is defined
+  copy: content="{{ fip.address }}" dest="{{ path_workspace }}/ip-address.txt"
+
+
+# - name: Add VSI to Ansible inventory
+#   when: fip.address not in groups['new_vsi'] | default([])
+#   ansible.builtin.add_host:
+#     name: "{{ fip.address }}"
+#     ansible_user: "{{ instance.username | default('root') }}"
+#     groups: new_vsi
+#     ansible_ssh_extra_args: "-o StrictHostKeyChecking=no"
+#     ansible_interpreter_python_fallback: "{{ instance.python_interpreters | default(omit) }}"
 
 # TODO - Check once zvsi has ssh enabled by default
 # - name: Wait for VSI to become reachable over SSH
