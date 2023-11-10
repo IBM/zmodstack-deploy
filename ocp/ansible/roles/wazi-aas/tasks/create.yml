@@ -28,10 +28,8 @@
     direction: inbound
     remote: 0.0.0.0/0
     tcp:
-      - port_max: 22
+      - port_max: 23
         port_min: 22
-      # - port_max: 992
-      #   port_min: 992
 
 - name: Save VPC as fact
   when: vpc is undefined
@@ -117,7 +115,7 @@
 #     boot_volume: "{{ boot_volume_create_output.resource }}"
 
 - name: Create Data Volume from Snapshot
-  when: (data_volume is undefined) or (data_volume == None) or (not cache_data_volume)
+  # when: (data_volume is undefined) or (data_volume == None) or (not cache_data_volume)
   ibm.cloudcollection.ibm_is_volume:
     source_snapshot: "{{ (snapshot_dict | dict2items | selectattr('key', 'match', data_volume_snapshot) | list | first).value }}"
     name: "{{ data_volume_name }}"
