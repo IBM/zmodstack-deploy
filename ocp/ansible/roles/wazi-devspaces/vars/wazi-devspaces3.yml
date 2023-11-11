@@ -17,3 +17,8 @@ devspaces_subscription:
 
 devspaces_license:
   apiVersion: "org.eclipse.che/v1"
+
+devworkspace:
+   name: "wazi-devspaces"
+   kind: "DevWorkspace"
+   apiVersion: "workspace.devfile.io/v1alpha2"

@@ -110,9 +110,9 @@
 - name: "Retrieve DevWorkspace instance info"
   kubernetes.core.k8s_info:
     namespace: "ocpadmin-devspaces"
-    kind: "DevWorkspace"
-    name: "wazi-devspaces"
-    api_version: "workspace.devfile.io/v1alpha2"
+    kind: "{{ devworkspace.kind }}"
+    name: "{{ devworkspace.name }}"
+    api_version: "{{ devworkspace.apiVersion }}"
   register: devworkspace_info
   until:
     - "devworkspace_info.resources is defined and devworkspace_info.resources | length > 0"
