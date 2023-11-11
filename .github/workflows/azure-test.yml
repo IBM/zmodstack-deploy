@@ -2,10 +2,6 @@ name: Azure Test
 
 on:
   push:
-    branches-ignore:
-      - main
-      - dev
-      - release-*.*.*
     paths:
       - '.github/workflows/azure-test.yml'
       - 'azure/**'

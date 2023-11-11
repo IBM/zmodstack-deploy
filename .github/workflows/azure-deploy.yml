@@ -12,10 +12,6 @@ on:
       - 'ocp/**'
 
 env:
-  ARM_TEMPLATE_BICEP: ./azure/marketplace/mainTemplate.bicep
-  ARM_TEMPLATE_JSON: ./azure/marketplace/mainTemplate.json
-  ARM_TEMPLATE_BICEP_TO_JSON: ./azure/marketplace/mainTemplateBicepToJson.json
-  WORK_DIR: ./azure/marketplace
   ANSIBLE_PLAYBOOK_PROVISION: ./azure/ansible/deployment/playbooks/run-provision.yml
   ANSIBLE_PLAYBOOK_VALIDATE: ./azure/ansible/deployment/playbooks/run-validate.yml
   ANSIBLE_PLAYBOOK_DEPROVISION: ./azure/ansible/deployment/playbooks/run-deprovision.yml
@@ -25,20 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v2
-    - name: Create ARM Template in JSON from ARM Template in Bicep
-      uses: Azure/bicep-build-action@v1.0.1
-      with:
-        bicepFilePath: ${{ env.ARM_TEMPLATE_BICEP }}
-        outputFilePath: ${{ env.ARM_TEMPLATE_BICEP_TO_JSON }} 
-    - name: Check mainTemplate.json is Latest
-      run: diff ${{ env.ARM_TEMPLATE_JSON }} ${{ env.ARM_TEMPLATE_BICEP_TO_JSON }}
-      shell: bash
-      continue-on-error: true  
-    - name: Run ARM-TTK
-      uses: microsoft/action-armttk@v1
-      with:
-        workdir: ${{ env.WORK_DIR }} 
+      uses: actions/checkout@v2 
     - name: 'AZ CLI login'
       uses: azure/login@v1
       with:
