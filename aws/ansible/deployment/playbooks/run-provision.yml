@@ -20,15 +20,17 @@
     - name: Print s3 dir
       ansible.builtin.debug:
         var: s3_dir
+
     - name: Check OpenShift cluster nodes
-      ansible.builtin.command: pwd
-      register: pwd
+      ansible.builtin.command: ls
+      register: out
     - name: Check OpenShift cluster nodes
       ansible.builtin.set_fact: 
-        presentdir: pwd.stdout
+        presentdir: out.stdout
     - name: Print present dir
       ansible.builtin.debug:
         var: presentdir
+
     - name: Push cloudformation template - cluster.yml
       amazon.aws.aws_s3:
         bucket: z-mod-stack-aws-dev
