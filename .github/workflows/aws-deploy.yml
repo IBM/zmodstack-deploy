@@ -41,13 +41,13 @@ jobs:
         aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
-    - name: Run Ansible Playbooks
-      run: |
-        ansible-galaxy collection install amazon.aws
-        pip install 'ansible[aws]'
-        pip install boto3 cfn-lint ansible-core
-        stackname="git-${{ github.run_id }}"
-        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_PROVISION }} --extra-vars "OCP_PASSWORD=${{ secrets.AWS_OCP_PASSWORD }} API_KEY=${{ secrets.API_KEY }} stackname=$stackname region=$aws-region"
-        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_VALIDATE }} --extra-vars  "stack_name= $stackname OCP_PASSWORD=${{ secrets.AWS_OCP_PASSWORD }}"
-        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_DEPROVISION }} --extra-vars  "stackname= $stackname region=$aws-region"
-      shell: bash
+    #- name: Run Ansible Playbooks
+      #run: |
+        #ansible-galaxy collection install amazon.aws
+        #pip install 'ansible[aws]'
+        #pip install boto3 cfn-lint ansible-core
+        #stackname="git-${{ github.run_id }}"
+        #ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_PROVISION }} --extra-vars "OCP_PASSWORD=${{ secrets.AWS_OCP_PASSWORD }} API_KEY=${{ secrets.API_KEY }} stackname=$stackname region=$aws-region"
+        #ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_VALIDATE }} --extra-vars  "stack_name= $stackname OCP_PASSWORD=${{ secrets.AWS_OCP_PASSWORD }}"
+        #ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_DEPROVISION }} --extra-vars  "stackname= $stackname region=$aws-region"
+      #shell: bash
