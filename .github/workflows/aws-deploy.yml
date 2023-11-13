@@ -23,7 +23,6 @@ env:
   ANSIBLE_PLAYBOOK_PROVISION: ./aws/ansible/deployment/playbooks/run-provision.yml
   ANSIBLE_PLAYBOOK_VALIDATE: ./aws/ansible/deployment/playbooks/run-validate.yml
   ANSIBLE_PLAYBOOK_DEPROVISION: ./aws/ansible/deployment/playbooks/run-deprovision.yml
-  clusterfile: 
 
 jobs:
   deploy:
@@ -31,10 +30,11 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
-    - name: access
+    - name: Upload to S3 bucket
       run: |
-        ls
-        cat ./aws/cloudformation/cluster.yml    
+        aws s3 cp ./aws/cloudformation/cluster.yml s3://z-mod-stack-aws-dev/branches/GitHubActions/cloudformation/cluster.yml
+        aws s3 cp ./aws/cloudformation/vpc.yml s3://z-mod-stack-aws-dev/branches/GitHubActions/cloudformation/vpc.yml
+        aws s3 cp ./aws/cloudformation/main.yml s3://z-mod-stack-aws-dev/branches/GitHubActions/cloudformation/main.yml  
     - name: 'AWS Configure'
       uses: aws-actions/configure-aws-credentials@v1
       with:
