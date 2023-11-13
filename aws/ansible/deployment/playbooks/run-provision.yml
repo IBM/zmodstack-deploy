@@ -5,6 +5,7 @@
   - amazon.aws
 
   vars:
+    s3_dir: "branches/GitHubActions/cloudformation"
     subnet: "10.100"
     azs: 3
     region: us-east-1
