@@ -5,56 +5,12 @@
   - amazon.aws
 
   vars:
-    dir_template: ./aws/cloudformation
     subnet: "10.100"
-    branch: "GitHubActions"
     azs: 3
   vars_files:
     - vars/default.yml
 
   tasks:
-    - name: Set destination s3 bucket directory from git
-      ansible.builtin.set_fact:
-        s3_dir: "branches/{{ branch }}/cloudformation"
-
-    - name: Print s3 dir
-      ansible.builtin.debug:
-        var: s3_dir
-
-    - name: Check OpenShift cluster nodes
-      ansible.builtin.command: ls
-      register: out
-    - name: Check OpenShift cluster nodes
-      ansible.builtin.set_fact: 
-        presentdir: out.stdout
-    - name: Print present dir
-      ansible.builtin.debug:
-        var: presentdir
-
-    - name: Push cloudformation template - cluster.yml
-      amazon.aws.aws_s3:
-        bucket: z-mod-stack-aws-dev
-        src: "{{ dir_template }}/cluster.yml"
-        object: "{{ s3_dir }}/cluster.yml"
-        mode: put
-      tags: s3push
-
-    - name: Push cloudformation template - main.yml
-      amazon.aws.aws_s3:
-        bucket: z-mod-stack-aws-dev
-        src: "{{ dir_template }}/main.yml"
-        object: "{{ s3_dir }}/main.yml"
-        mode: put
-      tags: s3push
-
-    - name: Push cloudformation template - vpc.yml
-      amazon.aws.aws_s3:
-        bucket: z-mod-stack-aws-dev
-        src: "{{ dir_template }}/vpc.yml"
-        object: "{{ s3_dir }}/vpc.yml"
-        mode: put
-      tags: s3push
-
     - name: Display list of AZs in selected region
       ansible.builtin.debug:
         msg: "The AWS region '{{ region }}' has the following availability zones: {{ aws_regions[region] | join(', ') }}"
