@@ -1,0 +1,48 @@
+name: AWS Deployment
+
+on:
+  push:
+    paths:
+      - '.github/workflows/aws-deploy.yml'
+      - 'aws/**' 
+      - 'ocp/**'
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths:
+      - '.github/workflows/aws-deploy.yml'
+      - 'aws/**'
+      - 'ocp/**'
+
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  ANSIBLE_PLAYBOOK_PROVISION: ./aws/ansible/deployment/playbooks/run-provision.yml
+  ANSIBLE_PLAYBOOK_VALIDATE: ./aws/ansible/deployment/playbooks/run-validate.yml
+  ANSIBLE_PLAYBOOK_DEPROVISION: ./aws/ansible/deployment/playbooks/run-deprovision.yml
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: 'AWS Configure'
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    - name: Run Ansible Playbooks
+      run: |
+        ansible-galaxy collection install amazon.aws
+        pip install 'ansible[aws]'
+        pip install boto3 cfn-lint ansible-core
+        stackname="git-$(date + '%Y%m%d%H%M%S')-${{ github.run_id }}"
+        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_PROVISION }} --extra-vars "OCP_PASSWORD=${{ secrets.OCP_PASSWORD }} API_KEY=${{ secrets.API_KEY }} stackname=$stackname region=$aws-region"
+        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_VALIDATE }} --extra-vars  "stack_name= $stackname OCP_PASSWORD=${{ secrets.OCP_PASSWORD }}"
+        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_DEPROVISION }} --extra-vars  "stackname= $stackname region=$aws-region"
+      shell: bash
