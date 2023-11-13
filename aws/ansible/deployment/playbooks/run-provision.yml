@@ -5,7 +5,7 @@
   - amazon.aws
 
   vars:
-    dir_template: ../cloudformation
+    dir_template: ./aws/cloudformation
     subnet: "10.100"
     branch: "GitHubActions"
     azs: 3

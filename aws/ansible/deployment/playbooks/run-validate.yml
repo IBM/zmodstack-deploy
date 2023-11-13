@@ -1,0 +1,49 @@
+---
+- name: Validate OCP Cluster
+  hosts: localhost
+  collections:
+  - amazon.aws
+  vars_files:
+    - vars/default.yml
+  vars:
+    DNS_ZONE: ibmzsoftware.com
+    OCP_USERNAME: admin
+
+  tasks:
+    - name: Check status of Openshift console
+      ansible.builtin.uri:
+        url: "https://console-openshift-console.apps.{{ stack_name }}.{{ DNS_ZONE }}/"
+        status_code: 200
+        validate_certs: false
+
+    - name: Openshift console status
+      ansible.builtin.debug:
+        msg: "Openshift console is up and running"
+
+    - name: Check login to Openshift cluster API
+      ansible.builtin.command:
+        "oc login --insecure-skip-tls-verify -u {{ OCP_USERNAME }} -p {{ OCP_PASSWORD }} --server=https://api.{{ stack_name }}.{{ DNS_ZONE }}:6443"
+      register: cluster_login
+      changed_when: cluster_login.rc == 0
+
+    - name: Openshift cluster API status
+      ansible.builtin.debug:
+        var: cluster_login.stdout_lines
+
+    - name: Check OpenShift cluster nodes
+      ansible.builtin.command: oc get nodes
+      register: cluster_nodes
+      changed_when: cluster_nodes.rc == 0
+
+    - name: Print Openshift cluster nodes
+      ansible.builtin.debug:
+        var: cluster_nodes.stdout_lines
+
+    - name: Check OpenShift cluster operators
+      ansible.builtin.command: oc get co
+      register: cluster_operators
+      changed_when: cluster_operators.rc == 0
+
+    - name: Print Openshift cluster operators
+      ansible.builtin.debug:
+        var: cluster_operators.stdout_lines
