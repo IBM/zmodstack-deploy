@@ -20,10 +20,12 @@
     - name: Print s3 dir
       ansible.builtin.debug:
         var: s3_dir
-
+    - name: Check OpenShift cluster nodes
+      ansible.builtin.command: pwd
+      register: pwd
     - name: Check OpenShift cluster nodes
       ansible.builtin.set_fact: 
-        presentdir: pwd
+        presentdir: pwd.stdout
     - name: Print present dir
       ansible.builtin.debug:
         var: presentdir
