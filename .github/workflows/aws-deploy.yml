@@ -23,6 +23,7 @@ env:
   ANSIBLE_PLAYBOOK_PROVISION: ./aws/ansible/deployment/playbooks/run-provision.yml
   ANSIBLE_PLAYBOOK_VALIDATE: ./aws/ansible/deployment/playbooks/run-validate.yml
   ANSIBLE_PLAYBOOK_DEPROVISION: ./aws/ansible/deployment/playbooks/run-deprovision.yml
+  clusterfile: 
 
 jobs:
   deploy:
@@ -30,6 +31,10 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
+    - name: access
+      run: |
+        ls
+        cat ./aws/cloudformation/cluster.yml    
     - name: 'AWS Configure'
       uses: aws-actions/configure-aws-credentials@v1
       with:
