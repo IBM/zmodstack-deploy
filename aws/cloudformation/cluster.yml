@@ -562,7 +562,7 @@ Resources:
             # Clone git repo containing automation scripts for AWS
             git clone --no-checkout -b release-2023.4.1 https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
             cd $GIT_CLONE_DIR && git sparse-checkout set aws ocp && git checkout @
-            chown -fR ec2-user:ec2-user $GIT_CLONE_DIR
+            #chown -fR ec2-user:ec2-user $GIT_CLONE_DIR
             source $GIT_CLONE_DIR/aws/scripts/bootnode-bootstrap.sh
 
             # Begin OCP cluster Installation
