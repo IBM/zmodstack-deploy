@@ -36,5 +36,5 @@ echo "export PATH=$PATH:/usr/local/bin" >> /etc/bashrc
 # Trigger the cfn-init helper script to handle the AWS::CloudFormation::Init directive
 cfn-init -v --stack "${AWS_STACKNAME}" --resource BootnodeInstance --configsets Required --region "${AWS_REGION}"
 
-chmod +x /home/ec2-user/destroy.sh
-ssh-keygen -t rsa -b 4096 -f /home/ec2-user/.ssh/id_rsa -q -N ""
+chmod +x /mnt/destroy.sh
+ssh-keygen -t rsa -b 4096 -f /mnt/.ssh/id_rsa -q -N ""
