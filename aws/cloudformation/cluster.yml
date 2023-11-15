@@ -475,7 +475,7 @@ Resources:
             /mnt/destroy.sh:
               content: |
                 echo "$1 - Destroy"
-                $GIT_CLONE_DIR/ocp/ansible/playbooks/installer-workspace/openshift-install destroy cluster --dir=$GIT_CLONE_DIR/ocp/ansible/playbooks/installer-workspace --log-level=debug
+                /mnt/openshift/zmodstack-deploy/ocp/ansible/playbooks/installer-workspace/openshift-install destroy cluster --dir=$GIT_CLONE_DIR/ocp/ansible/playbooks/installer-workspace --log-level=debug
                 aws ssm put-parameter --name $1"_CleanupStatus" --type "String" --value "READY" --overwrite
               mode: '000777'
             /root/.aws/config:
