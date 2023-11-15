@@ -50,5 +50,5 @@ jobs:
         stackname="git-${{ github.run_id }}"
         ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_PROVISION }} --extra-vars "OCP_PASSWORD=${{ secrets.AWS_OCP_PASSWORD }} API_KEY=${{ secrets.API_KEY }} stack_name=$stackname region=${{ env.AWS_REGION }}"
         ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_VALIDATE }} --extra-vars  "stack_name=$stackname OCP_PASSWORD=${{ secrets.AWS_OCP_PASSWORD }}"
-        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_DEPROVISION }} --extra-vars  "stack_name=$stackname region=${{ env.AWS_REGION }}"
+        #ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_DEPROVISION }} --extra-vars  "stack_name=$stackname region=${{ env.AWS_REGION }}"
       shell: bash
