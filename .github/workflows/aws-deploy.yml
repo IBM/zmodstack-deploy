@@ -10,7 +10,6 @@ on:
     branches:
       - main
       - dev
-      - ce-53
     paths:
       - '.github/workflows/aws-deploy.yml'
       - 'aws/**'
@@ -29,19 +28,35 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+    - name: Extract branch name on push
+      if: github.event_name != 'pull_request'
+      shell: bash
+      run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/})"
+      id: extract_branch
+
+    - name: Extract branch name on pull request
+      if: github.event_name == 'pull_request'
+      run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_HEAD_REF})"
+
+    - name: Print branch name
+      run: echo 'The branch name is' $BRANCH_NAME
+    
     - name: Checkout Repository
       uses: actions/checkout@v2
+
     - name: Upload to S3 bucket
       run: |
-        aws s3 cp ./aws/cloudformation/cluster.yml s3://z-mod-stack-aws-dev/branches/GitHubActions/cloudformation/cluster.yml
-        aws s3 cp ./aws/cloudformation/vpc.yml s3://z-mod-stack-aws-dev/branches/GitHubActions/cloudformation/vpc.yml
-        aws s3 cp ./aws/cloudformation/main.yml s3://z-mod-stack-aws-dev/branches/GitHubActions/cloudformation/main.yml  
+        aws s3 cp ./aws/cloudformation/cluster.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/cluster.yml
+        aws s3 cp ./aws/cloudformation/vpc.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/vpc.yml
+        aws s3 cp ./aws/cloudformation/main.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/main.yml  
+   
     - name: 'AWS Configure'
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
+    
     - name: Run Ansible Playbooks
       run: |
         ansible-galaxy collection install amazon.aws
