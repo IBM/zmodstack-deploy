@@ -20,11 +20,6 @@
   ignore_errors: true
   no_log: true
 
-- name: Inspect OCP Secret (Creds)
-  debug:
-    var: creds_secret
-    verbosity: 2
-
 - name: Inspect OCP Secret
   debug: 
     var: secret
