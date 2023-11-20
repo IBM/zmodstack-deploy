@@ -15,7 +15,7 @@
     api_version: v1
     kind: Secret
     name: "{{ creds_secret }}"
-    namespace: demo-iz
+    namespace: ibm-zmodstack-deploy
   register: creds_secret
   ignore_errors: true
   no_log: true
