@@ -1,4 +1,4 @@
-name: Azure Test
+name: Azure Build & Lint
 
 on:
   push:
