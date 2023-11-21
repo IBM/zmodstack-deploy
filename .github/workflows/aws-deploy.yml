@@ -17,6 +17,7 @@ on:
 
 
 env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
   AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -28,16 +29,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Extract branch name on push
-      if: github.event_name != 'pull_request'
-      shell: bash
-      run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}"  >> $GITHUB_ENV
-      id: extract_branch
-
-    - name: Extract branch name on pull request
-      if: github.event_name == 'pull_request'
-      run: echo "BRANCH_NAME=${GITHUB_HEAD_REF}"  >> $GITHUB_ENV
-
     - name: Print branch name
       run: echo 'The branch name is' $BRANCH_NAME
     
