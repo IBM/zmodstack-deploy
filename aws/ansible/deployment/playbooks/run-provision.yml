@@ -5,7 +5,6 @@
   - amazon.aws
 
   vars:
-    s3_dir: "branches/GitHubActions/cloudformation"
     subnet: "10.100"
     azs: 3
     region: us-east-1
@@ -52,7 +51,7 @@
         state: present
         region: "{{ region }}"
         disable_rollback: true
-        template_url: "https://z-mod-stack-aws-dev.s3.us-east-2.amazonaws.com/{{ s3_dir }}/main.yml"
+        template_url: "https://z-mod-stack-aws-dev.s3.us-east-2.amazonaws.com/branches/{{ branch_name }}/cloudformation/main.yml"
         template_parameters:
           NumberOfAZs: "{{ azs | int }}"
           AvailabilityZones: "{{ zones }}"
