@@ -632,7 +632,6 @@ Resources:
             AvailabilityZone3: !If [ 3AZConditionCheck, !Select [2, !Ref AvailabilityZones], ""]
   
   CleanUpLambda:
-    Type: AWS::Lambda::Function
     Properties:
       Code:
         ZipFile: |
