@@ -16,6 +16,11 @@ instance:
     - /usr/lpp/IBM/cyp/v3r8/pyz/bin/python3
 ssh_key_name: zmodstack-deploy
 ssh_public_key: "{{lookup('file', '~/.ssh/zmodstack-deploy.pub') }}"
+ssh_public_path: "~/.ssh/zmodstack-deploy.pub"
+# Need to point to a file locally with the password if running locally
+ssh_password: "{{lookup('file', '/workspace/ws/password') }}"
+# Need to point to a file locally with the password if running locally
+ssh_password_file: "/workspace/ws/password"
 # region: eu-gb
 region: us-east
 zone: "{{region}}-2"
@@ -30,5 +35,6 @@ data_volume_capacity: 250  # Set the desired storage size in GB
 data_volume_snapshot: "{{ instance.image }}"
 delete_volume_on_instance_delete: true
 data_volume_iops: 1000
-
+num_subnets: 3
+# Need to point to a file locally if running locally
 path_workspace: "/workspace/ws"

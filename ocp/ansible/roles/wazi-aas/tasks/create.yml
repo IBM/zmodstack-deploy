@@ -1,4 +1,15 @@
 ---
+
+##TODO: Add sshpass to image. Only installing if on openshift. Comment out when running locally.
+- name: install sshpass
+#  when: ansible_distribution == 'openshift'
+  command: microdnf install sshpass -y
+
+##TODO: Add ssh-copy-id to image. Only installing if on openshift. Comment out when running locally.
+- name: install ssh-copy-id
+#  when: ansible_distribution == 'openshift'
+  command: microdnf install openssh-clients -y
+
 - name: Save zone as fact
   ansible.builtin.set_fact:
     # cacheable: true
@@ -59,6 +70,7 @@
 - name: Upload SSH Key
   when: ssh_key is undefined
   ibm.cloudcollection.ibm_is_ssh_key:
+    region: "{{ region }}"
     name: "{{ ssh_key_name }}"
     public_key: "{{ ssh_public_key.split()[:2]|join(' ') }}"
     id: "{{ ssh_key.id | default(omit) }}"
@@ -74,6 +86,8 @@
 - name: Retrieve image list
   when: image_dict is undefined
   ibm.cloudcollection.ibm_is_images_info:
+    resource_group: "{{ vpc.resource_group }}"
+    region: "{{ region }}"
   register: images_list
 
 - name: Set VM image name/id dictionary fact
@@ -163,16 +177,6 @@
     cacheable: true
     vsi: "{{ vsi_create_output.resource }}"
 
-# - name: Sleep for 15 seconds and continue with play
-#   ansible.builtin.wait_for:
-#     timeout: 15
-
-# - name: Stop the VSI to mount a data volume
-#   ibm.cloudcollection.ibm_is_instance_action:
-#     instance: "{{ vsi.id }}"
-#     action: stop
-#     # force_action: true
-
 - name: Attach Data Volume
   ibm.cloudcollection.ibm_is_instance_volume_attachment:
     instance: "{{ vsi.id }}"
@@ -195,6 +199,7 @@
 #     force_action: true
 
 - name: Restart the VSI
+  when: vsi_create_output.changed and vsi is defined
   ibm.cloudcollection.ibm_is_instance_action:
     instance: "{{ vsi.id }}"
     action: start
@@ -226,16 +231,37 @@
   copy: content="{{ fip.address }}" dest="{{ path_workspace }}/ip-address.txt"
 
 
-# - name: Add VSI to Ansible inventory
-#   when: fip.address not in groups['new_vsi'] | default([])
-#   ansible.builtin.add_host:
-#     name: "{{ fip.address }}"
-#     ansible_user: "{{ instance.username | default('root') }}"
-#     groups: new_vsi
-#     ansible_ssh_extra_args: "-o StrictHostKeyChecking=no"
-#     ansible_interpreter_python_fallback: "{{ instance.python_interpreters | default(omit) }}"
+- name: Add VSI to Ansible inventory
+  when: fip.address not in groups['new_vsi'] | default([])
+  ansible.builtin.add_host:
+     name: "{{ fip.address }}"
+     ansible_user: "{{ instance.username | default('root') }}"
+     ansible_password: "{{ssh_password}}"
+     groups: new_vsi
+     ansible_ssh_extra_args: "-o StrictHostKeyChecking=no"
+     ansible_interpreter_python_fallback: "{{ instance.python_interpreters | default(omit) }}"
 
-# TODO - Check once zvsi has ssh enabled by default
-# - name: Wait for VSI to become reachable over SSH
-#   ansible.builtin.wait_for_connection:
-#   delegate_to: "{{ fip.address }}"
+- name: Wait for VSI to become reachable over SSH
+  delegate_to: "{{ fip.address }}"
+  ansible.builtin.wait_for_connection:
+    connect_timeout: 60
+    delay: 3
+    timeout: 500
+
+- name: Copy SSH public key to remote host
+  command: >
+    sshpass -f {{ ssh_password_file }}
+    ssh-copy-id
+    -i {{ ssh_public_path }}
+    -o StrictHostKeyChecking=no
+    {{ instance.username }}@{{ fip.address }}
+#
+##- name: zos copy ssh key
+##  delegate_to: "{{ fip.address }}"
+##  ibm.ibm_zos_core.zos_copy:
+##    src: "~/.ssh/zmodstack-deploy.pub"
+##    dest: /u/ibmuser/.ssh
+##    mode: '0644'
+##    encoding:
+##      from: 'ISO8859-1'
+##      to: 'IBM-1047'
