@@ -10,3 +10,13 @@
         action: create
       tags:
         - create
+
+- name: Check Ansible connection to new VSI
+  hosts: new_vsi
+  gather_facts: False
+  tasks:
+    - name: Wait for VSI to become reachable over SSH
+      ansible.builtin.wait_for_connection:
+        connect_timeout: 10
+        delay: 3
+        timeout: 40
