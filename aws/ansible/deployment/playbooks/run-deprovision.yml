@@ -2,7 +2,7 @@
 - name: Delete OCP Cluster
   hosts: localhost
   collections:
-  - amazon.aws
+    - amazon.aws
   vars:
     region: us-east-1
   tasks: 

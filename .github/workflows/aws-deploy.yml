@@ -1,15 +1,11 @@
 name: AWS Deployment
 
 on:
-  push:
-    paths:
-      - '.github/workflows/aws-deploy.yml'
-      - 'aws/**' 
-      - 'ocp/**'
   pull_request:
     branches:
       - main
       - dev
+      - release-*.*.*
     paths:
       - '.github/workflows/aws-deploy.yml'
       - 'aws/**'
@@ -35,18 +31,18 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Upload to S3 bucket
-      run: |
-        aws s3 cp ./aws/cloudformation/cluster.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/cluster.yml
-        aws s3 cp ./aws/cloudformation/vpc.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/vpc.yml
-        aws s3 cp ./aws/cloudformation/main.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/main.yml  
-   
     - name: 'AWS Configure'
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
+
+    - name: Upload to S3 bucket
+      run: |
+        aws s3 cp ./aws/cloudformation/cluster.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/cluster.yml
+        aws s3 cp ./aws/cloudformation/vpc.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/vpc.yml
+        aws s3 cp ./aws/cloudformation/main.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/main.yml  
     
     - name: Run Ansible Playbooks
       run: |
