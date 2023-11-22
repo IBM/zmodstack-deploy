@@ -244,6 +244,9 @@
 - name: Wait for VSI to become reachable over SSH
   delegate_to: "{{ fip.address }}"
   ansible.builtin.wait_for_connection:
+    connect_timeout: 60
+    delay: 3
+    timeout: 600
 
 - name: Copy SSH public key to remote host
   command: >
