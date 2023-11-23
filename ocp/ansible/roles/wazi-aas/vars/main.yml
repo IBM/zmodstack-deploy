@@ -1,7 +1,7 @@
 ---
 # vars file for wazi-aas
 os_type: zos
-name_prefix: "ivan-vsi-fix"
+name_prefix: "zmodstack-demo"
 primary_network_interface_name: "eth0"
 instance:
   name: "{{ name_prefix }}-zos-vsi"

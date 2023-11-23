@@ -16,14 +16,6 @@
         action: create
       tags:
         - create
-
-    # - name: Run the Wazi-aaS role to delete an instance
-    #   ansible.builtin.import_role:
-    #     name: "wazi-aas"
-    #   vars:
-    #     action: delete
-    #   tags:
-    #     - delete
     
     - name: Install z/OS Cloud Broker
       ansible.builtin.import_role:
@@ -125,3 +117,12 @@
         - ims
       vars:
         oc_name: ims
+
+    
+    - name: Delete the Wazi-aas resources
+      ansible.builtin.import_role:
+        name: "wazi-aas"
+      vars:
+        action: delete
+      tags:
+        - delete
