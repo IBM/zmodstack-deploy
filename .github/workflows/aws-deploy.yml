@@ -1,0 +1,56 @@
+name: AWS Deployment
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+      - release-*.*.*
+    paths:
+      - '.github/workflows/aws-deploy.yml'
+      - 'aws/**'
+      - 'ocp/**'
+
+
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  ANSIBLE_PLAYBOOK_PROVISION: ./aws/ansible/deployment/playbooks/run-provision.yml
+  ANSIBLE_PLAYBOOK_VALIDATE: ./aws/ansible/deployment/playbooks/run-validate.yml
+  ANSIBLE_PLAYBOOK_DEPROVISION: ./aws/ansible/deployment/playbooks/run-deprovision.yml
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Print branch name
+      run: echo 'The branch name is' $BRANCH_NAME
+    
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: 'AWS Configure'
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Upload to S3 bucket
+      run: |
+        aws s3 cp ./aws/cloudformation/cluster.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/cluster.yml
+        aws s3 cp ./aws/cloudformation/vpc.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/vpc.yml
+        aws s3 cp ./aws/cloudformation/main.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/main.yml  
+    
+    - name: Run Ansible Playbooks
+      run: |
+        ansible-galaxy collection install amazon.aws
+        pip install 'ansible[aws]'
+        pip install boto3 cfn-lint ansible-core
+        stackname="git-${{ github.run_id }}"
+        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_PROVISION }} --extra-vars "OCP_PASSWORD=${{ secrets.AWS_OCP_PASSWORD }} API_KEY=${{ secrets.API_KEY }} stack_name=$stackname region=${{ env.AWS_REGION }} branch_name=${{ env.BRANCH_NAME }}"
+        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_VALIDATE }} --extra-vars  "stack_name=$stackname OCP_PASSWORD=${{ secrets.AWS_OCP_PASSWORD }}"
+        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_DEPROVISION }} --extra-vars  "stack_name=$stackname region=${{ env.AWS_REGION }}"
+      shell: bash
