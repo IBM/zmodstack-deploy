@@ -171,5 +171,5 @@ ansible-playbook playbooks/main.yaml \
   -e zosconnect=$ZOS_CONNECT_INSTALL \
   -e wazidevspaces=$WAZI_DEVSPACES_INSTALL \
   -e wazidevspacesversion=$WAZI_DEVSPACES_VERSION \
-  -e OPENSHIFT_USERNAME=$OPENSHIFT_USERNAME
+  -e openshift_username=$OPENSHIFT_USERNAME
   

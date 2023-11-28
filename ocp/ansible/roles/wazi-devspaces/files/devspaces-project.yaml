@@ -2,7 +2,7 @@
 kind: Project
 apiVersion: "project.openshift.io/v1"
 metadata:
-  name: "{{ OPENSHIFT_USERNAME }}-devspaces"
+  name: "{{ openshift_username }}-devspaces"
   annotations:
     openshift.io/description: "Project containing the Devspaces"
     openshift.io/display-name: "Devspaces"

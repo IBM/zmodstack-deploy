@@ -104,18 +104,18 @@
 - name: "Create Devworkspace Template for z/OS Connect Designer with Native YAML API"
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ OPENSHIFT_USERNAME }}-devspaces"
+    namespace: "{{ openshift_username }}-devspaces"
     src: "files/devworkspace-template.yaml"
 
 - name: "Create Devworkspace for z/OS Connect Designer with Native YAML API"
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ OPENSHIFT_USERNAME }}-devspaces"
+    namespace: "{{ openshift_username }}-devspaces"
     src: "files/devworkspace.yaml"
 
 - name: "Retrieve DevWorkspace instance info"
   kubernetes.core.k8s_info:
-    namespace: "{{ OPENSHIFT_USERNAME }}-devspaces"
+    namespace: "{{ openshift_username }}-devspaces"
     kind: "{{ devworkspace.kind }}"
     name: "{{ devworkspace.name }}"
     api_version: "{{ devworkspace.apiVersion }}"
