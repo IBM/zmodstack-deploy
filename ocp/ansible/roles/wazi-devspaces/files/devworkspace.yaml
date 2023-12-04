@@ -16,11 +16,75 @@ spec:
         name: devworkspace-config
         namespace: openshift-operators
       controller.devfile.io/storage-type: per-user
-      dw.metadata.annotations:
-        che.eclipse.org/devfile-source: |
-          url:
-            location: >-
-              https://raw.githubusercontent.com/IBM/zmodstack-deploy/issue-69/ocp/ansible/roles/wazi-devspaces/files/devfile.yaml
-          factory:
-            params: >-
-              url=https://raw.githubusercontent.com/IBM/zmodstack-deploy/issue-69/ocp/ansible/roles/wazi-devspaces/files/devfile.yaml
+    projects:
+      - git:
+          remotes:
+            origin: 'https://github.com/cicsdev/cics-banking-sample-application-cbsa.git'
+        name: cbsa
+    components:
+      - attributes:
+          controller.devfile.io/merge-contribution: true
+        container:
+          endpoints:
+            - attributes:
+                cookiesAuthEnabled: false
+              exposure: public
+              name: analyze-api
+              protocol: https
+              targetPort: 4680
+            - attributes:
+                cookiesAuthEnabled: false
+              exposure: public
+              name: analyze-ui
+              protocol: https
+              targetPort: 5000
+            - attributes:
+                cookiesAuthEnabled: false
+              exposure: none
+              name: analyze-weasy1
+              protocol: http
+              targetPort: 4080
+            - attributes:
+                cookiesAuthEnabled: false
+              exposure: none
+              name: analyze-weasy2
+              protocol: http
+              targetPort: 4081
+            - attributes:
+                cookiesAuthEnabled: false
+              exposure: none
+              name: analyze-swagger
+              protocol: http
+              targetPort: 8000
+          image: >-
+            icr.io/wazi-code/ibm-wazi-for-devspaces-sidecar@sha256:db900a79c010bcea2886183d62f02f9fdca6ab382c0a06c536cba89b6bc0b5cf
+          memoryLimit: 3072Mi
+          mountSources: true
+          sourceMapping: /projects
+          volumeMounts:
+            - name: zowe
+              path: /home/user/.zowe
+            - name: data
+              path: /home/user/wazianalyze/data
+        name: wazi
+      - container:
+          endpoints:
+            - exposure: public
+              name: zosconnect-ui
+              path: /zosConnect/designer/
+              protocol: http
+              targetPort: 9080
+          env:
+            - name: ZCON_DESIGNER_PROJECT
+              value: /projects/cbsa/etc/install/base/zosconnectserver
+          image: icr.io/zosconnect/ibm-zcon-designer@sha256:0d03a96e017ce8a57cbb00af13f634cdc3f2063166a02fc3ac3653a635969e84
+          memoryLimit: 4927M
+          mountSources: true
+          sourceMapping: /projects
+        name: zosconnect
+      - name: zowe
+        volume:
+          size: 100Mi
+      - name: data
+        volume:
+          size: 1024Mi
