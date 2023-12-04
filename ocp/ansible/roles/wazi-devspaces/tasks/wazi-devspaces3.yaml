@@ -93,7 +93,7 @@
 - name: "Jinja Conversion for Devspaces Project Yaml"
   ansible.builtin.template:
     src: "files/devspaces-project.yaml"
-    dest: "/mnt/openshift/zmodstack-deploy/ocp/ansible/roles/wazi-devspaces/files/devspaces-project.yaml"
+    dest: "{{ GIT_CLONE_DIR }}/ocp/ansible/roles/wazi-devspaces/files/devspaces-project.yaml"
     mode: '0644'
 
 - name: "Create project with Native YAML API for Devspaces"
