@@ -92,7 +92,7 @@
 
 - name: "Jinja Conversion for Devspaces Project Yaml"
   ansible.builtin.template:
-    src: "files/devspaces-project.yaml"
+    src: files/devspaces-project.yaml.j2
     dest: "{{ playbook_dir }}/ansible-workspace/wazi-devspace/generated_yamls/devspaces-project.yaml"
     mode: '0644'
 

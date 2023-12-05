@@ -171,5 +171,4 @@ ansible-playbook playbooks/main.yaml \
   -e zosconnect=$ZOS_CONNECT_INSTALL \
   -e wazidevspaces=$WAZI_DEVSPACES_INSTALL \
   -e wazidevspacesversion=$WAZI_DEVSPACES_VERSION \
-  -e GIT_CLONE_DIR=$GIT_CLONE_DIR \
   -e openshift_username=$OPENSHIFT_USERNAME
