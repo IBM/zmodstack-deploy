@@ -93,13 +93,13 @@
 - name: "Jinja Conversion for Devspaces Project Yaml"
   ansible.builtin.template:
     src: "files/devspaces-project.yaml"
-    dest: "{{ GIT_CLONE_DIR }}/ocp/ansible/roles/wazi-devspaces/files/devspaces-project.yaml"
+    dest: "{{ playbook_dir }}/ansible-workspace/wazi-devspace/generated_yamls/devspaces-project.yaml"
     mode: '0644'
 
 - name: "Create project with Native YAML API for Devspaces"
   kubernetes.core.k8s:
     state: present
-    src: "files/devspaces-project.yaml"
+    src: "{{ playbook_dir }}/ansible-workspace/wazi-devspace/generated_yamls/devspaces-project.yaml"
 
 - name: "Create Devworkspace Template for z/OS Connect Designer with Native YAML API"
   kubernetes.core.k8s:
