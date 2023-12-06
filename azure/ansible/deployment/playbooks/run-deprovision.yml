@@ -3,37 +3,37 @@
   hosts: localhost
 
   vars:
-    RESOURCE_GROUP_DNS: z-mod-stack-rg
-    DNS_ZONE: ibmzsw.com
-    CLUSTER_NAME: z-mod-stack
-    CLUSTER_RESOURCE_GROUP_NAME: z-mod-stack-ocp-dev-rg
-    RESOURCE_GROUP_NAME: z-mod-stack-dev-rg
+    resource_group_dns: z-mod-stack-rg
+    dns_zone: ibmzsw.com
+    cluster_name: z-mod-stack
+    cluster_resource_group_name: z-mod-stack-ocp-dev
+    resource_group_name: z-mod-stack-dev
 
   tasks:
     - name: Delete A Record from DNS Zone
       azure.azcollection.azure_rm_dnsrecordset:
-        resource_group: "{{ RESOURCE_GROUP_DNS }}"
+        resource_group: "{{ resource_group_dns }}"
         record_type: A
-        relative_name: "*.apps.{{ CLUSTER_NAME }}"
-        zone_name: "{{ DNS_ZONE }}"
+        relative_name: "*.apps.{{ cluster_name }}"
+        zone_name: "{{ dns_zone }}"
         state: absent
 
     - name: Delete CNAME Record from DNS Zone
       azure.azcollection.azure_rm_dnsrecordset:
-        resource_group: "{{ RESOURCE_GROUP_DNS }}"
+        resource_group: "{{ resource_group_dns }}"
         record_type: CNAME
-        relative_name: "api.{{ CLUSTER_NAME }}"
-        zone_name: "{{ DNS_ZONE }}"
+        relative_name: "api.{{ cluster_name }}"
+        zone_name: "{{ dns_zone }}"
         state: absent
 
     - name: Delete Resource Group for OCP Cluster Resources
       azure.azcollection.azure_rm_resourcegroup:
-        name: "{{ CLUSTER_RESOURCE_GROUP_NAME }}"
+        name: "{{ cluster_resource_group_name }}"
         force_delete_nonempty: true
         state: absent
 
     - name: Delete Resource Group for Bootstrap Resources
       azure.azcollection.azure_rm_resourcegroup:
-        name: "{{ RESOURCE_GROUP_NAME }}"
+        name: "{{ resource_group_name }}"
         force_delete_nonempty: true
         state: absent
