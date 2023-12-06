@@ -418,7 +418,6 @@
             "type": "Microsoft.Common.TextBox",
             "label": "OpenShift Username",
             "toolTip": "OpenShift Username to login to the OCP Console after successful deployment",
-            "defaultValue": "admin",
             "constraints": {
               "regex": "^[a-zA-Z0-9]{4,}$",
               "required": true,
