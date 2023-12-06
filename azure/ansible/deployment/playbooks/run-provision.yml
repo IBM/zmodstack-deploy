@@ -3,9 +3,9 @@
   hosts: localhost
 
   vars:
-    RESOURCE_GROUP_NAME: z-mod-stack-dev-rg
+    RESOURCE_GROUP_NAME: z-mod-stack-dev
     LOCATION: eastus
-    CLUSTER_RESOURCE_GROUP_NAME: z-mod-stack-ocp-dev-rg
+    CLUSTER_RESOURCE_GROUP_NAME: z-mod-stack-ocp-dev
     DEPLOYMENT_NAME: OCP-Cluster-Dev
     ARM_TEMPLATE: "{{ lookup('file', '../../../marketplace/mainTemplate.json') }}"
     ARM_PARAMETERS: "{{ (lookup('file', '../../../marketplace/mainParameters.json') | from_json).parameters }}"
