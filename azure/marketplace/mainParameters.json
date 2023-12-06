@@ -74,9 +74,6 @@
         "secretName": "pullSecret"
       }
     },
-    "clusterName": {
-      "value": "z-mod-stack"
-    },
     "openshiftUsername": {
       "value": "ocpadmin"
     },
@@ -106,13 +103,13 @@
       "value": "accept"
     },
     "zosCloudBrokerInstall": {
-      "value": true
+      "value": false
     },
     "zosConnectInstall": {
-      "value": true
+      "value": false
     },
     "waziDevspacesInstall": {
-      "value": true
+      "value": false
     },
     "waziDevspacesVersion": {
       "value": "3.x"

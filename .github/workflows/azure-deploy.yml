@@ -10,6 +10,13 @@ on:
       - '.github/workflows/azure-deploy.yml'
       - 'azure/**'
       - 'ocp/**'
+  push:
+    branches:
+      - issue-87
+    paths:
+      - '.github/workflows/azure-deploy.yml'
+      - 'azure/**'
+      - 'ocp/**'
 
 env:
   ANSIBLE_PLAYBOOK_PROVISION: ./azure/ansible/deployment/playbooks/run-provision.yml
@@ -28,10 +35,10 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     - name: Run Ansible Playbooks
       run: |
-        ansible-galaxy collection install azure.azcollection --force
+        ansible-galaxy collection install azure.azcollection:1.19.0 --force
         pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
         pip install 'ansible[azure]'
         ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_PROVISION }}
         ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_VALIDATE }} -e OCP_PASSWORD=${{ secrets.OCP_PASSWORD }}
-        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_DEPROVISION }}
+        #ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_DEPROVISION }}
       shell: bash
