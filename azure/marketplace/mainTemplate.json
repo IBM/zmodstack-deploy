@@ -331,7 +331,7 @@
     "bootstrapSubnetName": "bootstrapSubnet",
     "networkResourceGroup": "[parameters('virtualNetworkResourceGroup')]",
     "enableFips": false,
-    "enableAutoscaler": false,
+    "enableAutoscaler": true,
     "outboundType": "Loadbalancer",
     "privateOrPublicEndpoints": "public",
     "vTrue": true,
