@@ -60,7 +60,7 @@ function armVar {
 # Retrieve secret values from Azure Key Vault. When run as part of the ARM deployment, a new Azure Key Vault
 # is created and the VM's user-assigned managed identity is given "get" access on Secrets
 function vaultSecret {
-  vaultName=$(armParm clusterName)
+  vaultName=$(armVar keyVaultName)
   az keyvault secret show --vault-name ${vaultName} -n ${1} | jq -r '.value'
 }
 
@@ -85,7 +85,7 @@ export CONTROL_PLANE_DISK_TYPE=$(armParm controlplaneDiskType)
 export COMPUTE_VM_SIZE=$(armParm computeVmSize)
 export COMPUTE_DISK_SIZE=$(armParm computeDiskSize)
 export COMPUTE_DISK_TYPE=$(armParm computeDiskType)
-export CLUSTER_NAME=$RESOURCE_GROUP
+export CLUSTER_NAME=$(armVar clusterName)
 export CLUSTER_NETWORK_CIDR=$(armVar clusterNetworkCidr)
 export HOST_ADDRESS_PREFIX=$(armVar hostAddressPrefix)
 export VIRTUAL_NETWORK_CIDR=$(armParm virtualNetworkCIDR)
