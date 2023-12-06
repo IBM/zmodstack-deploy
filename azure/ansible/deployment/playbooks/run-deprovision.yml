@@ -5,7 +5,7 @@
   vars:
     dns_resource_group_name: z-mod-stack-rg
     dns_zone: ibmzsw.com
-    cluster_name: z-mod-stack
+    cluster_name: z-mod-stack-dev
     cluster_resource_group_name: z-mod-stack-ocp-dev
     resource_group_name: z-mod-stack-dev
 

@@ -3,7 +3,7 @@
   hosts: localhost
 
   vars:
-    cluster_name: z-mod-stack
+    cluster_name: z-mod-stack-dev
     dns_zone: ibmzsw.com
     ocp_username: ocpadmin
     
