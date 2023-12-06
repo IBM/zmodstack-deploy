@@ -19,7 +19,7 @@
 - name: Jinja Conversion for Machine Autoscaler Yaml
   ansible.builtin.template:
     src: files/machine-autoscaler.yaml.j2
-    dest: "{{ GIT_CLONE_DIR }}/azure/scripts/ansible/playbooks/roles/autoscaler/files/machine-autoscaler.yaml"
+    dest: "{{ git_clone_dir }}/azure/scripts/ansible/playbooks/roles/autoscaler/files/machine-autoscaler.yaml"
     mode: '0644'
 - name: Execute Machine Autoscaler
   kubernetes.core.k8s:
@@ -30,7 +30,7 @@
 - name: Jinja Conversion for Machine Health Check Yaml
   ansible.builtin.template:
     src: files/machine-health-check.yaml.j2
-    dest: "{{ GIT_CLONE_DIR }}/azure/scripts/ansible/playbooks/roles/autoscaler/files/machine-health-check.yaml"
+    dest: "{{ git_clone_dir }}/azure/scripts/ansible/playbooks/roles/autoscaler/files/machine-health-check.yaml"
     mode: '0644'
 - name: Execute Machine Health Check
   kubernetes.core.k8s:

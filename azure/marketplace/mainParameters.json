@@ -103,13 +103,13 @@
       "value": "accept"
     },
     "zosCloudBrokerInstall": {
-      "value": false
+      "value": true
     },
     "zosConnectInstall": {
-      "value": false
+      "value": true
     },
     "waziDevspacesInstall": {
-      "value": false
+      "value": true
     },
     "waziDevspacesVersion": {
       "value": "3.x"
