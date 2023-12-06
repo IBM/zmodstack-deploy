@@ -204,6 +204,20 @@
         "description": "Openshift PullSecret JSON Blob"
       }
     },
+    "keyVaultName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Key Vault for keeping Secrets"
+      }
+    },
+    "clusterName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Cluster resources prefix"
+      }
+    },
     "openshiftUsername": {
       "type": "string",
       "metadata": {
@@ -349,9 +363,7 @@
     "publicIpId": {
       "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('bootstrapPublicIpDnsLabelName'))]"
     },
-    "clusterName": "[resourceGroup().name]",
-    "keyVaultName": "[resourceGroup().name]",
-    "openshiftConsoleURL": "[uri(format('https://console-openshift-console.apps.{0}.{1}', variables('clusterName'), parameters('dnsZoneName')), '/')]",
+    "openshiftConsoleURL": "[uri(format('https://console-openshift-console.apps.{0}.{1}', parameters('clusterName'), parameters('dnsZoneName')), '/')]",
     "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
     "roleDefinitionName": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName')), variables('roleDefinitionId'), resourceGroup().id)]"
   },
@@ -685,7 +697,7 @@
     {
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2022-07-01",
-      "name": "[variables('keyVaultName')]",
+      "name": "[parameters('keyVaultName')]",
       "location": "[parameters('location')]",
       "properties": {
         "accessPolicies": [
@@ -723,61 +735,61 @@
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2022-07-01",
-      "name": "[format('{0}/{1}', variables('keyVaultName'), 'pullSecret')]",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'pullSecret')]",
       "properties": {
         "contentType": "string",
         "value": "[parameters('pullSecret')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
       ]
     },
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2022-07-01",
-      "name": "[format('{0}/{1}', variables('keyVaultName'), 'openshiftPassword')]",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'openshiftPassword')]",
       "properties": {
         "contentType": "string",
         "value": "[parameters('openshiftPassword')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
       ]
     },
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2022-07-01",
-      "name": "[format('{0}/{1}', variables('keyVaultName'), 'apiKey')]",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'apiKey')]",
       "properties": {
         "contentType": "string",
         "value": "[parameters('apiKey')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
       ]
     },
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2022-07-01",
-      "name": "[format('{0}/{1}', variables('keyVaultName'), 'aadApplicationSecret')]",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'aadApplicationSecret')]",
       "properties": {
         "contentType": "string",
         "value": "[parameters('aadApplicationSecret')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
       ]
     },
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2022-07-01",
-      "name": "[format('{0}/{1}', variables('keyVaultName'), 'bootstrapSshPublicKey')]",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'bootstrapSshPublicKey')]",
       "properties": {
         "contentType": "string",
         "value": "[parameters('bootstrapSshPublicKey')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
       ]
     }
   ],

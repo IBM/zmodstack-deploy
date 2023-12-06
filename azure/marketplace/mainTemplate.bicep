@@ -99,6 +99,12 @@ param dnsZoneResourceGroup string
 @secure()
 param pullSecret string
 
+@description('Key Vault for keeping Secrets')
+param keyVaultName string = resourceGroup().name
+
+@description('Cluster resources prefix')
+param clusterName string = resourceGroup().name
+
 @description('OpenShift console login Username')
 param openshiftUsername string
 
@@ -185,13 +191,13 @@ var computeSubnetName = 'computeSubnet'
 var bootstrapSubnetName = 'bootstrapSubnet'
 var networkResourceGroup = virtualNetworkResourceGroup
 var enableFips = false
-var enableAutoscaler = false
+var enableAutoscaler = true
 var outboundType = 'Loadbalancer'
 var privateOrPublicEndpoints = 'public'
 var vTrue = true
 var bootstrapPublicIpDnsLabelName = 'bootstrapdns${uniqueString(resourceGroup().id)}'
 var sshKeyPath = '/home/${bootstrapAdminUsername}/.ssh/authorized_keys'
-var bootstrapScriptUrl = 'https://raw.githubusercontent.com/IBM/zmodstack-deploy/release-2023.4.1/azure/scripts/bash/bootstrap.sh'
+var bootstrapScriptUrl = 'https://raw.githubusercontent.com/IBM/zmodstack-deploy/issue-87/azure/scripts/bash/bootstrap.sh'
 var bootstrapScriptFileName = 'bootstrap.sh'
 var subscriptionId = subscription().subscriptionId
 var tenantId = subscription().tenantId
@@ -203,8 +209,6 @@ var privateOrPublic = ((privateOrPublicEndpoints == 'private') ? 'Internal' : 'E
 var publicIpId = {
   id: bootstrapPublicIpDnsLabel.id
 }
-var clusterName = resourceGroup().name
-var keyVaultName = resourceGroup().name
 var openshiftConsoleURL = uri('https://console-openshift-console.apps.${clusterName}.${dnsZoneName}', '/')
 var roleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
 var roleDefinitionName = guid(managedId.id, roleDefinitionId, resourceGroup().id)
