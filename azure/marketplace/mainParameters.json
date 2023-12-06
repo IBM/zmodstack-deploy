@@ -86,7 +86,7 @@
       }
     },
     "clusterResourceGroupName": {
-      "value": "z-mod-stack-ocp-dev-rg"
+      "value": "z-mod-stack-ocp-dev"
     },
     "apiKey": {
       "reference": {

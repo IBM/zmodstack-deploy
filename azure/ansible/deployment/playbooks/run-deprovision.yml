@@ -3,7 +3,7 @@
   hosts: localhost
 
   vars:
-    resource_group_dns: z-mod-stack-rg
+    dns_resource_group_name: z-mod-stack-rg
     dns_zone: ibmzsw.com
     cluster_name: z-mod-stack
     cluster_resource_group_name: z-mod-stack-ocp-dev
@@ -12,7 +12,7 @@
   tasks:
     - name: Delete A Record from DNS Zone
       azure.azcollection.azure_rm_dnsrecordset:
-        resource_group: "{{ resource_group_dns }}"
+        resource_group: "{{ dns_resource_group_name }}"
         record_type: A
         relative_name: "*.apps.{{ cluster_name }}"
         zone_name: "{{ dns_zone }}"
@@ -20,7 +20,7 @@
 
     - name: Delete CNAME Record from DNS Zone
       azure.azcollection.azure_rm_dnsrecordset:
-        resource_group: "{{ resource_group_dns }}"
+        resource_group: "{{ dns_resource_group_name }}"
         record_type: CNAME
         relative_name: "api.{{ cluster_name }}"
         zone_name: "{{ dns_zone }}"
