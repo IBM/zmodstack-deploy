@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.23.1.45101",
-      "templateHash": "1594072601248652050"
+      "templateHash": "18325515041346744743"
     }
   },
   "parameters": {
@@ -206,7 +206,7 @@
     },
     "keyVaultName": {
       "type": "string",
-      "defaultValue": "[resourceGroup().name]",
+      "defaultValue": "[format('zmodkv{0}', substring(uniqueString(resourceGroup().id), 1, 6))]",
       "metadata": {
         "description": "Key Vault for keeping Secrets"
       }

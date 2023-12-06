@@ -100,7 +100,7 @@ param dnsZoneResourceGroup string
 param pullSecret string
 
 @description('Key Vault for keeping Secrets')
-param keyVaultName string = resourceGroup().name
+param keyVaultName string = 'zmodkv${substring(uniqueString(resourceGroup().id), 1, 6)}'
 
 @description('Cluster resources prefix')
 param clusterName string = resourceGroup().name
