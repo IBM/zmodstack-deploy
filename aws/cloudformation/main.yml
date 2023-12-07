@@ -303,7 +303,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Condition: AZValidation
     Properties:
-      TemplateURL: https://z-mod-stack-aws-dev.s3.us-east-2.amazonaws.com/branches/issue-69/cloudformation/vpc.yml
+      TemplateURL: https://ibm-zmodstack-public.s3.amazonaws.com/cloudformation/vpc.yml
       Tags:
         - Key: zmodstack:provisioner
           Value: cloudformation
@@ -330,8 +330,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Condition: AZValidation
     Properties:
-      # TemplateURL: https://ibm-zmodstack-public.s3.amazonaws.com/cloudformation/cluster.yml
-      TemplateURL: https://z-mod-stack-aws-dev.s3.us-east-2.amazonaws.com/branches/issue-69/cloudformation/cluster.yml
+      TemplateURL: https://ibm-zmodstack-public.s3.amazonaws.com/cloudformation/cluster.yml
       Tags:
         - Key: zmodstack:provisioner
           Value: cloudformation
