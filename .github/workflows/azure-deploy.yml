@@ -28,7 +28,7 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     - name: Run Ansible Playbooks
       run: |
-        ansible-galaxy collection install azure.azcollection --force
+        ansible-galaxy collection install azure.azcollection:1.19.0 --force
         pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
         pip install 'ansible[azure]'
         ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_PROVISION }}

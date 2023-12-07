@@ -89,3 +89,45 @@
       - devspaces_info.resources[0].status.chePhase == "Active"
       - devspaces_info.resources[0].status.gatewayPhase == "Established"
       - devspaces_info.resources[0].status.cheURL | length > 0
+
+- name: "Jinja Conversion for Devspaces Project Yaml"
+  ansible.builtin.template:
+    src: files/devspaces-project.yaml.j2
+    dest: "{{ playbook_dir }}/ansible-workspace/wazi-devspace/generated_yamls/devspaces-project.yaml"
+    mode: '0644'
+
+- name: "Create project with Native YAML API for Devspaces"
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/ansible-workspace/wazi-devspace/generated_yamls/devspaces-project.yaml"
+
+- name: "Create Devworkspace Template for z/OS Connect Designer with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ openshift_username }}-devspaces"
+    src: "files/devworkspace-template.yaml"
+
+- name: "Create Devworkspace for z/OS Connect Designer with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ openshift_username }}-devspaces"
+    src: "files/devworkspace.yaml"
+
+- name: "Retrieve DevWorkspace instance info"
+  kubernetes.core.k8s_info:
+    namespace: "{{ openshift_username }}-devspaces"
+    kind: "{{ devworkspace.kind }}"
+    name: "{{ devworkspace.name }}"
+    api_version: "{{ devworkspace.apiVersion }}"
+  register: devworkspace_info
+  until:
+    - "devworkspace_info.resources is defined and devworkspace_info.resources | length > 0"
+    - "devworkspace_info.resources[0].status is defined and devworkspace_info.resources[0].status | length > 0"
+    - "'phase' in devworkspace_info.resources[0].status and devworkspace_info.resources[0].status.phase == 'Running'"
+  retries: 30
+  delay: 10
+
+- name: "Verify DevWorkspace"
+  ansible.builtin.assert:
+    that:
+      - devworkspace_info.resources[0].status.phase == "Running"
