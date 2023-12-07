@@ -2,14 +2,14 @@
 apiVersion: machine.openshift.io/v1beta1
 kind: MachineHealthCheck
 metadata:
-  name: {{ CLUSTER_ID }}-health-check-compute-{{ LOCATION }}1
+  name: {{ cluster_id }}-health-check-compute-{{ location }}1
   namespace: openshift-machine-api
 spec:
   selector:
     matchLabels:
       machine.openshift.io/cluster-api-machine-role: compute
       machine.openshift.io/cluster-api-machine-type: compute
-      machine.openshift.io/cluster-api-machineset: {{ CLUSTER_ID }}-worker-{{ LOCATION }}1
+      machine.openshift.io/cluster-api-machineset: {{ cluster_id }}-worker-{{ location }}1
   unhealthyConditions:
   - type:    "Ready"
     timeout: "300s"
@@ -22,14 +22,14 @@ spec:
 apiVersion: machine.openshift.io/v1beta1
 kind: MachineHealthCheck
 metadata:
-  name: {{ CLUSTER_ID }}-health-check-compute-{{ LOCATION }}2
+  name: {{ cluster_id }}-health-check-compute-{{ location }}2
   namespace: openshift-machine-api
 spec:
   selector:
     matchLabels:
       machine.openshift.io/cluster-api-machine-role: compute
       machine.openshift.io/cluster-api-machine-type: compute
-      machine.openshift.io/cluster-api-machineset: {{ CLUSTER_ID }}-worker-{{ LOCATION }}2
+      machine.openshift.io/cluster-api-machineset: {{ cluster_id }}-worker-{{ location }}2
   unhealthyConditions:
   - type:    "Ready"
     timeout: "300s"
@@ -42,14 +42,14 @@ spec:
 apiVersion: machine.openshift.io/v1beta1
 kind: MachineHealthCheck
 metadata:
-  name: {{ CLUSTER_ID }}-health-check-compute-{{ LOCATION }}3
+  name: {{ cluster_id }}-health-check-compute-{{ location }}3
   namespace: openshift-machine-api
 spec:
   selector:
     matchLabels:
       machine.openshift.io/cluster-api-machine-role: compute
       machine.openshift.io/cluster-api-machine-type: compute
-      machine.openshift.io/cluster-api-machineset: {{ CLUSTER_ID }}-worker-{{ LOCATION }}3
+      machine.openshift.io/cluster-api-machineset: {{ cluster_id }}-worker-{{ location }}3
   unhealthyConditions:
   - type:    "Ready"
     timeout: "300s"

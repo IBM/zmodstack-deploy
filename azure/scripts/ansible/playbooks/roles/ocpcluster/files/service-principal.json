@@ -1,6 +1,0 @@
-{
-  "subscriptionId": "{{ SUBSCRIPTION_ID }}",
-  "clientId": "{{ AAD_APPLICATION_ID }}",
-  "clientSecret": "{{ AAD_APPLICATION_SECRET }}",
-  "tenantId": "{{ TENANT_ID }}"
-} 

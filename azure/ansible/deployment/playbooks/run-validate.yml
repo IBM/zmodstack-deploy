@@ -3,14 +3,15 @@
   hosts: localhost
 
   vars:
-    CLUSTER_NAME: z-mod-stack
-    DNS_ZONE: ibmzsw.com
-    OCP_USERNAME: ocpadmin
+    cluster_name: z-mod-stack-dev
+    dns_zone: ibmzsw.com
+    ocp_username: ocpadmin
+    
 
   tasks:
     - name: Check status of Openshift console
       ansible.builtin.uri:
-        url: "https://console-openshift-console.apps.{{ CLUSTER_NAME }}.{{ DNS_ZONE }}/"
+        url: "https://console-openshift-console.apps.{{ cluster_name }}.{{ dns_zone }}/"
         status_code: 200
         validate_certs: false
 
@@ -20,7 +21,7 @@
 
     - name: Check login to Openshift cluster API
       ansible.builtin.command:
-        "oc login --insecure-skip-tls-verify -u {{ OCP_USERNAME }} -p {{ OCP_PASSWORD }} --server=https://api.{{ CLUSTER_NAME }}.{{ DNS_ZONE }}:6443"
+        "oc login --insecure-skip-tls-verify -u {{ ocp_username }} -p {{ ocp_password }} --server=https://api.{{ cluster_name }}.{{ dns_zone }}:6443"
       register: cluster_login
       changed_when: cluster_login.rc == 0
 

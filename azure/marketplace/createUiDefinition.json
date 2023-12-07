@@ -414,23 +414,10 @@
             }
           },
           {
-            "name": "clusterName",
-            "type": "Microsoft.Common.TextBox",
-            "label": "OpenShift Cluster Name",
-            "toolTip": "OpenShift Cluster name for prefixing Azure resources",
-            "defaultValue": "z-mod-stack",
-            "constraints": {
-              "regex": "^[a-zA-Z0-9-]{3,}$",
-              "required": true,
-              "validationMessage": "Must be characters and more than 3 characters"
-            }
-          },
-          {
             "name": "openshiftUsername",
             "type": "Microsoft.Common.TextBox",
             "label": "OpenShift Username",
             "toolTip": "OpenShift Username to login to the OCP Console after successful deployment",
-            "defaultValue": "admin",
             "constraints": {
               "regex": "^[a-zA-Z0-9]{4,}$",
               "required": true,
@@ -503,7 +490,6 @@
       "dnsZoneName": "[steps('DnsConfig').dnsZoneName]",
       "dnsZoneResourceGroup": "[steps('DnsConfig').dnsZoneResourceGroup]",
       "pullSecret": "[steps('OpenshiftConfig').pullSecret]",
-      "clusterName": "[steps('OpenshiftConfig').clusterName]",
       "openshiftUsername": "[steps('OpenshiftConfig').openshiftUsername]",
       "openshiftPassword": "[steps('OpenshiftConfig').openshiftPassword]",
       "openshiftVersion": "[steps('OpenshiftConfig').openshiftVersion]",

@@ -99,8 +99,11 @@ param dnsZoneResourceGroup string
 @secure()
 param pullSecret string
 
+@description('Key Vault for keeping Secrets')
+param keyVaultName string = 'zmodkv${substring(uniqueString(resourceGroup().id), 1, 6)}'
+
 @description('Cluster resources prefix')
-param clusterName string
+param clusterName string = resourceGroup().name
 
 @description('OpenShift console login Username')
 param openshiftUsername string
@@ -277,7 +280,7 @@ resource bootstrapPublicIpDnsLabel 'Microsoft.Network/publicIPAddresses@2022-09-
   }
 }
 
-resource bootstrapHostname_nic 'Microsoft.Network/networkInterfaces@2022-09-01' = {
+resource bootstrapHostnameName_nic 'Microsoft.Network/networkInterfaces@2022-09-01' = {
   name: '${bootstrapHostnameName}-nic'
   location: location
   tags: {
@@ -304,8 +307,8 @@ resource bootstrapHostname_nic 'Microsoft.Network/networkInterfaces@2022-09-01' 
     }
   }
   dependsOn: [
-    virtualNetwork
 
+    virtualNetwork
   ]
 }
 
@@ -403,7 +406,7 @@ resource bootstrapHostname 'Microsoft.Compute/virtualMachines@2022-11-01' = {
     networkProfile: {
       networkInterfaces: [
         {
-          id: bootstrapHostname_nic.id
+          id: bootstrapHostnameName_nic.id
         }
       ]
     }
@@ -482,7 +485,7 @@ resource computeSecurityGroup 'Microsoft.Network/networkSecurityGroups@2022-09-0
   }
 }
 
-resource bootstrapHostname_bootstrap_sh 'Microsoft.Compute/virtualMachines/extensions@2022-11-01' = if (zModStackLicenseAgreement == 'accept') {
+resource bootstrapHostnameName_bootstrap_sh 'Microsoft.Compute/virtualMachines/extensions@2022-11-01' = if (zModStackLicenseAgreement == 'accept') {
   parent: bootstrapHostname
   name: 'bootstrap.sh'
   location: location
@@ -508,8 +511,8 @@ resource bootstrapHostname_bootstrap_sh 'Microsoft.Compute/virtualMachines/exten
   }
 }
 
-resource cluster 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: clusterName
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
+  name: keyVaultName
   location: location
   properties: {
     accessPolicies: [
@@ -542,8 +545,8 @@ resource cluster 'Microsoft.KeyVault/vaults@2022-07-01' = {
   }
 }
 
-resource clusterName_pullSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-  parent: cluster
+resource keyVaultName_pullSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  parent: keyVault
   name: 'pullSecret'
   properties: {
     contentType: 'string'
@@ -551,8 +554,8 @@ resource clusterName_pullSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' =
   }
 }
 
-resource clusterName_openshiftPassword 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-  parent: cluster
+resource keyVaultName_openshiftPassword 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  parent: keyVault
   name: 'openshiftPassword'
   properties: {
     contentType: 'string'
@@ -560,8 +563,8 @@ resource clusterName_openshiftPassword 'Microsoft.KeyVault/vaults/secrets@2022-0
   }
 }
 
-resource clusterName_apiKey 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-  parent: cluster
+resource keyVaultName_apiKey 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  parent: keyVault
   name: 'apiKey'
   properties: {
     contentType: 'string'
@@ -569,8 +572,8 @@ resource clusterName_apiKey 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   }
 }
 
-resource clusterName_aadApplicationSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-  parent: cluster
+resource keyVaultName_aadApplicationSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  parent: keyVault
   name: 'aadApplicationSecret'
   properties: {
     contentType: 'string'
@@ -578,8 +581,8 @@ resource clusterName_aadApplicationSecret 'Microsoft.KeyVault/vaults/secrets@202
   }
 }
 
-resource clusterName_bootstrapSshPublicKey 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-  parent: cluster
+resource keyVaultName_bootstrapSshPublicKey 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  parent: keyVault
   name: 'bootstrapSshPublicKey'
   properties: {
     contentType: 'string'
