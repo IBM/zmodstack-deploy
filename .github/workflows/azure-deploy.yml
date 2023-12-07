@@ -10,6 +10,7 @@ on:
       - '.github/workflows/azure-deploy.yml'
       - 'azure/**'
       - 'ocp/**'
+  workflow_dispatch:
 
 env:
   ANSIBLE_PLAYBOOK_PROVISION: ./azure/ansible/deployment/playbooks/run-provision.yml

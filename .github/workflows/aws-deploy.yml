@@ -10,6 +10,7 @@ on:
       - '.github/workflows/aws-deploy.yml'
       - 'aws/**'
       - 'ocp/**'
+  workflow_dispatch:
 
 
 env:
