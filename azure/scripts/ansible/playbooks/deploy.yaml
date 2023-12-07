@@ -12,5 +12,5 @@
     - name: Auto Scaler
       ansible.builtin.include_role:
         name: autoscaler
-      when: ENABLE_AUTOSCALER | bool
+      when: enable_autoscaler | bool
       tags: autoscaler

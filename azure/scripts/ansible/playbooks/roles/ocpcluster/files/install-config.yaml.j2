@@ -1,0 +1,56 @@
+apiVersion: v1
+baseDomain: {{ dns_zone_name }}
+compute:
+- hyperthreading: Enabled
+  name: worker
+  platform: 
+    azure:
+      type: {{ compute_vm_size }}
+      osDisk:
+        diskSizeGB: {{ compute_disk_size }}
+        diskType: {{ compute_disk_type }}
+      zones:
+      - '1'
+      - '2'
+      - '3'
+  replicas: {{ compute_instance_count }}
+controlPlane:
+  hyperthreading: Enabled
+  name: master
+  platform: 
+    azure:
+      type: {{ control_plane_vm_size }}
+      osDisk:
+        diskSizeGB: {{ control_plane_disk_size }}
+        diskType: {{ control_plane_disk_type }}
+      zones:
+      - '1'
+      - '2'
+      - '3'
+  replicas: {{ controlplane_instance_count }}
+metadata:
+  creationTimestamp: null
+  name: {{ cluster_name }}
+networking:
+  clusterNetwork:
+  - cidr: {{ cluster_network_cidr }}
+    hostPrefix: {{ host_address_prefix }}
+  machineCIDR: {{ virtual_network_cidr }}
+  networkType: OpenShiftSDN
+  serviceNetwork:
+  - {{ service_network_cidr }}
+platform:
+  azure:
+    baseDomainResourceGroupName: {{ dns_zone_resource_group }}
+    region: {{ location }}
+    networkResourceGroupName: {{ network_resource_group }}
+    virtualNetwork: {{ virtual_network_name }}
+    controlPlaneSubnet: {{ control_plane_subnet_name }}
+    computeSubnet: {{ compute_subnet_name }}
+    outboundType: {{ outbound_type }}
+    resourceGroupName: {{ cluster_resource_group_name }}
+pullSecret: '{{ pull_secret }}'
+fips: {{ enable_fips }}
+publish: {{ private_or_public }}
+sshKey: |
+  {{ bootstrap_ssh_public_key }}

@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.22.6.54827",
-      "templateHash": "1594072601248652050"
+      "version": "0.23.1.45101",
+      "templateHash": "9670500801886162118"
     }
   },
   "parameters": {
@@ -204,8 +204,16 @@
         "description": "Openshift PullSecret JSON Blob"
       }
     },
+    "keyVaultName": {
+      "type": "string",
+      "defaultValue": "[format('zmodkv{0}', substring(uniqueString(resourceGroup().id), 1, 6))]",
+      "metadata": {
+        "description": "Key Vault for keeping Secrets"
+      }
+    },
     "clusterName": {
       "type": "string",
+      "defaultValue": "[resourceGroup().name]",
       "metadata": {
         "description": "Cluster resources prefix"
       }
@@ -689,7 +697,7 @@
     {
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2022-07-01",
-      "name": "[parameters('clusterName')]",
+      "name": "[parameters('keyVaultName')]",
       "location": "[parameters('location')]",
       "properties": {
         "accessPolicies": [
@@ -727,61 +735,61 @@
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2022-07-01",
-      "name": "[format('{0}/{1}', parameters('clusterName'), 'pullSecret')]",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'pullSecret')]",
       "properties": {
         "contentType": "string",
         "value": "[parameters('pullSecret')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
       ]
     },
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2022-07-01",
-      "name": "[format('{0}/{1}', parameters('clusterName'), 'openshiftPassword')]",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'openshiftPassword')]",
       "properties": {
         "contentType": "string",
         "value": "[parameters('openshiftPassword')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
       ]
     },
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2022-07-01",
-      "name": "[format('{0}/{1}', parameters('clusterName'), 'apiKey')]",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'apiKey')]",
       "properties": {
         "contentType": "string",
         "value": "[parameters('apiKey')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
       ]
     },
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2022-07-01",
-      "name": "[format('{0}/{1}', parameters('clusterName'), 'aadApplicationSecret')]",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'aadApplicationSecret')]",
       "properties": {
         "contentType": "string",
         "value": "[parameters('aadApplicationSecret')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
       ]
     },
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2022-07-01",
-      "name": "[format('{0}/{1}', parameters('clusterName'), 'bootstrapSshPublicKey')]",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'bootstrapSshPublicKey')]",
       "properties": {
         "contentType": "string",
         "value": "[parameters('bootstrapSshPublicKey')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
       ]
     }
   ],
