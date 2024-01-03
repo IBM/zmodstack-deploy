@@ -76,6 +76,45 @@
             "constraints": {
               "required": true
             }
+          },
+          {
+            "name": "zosCloudBrokerInstall",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Install z/OS Cloud Broker",
+            "toolTip": "Whether z/OS Cloud Broker should be installed or not."
+          },
+          {
+            "name": "zosConnectInstall",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Install z/OS Connect",
+            "toolTip": "Whether z/OS Connect should be installed or not."
+		      },	
+          {
+            "name": "waziDevspacesInstall",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Install Wazi Devspaces",
+            "toolTip": "Whether Wazi Devspaces should be installed or not."
+          },
+          {
+            "name": "waziDevspacesVersion",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Wazi Devspaces Version",
+            "defaultValue": "3.x",
+            "toolTip": "The version of Wazi Devspaces to deploy",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "2.x",
+                  "value": "2.x"
+                },
+                {
+                  "label": "3.x",
+                  "value": "3.x"
+                }
+              ],
+              "required": true
+            },
+            "visible": "[equals(steps('zModStackConfig').waziDevspacesInstall,true)]"
           }
         ]
       },
@@ -261,7 +300,7 @@
             "label": "Compute Node VM Size",
             "toolTip": "The size of the VMs provisioned for the OCP compute nodes",
             "recommendedSizes": [
-              "Standard_D2s_v3"
+              "Standard_D4s_v3"
             ],
             "constraints": {
               "allowedSizes": [
@@ -375,23 +414,10 @@
             }
           },
           {
-            "name": "clusterName",
-            "type": "Microsoft.Common.TextBox",
-            "label": "OpenShift Cluster Name",
-            "toolTip": "OpenShift Cluster name for prefixing Azure resources",
-            "defaultValue": "z-mod-stack",
-            "constraints": {
-              "regex": "^[a-zA-Z0-9-]{3,}$",
-              "required": true,
-              "validationMessage": "Must be characters and more than 3 characters"
-            }
-          },
-          {
             "name": "openshiftUsername",
             "type": "Microsoft.Common.TextBox",
             "label": "OpenShift Username",
             "toolTip": "OpenShift Username to login to the OCP Console after successful deployment",
-            "defaultValue": "admin",
             "constraints": {
               "regex": "^[a-zA-Z0-9]{4,}$",
               "required": true,
@@ -414,14 +440,10 @@
             "name": "openshiftVersion",
             "type": "Microsoft.Common.DropDown",
             "label": "OpenShift Version",
-            "defaultValue": "4.12",
+            "defaultValue": "4.13",
             "toolTip": "The version of OpenShift to deploy",
             "constraints": {
               "allowedValues": [
-                {
-                  "label": "4.10",
-                  "value": "4.10"
-                },
                 {
                   "label": "4.11",
                   "value": "4.11"
@@ -433,6 +455,10 @@
                 {
                   "label": "4.13",
                   "value": "4.13"
+                },
+                {
+                  "label": "4.14",
+                  "value": "4.14"
                 }
               ],
               "required": true
@@ -464,12 +490,15 @@
       "dnsZoneName": "[steps('DnsConfig').dnsZoneName]",
       "dnsZoneResourceGroup": "[steps('DnsConfig').dnsZoneResourceGroup]",
       "pullSecret": "[steps('OpenshiftConfig').pullSecret]",
-      "clusterName": "[steps('OpenshiftConfig').clusterName]",
       "openshiftUsername": "[steps('OpenshiftConfig').openshiftUsername]",
       "openshiftPassword": "[steps('OpenshiftConfig').openshiftPassword]",
       "openshiftVersion": "[steps('OpenshiftConfig').openshiftVersion]",
       "apiKey": "[steps('zModStackConfig').apiKey]",
-      "zModStackLicenseAgreement": "[steps('zModStackConfig').zModStackLicenseAgreement]"
+      "zModStackLicenseAgreement": "[steps('zModStackConfig').zModStackLicenseAgreement]",
+      "zosCloudBrokerInstall": "[steps('zModStackConfig').zosCloudBrokerInstall]",
+      "zosConnectInstall": "[steps('zModStackConfig').zosConnectInstall]",
+      "waziDevspacesInstall": "[steps('zModStackConfig').waziDevspacesInstall]",
+      "waziDevspacesVersion": "[steps('zModStackConfig').waziDevspacesVersion]"
     }
   }
 }

@@ -1,0 +1,12 @@
+---
+kind: Subscription
+apiVersion: "operators.coreos.com/v1alpha1"
+metadata:
+  name: "ibm-zoscb"
+spec:
+  channel: "v2.2"
+  installPlanApproval: "Automatic"
+  name: "ibm-zoscb"
+  source: "ibm-operator-catalog"
+  sourceNamespace: "openshift-marketplace"
+  apiVersion: operators.coreos.com/v1alpha1

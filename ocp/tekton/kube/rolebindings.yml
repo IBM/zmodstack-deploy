@@ -1,0 +1,66 @@
+# ClusterRole for granting our tekton pipeline additional permissions across the cluster
+# Note: Keep permissions here as minimal as possible and attempt binding at the namespace scope first!
+# Note: Some 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ibm-zmodstack-deploy-cluster
+  namespace: ibm-zmodstack-deploy
+rules:
+  - apiGroups:
+      - project.openshift.io
+    resources:
+      - projectrequests
+    verbs:
+      - create
+
+---
+
+# Cluster Binding for the
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ibm-zmodstack-deploy-cluster
+subjects:
+  - kind: ServiceAccount
+    name: ibm-zmodstack-deploy
+    namespace: ibm-zmodstack-deploy
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ibm-zmodstack-deploy-cluster
+
+
+---
+
+# Namespace binding for ClusterRole 'edit'
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ibm-zmodstack-deploy
+  namespace: ibm-zmodstack-deploy
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: ibm-zmodstack-deploy
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+
+---
+
+# Namespace binding for ClusterRole 'pipelines-scc-clusterrole'
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ibm-zmodstack-deploy-scc
+  namespace: ibm-zmodstack-deploy
+subjects:
+  - kind: ServiceAccount
+    name: ibm-zmodstack-deploy
+    namespace: ibm-zmodstack-deploy
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: pipelines-scc-clusterrole

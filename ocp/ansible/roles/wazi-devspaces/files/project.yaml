@@ -1,0 +1,8 @@
+---
+kind: Project
+apiVersion: "project.openshift.io/v1"
+metadata:
+  name: "wazi-devspaces"
+  annotations:
+    openshift.io/description: "Project containing the IBM Z and Cloud Modernization Stack Wazi Dev Spaces installation"
+    openshift.io/display-name: "IBM Wazi Dev Spaces"

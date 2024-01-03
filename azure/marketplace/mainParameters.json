@@ -13,7 +13,7 @@
         "keyVault": {
           "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
         },
-        "secretName": "aadClientSecret"
+        "secretName": "aadApplicationSecret"
       }
     },
     "bootstrapAdminUsername": {
@@ -27,7 +27,7 @@
         "keyVault": {
           "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
         },
-        "secretName": "sshPublicKey"
+        "secretName": "bootstrapSshPublicKey"
       }
     },
     "controlplaneInstanceCount": {
@@ -40,7 +40,7 @@
       "value": 3
     },
     "computeVmSize": {
-      "value": "Standard_D2s_v3"
+      "value": "Standard_D4s_v3"
     },
     "virtualNetworkName": {
       "value": "openshift-vnet"
@@ -74,9 +74,6 @@
         "secretName": "pullSecret"
       }
     },
-    "clusterName": {
-      "value": "z-mod-stack"
-    },
     "openshiftUsername": {
       "value": "ocpadmin"
     },
@@ -88,6 +85,9 @@
         "secretName": "openshiftPassword"
       }
     },
+    "clusterResourceGroupName": {
+      "value": "z-mod-stack-ocp-dev"
+    },
     "apiKey": {
       "reference": {
         "keyVault": {
@@ -97,10 +97,22 @@
       }
     },
     "openshiftVersion": {
-      "value": "4.12"
+      "value": "4.13"
     },
     "zModStackLicenseAgreement": {
       "value": "accept"
+    },
+    "zosCloudBrokerInstall": {
+      "value": true
+    },
+    "zosConnectInstall": {
+      "value": true
+    },
+    "waziDevspacesInstall": {
+      "value": true
+    },
+    "waziDevspacesVersion": {
+      "value": "3.x"
     }
   }
 }

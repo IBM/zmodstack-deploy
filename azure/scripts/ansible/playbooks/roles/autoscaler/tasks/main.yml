@@ -1,0 +1,40 @@
+---
+- name: Query MachineSet
+  kubernetes.core.k8s_info:
+    api_version: machine.openshift.io/v1beta1
+    kind: MachineSet
+    namespace: openshift-machine-api
+  become: true
+  become_user: "{{ bootstrap_admin_username }}"  
+  register: machineset
+- name: Set Cluster ID
+  ansible.builtin.set_fact:
+    cluster_id: "{{ machineset.resources[0].metadata.labels['machine.openshift.io/cluster-api-cluster'] }}"
+- name: Execute Cluster Autoscaler
+  kubernetes.core.k8s:
+    state: present
+    src: files/cluster-autoscaler.yaml
+  become: true
+  become_user: "{{ bootstrap_admin_username }}"
+- name: Jinja Conversion for Machine Autoscaler Yaml
+  ansible.builtin.template:
+    src: files/machine-autoscaler.yaml.j2
+    dest: "{{ git_clone_dir }}/azure/scripts/ansible/playbooks/roles/autoscaler/files/machine-autoscaler.yaml"
+    mode: '0644'
+- name: Execute Machine Autoscaler
+  kubernetes.core.k8s:
+    state: present
+    src: files/machine-autoscaler.yaml
+  become: true
+  become_user: "{{ bootstrap_admin_username }}"
+- name: Jinja Conversion for Machine Health Check Yaml
+  ansible.builtin.template:
+    src: files/machine-health-check.yaml.j2
+    dest: "{{ git_clone_dir }}/azure/scripts/ansible/playbooks/roles/autoscaler/files/machine-health-check.yaml"
+    mode: '0644'
+- name: Execute Machine Health Check
+  kubernetes.core.k8s:
+    state: present
+    src: files/machine-health-check.yaml
+  become: true
+  become_user: "{{ bootstrap_admin_username }}"

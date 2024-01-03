@@ -1,43 +1,38 @@
 name: Azure Deployment
 
 on:
-  push:
+  pull_request:
     branches:
       - main
+      - dev
+      - release-*.*.*
     paths:
       - '.github/workflows/azure-deploy.yml'
-      - 'azure/**' 
+      - 'azure/**'
+      - 'ocp/**'
+  workflow_dispatch:
 
 env:
-  RESOURCE_GROUP_NAME: z-mod-stack-dev-rg
-  RESOURCE_GROUP_LOCATION: eastus
-  ARM_TEMPLATE: azure/marketplace/mainTemplate.json
-  ARM_PARAMETERS: azure/marketplace/mainParameters.json
+  ANSIBLE_PLAYBOOK_PROVISION: ./azure/ansible/deployment/playbooks/run-provision.yml
+  ANSIBLE_PLAYBOOK_VALIDATE: ./azure/ansible/deployment/playbooks/run-validate.yml
+  ANSIBLE_PLAYBOOK_DEPROVISION: ./azure/ansible/deployment/playbooks/run-deprovision.yml
 
 jobs: 
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
+    - name: Checkout Repository
       uses: actions/checkout@v2 
-    - name: Run ARM-TTK
-      uses: microsoft/action-armttk@v1
-      with:
-        workdir: azure/marketplace/   
     - name: 'AZ CLI login'
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: 'Create Resource Group'
-      uses: Azure/CLI@v1
-      with:
-        inlineScript: |
-          #!/bin/bash
-          az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location ${{ env.RESOURCE_GROUP_LOCATION }}
-          echo "Azure Resource Group is created"    
-    - name: 'Deploy OCP Cluster'
-      uses: azure/arm-deploy@v1
-      with:
-        resourceGroupName: ${{ env.RESOURCE_GROUP_NAME }}
-        template: ${{ env.ARM_TEMPLATE }}
-        parameters: ${{ env.ARM_PARAMETERS }}
+    - name: Run Ansible Playbooks
+      run: |
+        ansible-galaxy collection install azure.azcollection:1.19.0 --force
+        pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
+        pip install 'ansible[azure]'
+        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_PROVISION }}
+        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_VALIDATE }} -e ocp_password=${{ secrets.AZURE_OCP_PASSWORD }}
+        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_DEPROVISION }}
+      shell: bash

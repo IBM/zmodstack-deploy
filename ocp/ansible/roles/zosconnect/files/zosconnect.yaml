@@ -1,0 +1,20 @@
+#sample yaml to spin up the zosconnect server 
+---
+apiVersion: zosconnect.zcon.ibm.com/v1
+kind: ZosConnect
+metadata:
+  name: zosconnect
+spec:
+  deployment:
+    containerPort: 9080
+    image: cp.icr.io/cp/zosconnect/ibm-zcon-server:3.0.70
+    pullPolicy: Always
+    replicas: 1
+  expose: true
+  license:
+    accept: true
+  service:
+    port: 9080
+    targetPort: 9080
+    type: ClusterIP
+  version: v1.0.7

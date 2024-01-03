@@ -1,0 +1,33 @@
+---
+# *************************************
+# z/OS Connect Variables
+# *************************************
+#vars for the CICS connection
+api_project_name: "zosconnect-api-project"
+source_code_repository: "https://github.com/zosconnect/sample-cics-api.git"
+db2_host: "db2.example.com"
+db2_port: "50000"
+db2_username: "db2_user"
+db2_password: "db2_password"
+cicsUsername: "cicsUsername"
+cicsPassword: "cicsPassword"
+cicsHost: "cicsHost"
+cicsPort: "cicsPort"
+ 
+#designer image 
+designer_image_version: "3.0.71"
+
+#server image 
+server_image_version: "3.0.71"
+
+zosconnect:
+  name: "zosconnect"
+  kind: "ZosConnect"
+  apiVersion: "zosconnect.zcon.ibm.com/v1"
+
+zosconnect_subscription:
+  name: "ibm-zcon-zosconnect"
+  apiVersion: "operators.coreos.com/v1alpha1"
+
+# Credentials for external icr repository 
+registry_username: cp

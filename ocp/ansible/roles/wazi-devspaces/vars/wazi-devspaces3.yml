@@ -1,0 +1,24 @@
+---
+# *************************************
+# IBM Wazi for DevSpaces Variables
+# *************************************
+devspaces:
+  name: "wazi-devspaces"
+  kind: "CheCluster"
+  apiVersion: "org.eclipse.che/v2"
+
+devspaces_subscription:
+  name: "ibm-wazi-code"
+  apiVersion: "operators.coreos.com/v1alpha1"
+  spec:
+    channel: v3.0
+    name: "ibm-wazi-code"
+    startingCSV: "ibm-wazi-code.v3.0.0"
+
+devspaces_license:
+  apiVersion: "org.eclipse.che/v1"
+
+devworkspace:
+   name: "wazi-devspaces"
+   kind: "DevWorkspace"
+   apiVersion: "workspace.devfile.io/v1alpha2"

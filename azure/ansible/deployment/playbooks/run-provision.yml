@@ -1,0 +1,30 @@
+---
+- name: Create OCP Cluster
+  hosts: localhost
+
+  vars:
+    resource_group_name: z-mod-stack-dev
+    location: eastus
+    cluster_resource_group_name: z-mod-stack-ocp-dev
+    deployment_name: OCP-Cluster-Dev
+    arm_template: "{{ lookup('file', '../../../marketplace/mainTemplate.json') }}"
+    arm_parameters: "{{ (lookup('file', '../../../marketplace/mainParameters.json') | from_json).parameters }}"
+
+  tasks:
+    - name: Create a Resource Group for Deployment
+      azure.azcollection.azure_rm_resourcegroup:
+        name: "{{ resource_group_name }}"
+        location: "{{ location }}"
+
+    - name: Create a Resource Group for OCP Cluster
+      azure.azcollection.azure_rm_resourcegroup:
+        name: "{{ cluster_resource_group_name }}"
+        location: "{{ location }}"
+
+    - name: Deploy OCP Cluster
+      azure.azcollection.azure_rm_deployment:
+        name: "{{ deployment_name }}"
+        resource_group_name: "{{ resource_group_name }}"
+        location: "{{ location }}"
+        template: "{{ arm_template }}"
+        parameters: "{{ arm_parameters }}"

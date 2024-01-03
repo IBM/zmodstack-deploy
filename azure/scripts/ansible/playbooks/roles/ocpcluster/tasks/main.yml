@@ -1,148 +1,130 @@
 ---
 - name: Download OpenShift install binary
   ansible.builtin.get_url:
-    url: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-{{ OPENSHIFT_VERSION }}/openshift-install-linux.tar.gz"
-    dest: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/openshift-install-linux.tar.gz"
-  become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+    url: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-{{ openshift_version }}/openshift-install-linux.tar.gz"
+    dest: "/home/{{ bootstrap_admin_username }}/openshift-install-linux.tar.gz"
+    mode: '0644'
+  become: true
+  become_user: "{{ bootstrap_admin_username }}"
 - name: Download OpenShift client binary
   ansible.builtin.get_url:
-    url: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-{{ OPENSHIFT_VERSION }}/openshift-client-linux.tar.gz"
-    dest: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/openshift-client-linux.tar.gz"
-  become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
-- name: Change ownership, group and permissions for INSTALLER_HOME directory
+    url: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-{{ openshift_version }}/openshift-client-linux.tar.gz"
+    dest: "/home/{{ bootstrap_admin_username }}/openshift-client-linux.tar.gz"
+    mode: '0644'
+  become: true
+  become_user: "{{ bootstrap_admin_username }}"
+- name: Change ownership, group and permissions for installer_home directory
   ansible.builtin.file:
-    path: "{{ INSTALLER_HOME }}"
-    owner: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
-    group: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+    path: "{{ installer_home }}"
+    owner: "{{ bootstrap_admin_username }}"
+    group: "{{ bootstrap_admin_username }}"
     mode: '0755'
 - name: Extract OpenShift install binary
   ansible.builtin.unarchive:
-    src: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/openshift-install-linux.tar.gz"
-    dest: "{{ INSTALLER_HOME }}"
-  become_user: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+    src: "/home/{{ bootstrap_admin_username }}/openshift-install-linux.tar.gz"
+    dest: "{{ installer_home }}"
+  become: true
+  become_user: "{{ bootstrap_admin_username }}"
 - name: Extract OpenShift client binary
   ansible.builtin.unarchive:
-    src: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/openshift-client-linux.tar.gz"
+    src: "/home/{{ bootstrap_admin_username }}/openshift-client-linux.tar.gz"
     dest: /usr/bin
 - name: Create a directory for Azure
   ansible.builtin.file:
-    path: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.azure"
+    path: "/home/{{ bootstrap_admin_username }}/.azure"
     state: directory
-    owner: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
-    group: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+    owner: "{{ bootstrap_admin_username }}"
+    group: "{{ bootstrap_admin_username }}"
     mode: '0775'
 - name: Jinja conversion for Service Principal json
   ansible.builtin.template:
-    src: files/service-principal.json
-    dest: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.azure/osServicePrincipal.json"
-    owner: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
-    group: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+    src: files/service-principal.json.j2
+    dest: "/home/{{ bootstrap_admin_username }}/.azure/osServicePrincipal.json"
+    owner: "{{ bootstrap_admin_username }}"
+    group: "{{ bootstrap_admin_username }}"
     mode: '0644'
-- name: Jinja Conversion for Install Config Yaml
+- name: Jinja Conversion for Install Config yaml
   ansible.builtin.template:
-    src: files/install-config.yaml
-    dest: "{{ GIT_CLONE_DIR }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/install-config.yaml"    
+    src: files/install-config.yaml.j2
+    dest: "{{ git_clone_dir }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/install-config.yaml"
+    mode: '0644'
 - name: Create a directory for OpenShift installation
   ansible.builtin.file:
-    path: "{{ INSTALLER_HOME }}/openshiftfourx"
+    path: "{{ installer_home }}/openshiftfourx"
     state: directory
-    owner: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
-    group: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+    owner: "{{ bootstrap_admin_username }}"
+    group: "{{ bootstrap_admin_username }}"
     mode: '0775'
 - name: Copy Install Config file to OpenShift installation directory
   ansible.builtin.copy:
-    src: "{{ GIT_CLONE_DIR }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/install-config.yaml"
-    dest: "{{ INSTALLER_HOME }}/openshiftfourx/install-config.yaml"
-    owner: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
-    group: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+    src: "{{ git_clone_dir }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/install-config.yaml"
+    dest: "{{ installer_home }}/openshiftfourx/install-config.yaml"
+    owner: "{{ bootstrap_admin_username }}"
+    group: "{{ bootstrap_admin_username }}"
     mode: '0644'
 - name: OCP install
-  ansible.builtin.shell: |
-    runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "{{ INSTALLER_HOME }}/openshift-install create cluster --dir={{ INSTALLER_HOME }}/openshiftfourx --log-level=debug"
-- name: Sleep for 2 minutes and continue with play
-  ansible.builtin.wait_for:
-    timeout: 120
-- name: Create a directory kube for kubeconfig file
+  ansible.builtin.command: "{{ installer_home }}/openshift-install create cluster --dir={{ installer_home }}/openshiftfourx --log-level=debug"
+  become: true
+  become_user: "{{ bootstrap_admin_username }}"
+  register: command_output
+  changed_when: true
+- name: Create a directory kube for bootstrap admin user
   ansible.builtin.file:
-    path: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube"
+    path: "/home/{{ bootstrap_admin_username }}/.kube"
     state: directory
-    owner: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
-    group: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+    owner: "{{ bootstrap_admin_username }}"
+    group: "{{ bootstrap_admin_username }}"
     mode: '0775'
-- name: Copy kubeconfig file to kube directory
+- name: Copy kubeconfig file to kube directory of bootstrap admin user
   ansible.builtin.copy:
-    src: "{{ INSTALLER_HOME }}/openshiftfourx/auth/kubeconfig"
-    dest: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube/config"
-    owner: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
-    group: "{{ BOOTSTRAP_ADMIN_USERNAME }}"
+    src: "{{ installer_home }}/openshiftfourx/auth/kubeconfig"
+    dest: "/home/{{ bootstrap_admin_username }}/.kube/config"
+    owner: "{{ bootstrap_admin_username }}"
+    group: "{{ bootstrap_admin_username }}"
     mode: '0644'
 - name: Switch to Machine API project
-  ansible.builtin.shell: |
-    runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "oc project openshift-machine-api"      
-- name: Get Cluster ID
-  ansible.builtin.shell: |
-    oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}' --kubeconfig /home/"{{ BOOTSTRAP_ADMIN_USERNAME }}"/.kube/config 
-  register: CLUSTER_ID_OUTPUT
-  when: ENABLE_AUTOSCALER | bool
-- name: Set Cluster ID
-  set_fact:
-    CLUSTER_ID: "{{ CLUSTER_ID_OUTPUT.stdout | trim }}"
-  when: ENABLE_AUTOSCALER | bool
-- name: Execute Cluster Autoscalar
-  kubernetes.core.k8s:
-    state: present
-    kubeconfig: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube/config"
-    src: files/cluster-autoscaler.yaml
-    wait: true
-    wait_sleep: 50
-  when: ENABLE_AUTOSCALER | bool  
-- name: Jinja Conversion for Machine Autoscaler Yaml
-  ansible.builtin.template:
-    src: files/machine-autoscaler.yaml
-    dest: "{{ GIT_CLONE_DIR }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/machine-autoscaler.yaml"
-  when: ENABLE_AUTOSCALER | bool
-- name: Execute Machine Autoscalar
-  kubernetes.core.k8s:
-    state: present
-    kubeconfig: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube/config"
-    src: files/machine-autoscaler.yaml
-    wait: true
-    wait_sleep: 50
-  when: ENABLE_AUTOSCALER | bool         
-- name: Jinja Conversion for Machine Health Check Yaml
-  ansible.builtin.template:
-    src: files/machine-health-check.yaml
-    dest: "{{ GIT_CLONE_DIR }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/machine-health-check.yaml"
-  when: ENABLE_AUTOSCALER | bool
-- name: Execute Machine Health Check
-  kubernetes.core.k8s:
-    state: present
-    kubeconfig: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube/config"
-    src: files/machine-health-check.yaml
-    wait: true
-    wait_sleep: 50
-  when: ENABLE_AUTOSCALER | bool
-- ansible.builtin.shell: |
-    runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "htpasswd -c -B -b /tmp/.htpasswd {{ OPENSHIFT_USERNAME }} {{ OPENSHIFT_PASSWORD }}"
-- name: Sleep for 5 seconds and continue with play
-  ansible.builtin.wait_for:
-    timeout: 5
-- ansible.builtin.shell: |
-    runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "oc create secret generic htpass-secret --from-file=htpasswd=/tmp/.htpasswd -n openshift-config"
+  ansible.builtin.command: oc project openshift-machine-api
+  become: true
+  become_user: "{{ bootstrap_admin_username }}"
+  register: command_output
+  changed_when: true
 - name: Create OpenShift User
+  ansible.builtin.command: "htpasswd -c -B -b /tmp/.htpasswd {{ openshift_username }} {{ openshift_password }}"
+  become: true
+  become_user: "{{ bootstrap_admin_username }}"
+  register: command_output
+  changed_when: true
+- name: Create Secret
+  ansible.builtin.command: oc create secret generic htpass-secret --from-file=htpasswd=/tmp/.htpasswd -n openshift-config
+  become: true
+  become_user: "{{ bootstrap_admin_username }}"
+  register: command_output
+  changed_when: true
+- name: Setup Authentication
   kubernetes.core.k8s:
     state: present
-    kubeconfig: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube/config"
     src: files/auth.yaml
-    wait: true
-    wait_sleep: 50
+  become: true
+  become_user: "{{ bootstrap_admin_username }}"
 - name: Add Cluster Role to User
-  ansible.builtin.shell: |
-    runuser -l "{{ BOOTSTRAP_ADMIN_USERNAME }}" -c "oc adm policy add-cluster-role-to-user cluster-admin {{ OPENSHIFT_USERNAME }}"
+  ansible.builtin.command: "oc adm policy add-cluster-role-to-user cluster-admin {{ openshift_username }}"
+  become: true
+  become_user: "{{ bootstrap_admin_username }}"
+  register: command_output
+  changed_when: true
 - name: Install IBM Operator Catalogue
   kubernetes.core.k8s:
     state: present
-    kubeconfig: "/home/{{ BOOTSTRAP_ADMIN_USERNAME }}/.kube/config"
     src: files/ibm-operator-catalog.yaml
-    wait: true
-    wait_sleep: 50
+  become: true
+  become_user: "{{ bootstrap_admin_username }}"
+- name: Create a directory kube for root user
+  ansible.builtin.file:
+    path: "~/.kube"
+    state: directory
+    mode: '0775'  
+- name: Copy kubeconfig file to kube directory of root user
+  ansible.builtin.copy:
+    src: "{{ installer_home }}/openshiftfourx/auth/kubeconfig"
+    dest: "~/.kube/config"
+    mode: '0644'

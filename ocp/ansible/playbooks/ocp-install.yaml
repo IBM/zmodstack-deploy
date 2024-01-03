@@ -1,0 +1,17 @@
+- name: Deploy IBM Z and Cloud Modernization Stack
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  tasks:
+    - name: Deploy Red Hat Openshift Container Platform (OCP) Cluster
+      block:
+        - name: Include ocp-install role/task tagged for Creating the RedHat OpenShift Cluster
+          ansible.builtin.include_role:
+            name: "ocp-install"
+
+        - name: Include autoscaler role/task tagged for Creating the Autoscaler for RedHat OpenShift Cluster
+          ansible.builtin.include_role:
+            name: "autoscaler"
+          when: autoscaler | bool

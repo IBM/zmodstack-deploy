@@ -1,0 +1,113 @@
+---
+- include_vars: zoscb.yml
+
+- name: "Create IBM Cloud Pak Foundational Services Subscription with Native YAML API"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "openshift-operators"
+    src: "files/foundational-services.yaml"
+
+- name: Create OCP project for IBM z/OS Cloud Broker
+  ansible.builtin.file:
+    path: "{{ playbook_dir }}/ansible-workspace/zoscb"
+    state: directory
+
+- name: "Create project with Native YAML API for Z/OS CloudBroker"
+  kubernetes.core.k8s:
+    state: present
+    src: "files/project.yaml"
+
+- name: List all storage classes to capture default storage class name
+  kubernetes.core.k8s_info:
+    api_version: storage.k8s.io/v1
+    kind: StorageClass
+  register: storage_classes
+
+- name: Extract default storage class name from annotations
+  ansible.builtin.set_fact:
+    default_sc: "{{ storage_classes | community.general.json_query(query) | first }}"
+  vars:
+    query: resources[?metadata.annotations."storageclass.kubernetes.io/is-default-class"=='true'].metadata.name
+
+- name: Jinja Conversion for Cloudbroker PersistentVolumeClaim yaml
+  ansible.builtin.template:
+    src: "files/persistent-volume-claim.yaml"
+    dest: "{{ playbook_dir }}/ansible-workspace/zoscb/persistent-volume-claim.yaml"
+    mode: '0644'
+
+- name: "Create PVC with Native YAML API for Z/OS CloudBroker"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ibm-zmodstack-cloudbroker"
+    src: "{{ playbook_dir }}/ansible-workspace/zoscb/persistent-volume-claim.yaml"
+
+- name: "Create Operator Group with Native YAML API for Z/OS CloudBroker"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ibm-zmodstack-cloudbroker"
+    src: "files/operator-group.yaml"
+
+- name: "Create brokerInstance Subscription with Native YAML API for Z/OS CloudBroker"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ibm-zmodstack-cloudbroker"
+    src: "files/broker-subscription.yaml"
+
+- name: "Retrieve subscription info for Z/OS CloudBroker"
+  kubernetes.core.k8s_info:
+    kind: Subscription
+    namespace: "ibm-zmodstack-cloudbroker"
+    name: "{{ broker_subscription.name }}"
+    api_version: "{{ broker_subscription.apiVersion }}"
+  register: broker_subscription_info
+  until:
+    - "broker_subscription_info.resources is defined and broker_subscription_info.resources | length > 0"
+    - "'state' in broker_subscription_info.resources[0].status and broker_subscription_info.resources[0].status.state == 'AtLatestKnown'"
+  retries: 30
+  delay: 10
+
+- name: "Verify Z/OS CloudBroker subscription: '{{ broker_subscription.name }}'"
+  ansible.builtin.assert:
+    that:
+      - broker_subscription_info.resources[0].metadata.creationTimestamp != ""
+      - broker_subscription_info.resources[0].status.installplan.kind == "InstallPlan"
+      - broker_subscription_info.resources[0].status.installplan.name != ""
+      - broker_subscription_info.resources[0].status.state == "AtLatestKnown"
+      - broker_subscription_info.resources[0].status.conditions[0].reason == "AllCatalogSourcesHealthy"
+
+- name: Jinja Conversion for Cloudbroker instance yaml
+  ansible.builtin.template:
+    src: "files/broker-instance.yaml"
+    dest: "{{ playbook_dir }}/ansible-workspace/zoscb/broker-instance.yaml"
+    mode: '0644'
+
+- name: "Create brokerInstance with Native YAML API for Z/OS CloudBroker"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ibm-zmodstack-cloudbroker"
+    src:  "{{ playbook_dir }}/ansible-workspace/zoscb/broker-instance.yaml"
+    wait: true
+    wait_condition:
+      type: Succeeded
+      status: 'True'
+      reason: Success
+    wait_timeout: 600
+
+# tasks to verify the installation
+- name: "Retrieve Z/OS CloudBroker instance Info"
+  kubernetes.core.k8s_info:
+    namespace: "ibm-zmodstack-cloudbroker"
+    kind: "{{ broker_instance.kind }}"
+    name: "{{ broker_instance.name }}"
+    api_version: "{{ broker_instance.apiVersion }}"
+  register: broker_instance_info
+
+- name: "Verify Z/OS CloudBroker instance: '{{ broker_instance.name }}'"
+  ansible.builtin.assert:
+    that:
+      - "'ibm-zoscb-manager-{{ broker_instance.name }}' in broker_instance_info.resources[0].status.deployment.ready"
+      - "'ibm-zoscb-registry-{{ broker_instance.name }}-ibm-zmodstack-cloudbroker' in broker_instance_info.resources[0].status.deployment.ready
+        or 'ibm-zoscb-registry-{{ broker_instance.name }}' in broker_instance_info.resources[0].status.deployment.ready"
+      - broker_instance_info.resources[0].status.zosCloudBrokerUrl | length > 0
+      - broker_instance_info.resources[0].status.licenseacceptance == "Accepted"
+      - broker_instance_info.resources[0].status.phase == "Successful"

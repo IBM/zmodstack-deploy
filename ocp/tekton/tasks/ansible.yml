@@ -1,0 +1,27 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: ansible
+spec:
+  description: Task to run Ansible playbooks
+  workspaces:
+    - name: ws
+      description: A workspace containing an ansible project
+  params:
+    - name: project-dir
+      description: A directory containing an ansible project with playbooks/roles
+      type: string
+    - name: ansible-command
+      description: The full ansible command to execute from the project-dir
+      type: string
+      default: ansible-playbook run.yml
+  steps:
+    - name: run-ansible
+      image: icr.io/zmodstack/deploy/tekton-ansible:latest
+      script: |
+        #!/bin/bash
+        set -ex
+        ln -s $(workspaces.ws.path)/.ssh ~ 
+        $(params.ansible-command)
+      workingDir: '$(workspaces.ws.path)/$(params.project-dir)'

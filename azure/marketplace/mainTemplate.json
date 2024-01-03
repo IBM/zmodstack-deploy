@@ -1,13 +1,20 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.23.1.45101",
+      "templateHash": "9670500801886162118"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string",
+      "defaultValue": "[resourceGroup().location]",
       "metadata": {
         "description": "Region where the resources should be created"
-      },
-      "defaultValue": "[resourceGroup().location]"
+      }
     },
     "aadApplicationId": {
       "type": "string",
@@ -95,7 +102,7 @@
     },
     "computeVmSize": {
       "type": "string",
-      "defaultValue": "Standard_D2s_v3",
+      "defaultValue": "Standard_D4s_v3",
       "metadata": {
         "description": "Size of the VM to serve as a Compute node"
       }
@@ -197,8 +204,16 @@
         "description": "Openshift PullSecret JSON Blob"
       }
     },
+    "keyVaultName": {
+      "type": "string",
+      "defaultValue": "[format('zmodkv{0}', substring(uniqueString(resourceGroup().id), 1, 6))]",
+      "metadata": {
+        "description": "Key Vault for keeping Secrets"
+      }
+    },
     "clusterName": {
       "type": "string",
+      "defaultValue": "[resourceGroup().name]",
       "metadata": {
         "description": "Cluster resources prefix"
       }
@@ -231,12 +246,12 @@
     },
     "openshiftVersion": {
       "type": "string",
-      "defaultValue": "4.12",
+      "defaultValue": "4.13",
       "allowedValues": [
-        "4.10",
         "4.11",
         "4.12",
-        "4.13"
+        "4.13",
+        "4.14"
       ],
       "metadata": {
         "description": "OpenShift Version"
@@ -253,9 +268,53 @@
         "description": "Accept License Agreement"
       }
     },
+    "zosCloudBrokerInstall": {
+      "type": "bool",
+      "defaultValue": false,
+      "allowedValues": [
+        true,
+        false
+      ],
+      "metadata": {
+        "description": "Install z/OS Cloud Broker"
+      }
+    },
+    "zosConnectInstall": {
+      "type": "bool",
+      "defaultValue": false,
+      "allowedValues": [
+        true,
+        false
+      ],
+      "metadata": {
+        "description": "Install z/OS Connect"
+      }
+    },
+    "waziDevspacesInstall": {
+      "type": "bool",
+      "defaultValue": false,
+      "allowedValues": [
+        true,
+        false
+      ],
+      "metadata": {
+        "description": "Install Wazi Devspaces"
+      }
+    },
+    "waziDevspacesVersion": {
+      "type": "string",
+      "defaultValue": "3.x",
+      "allowedValues": [
+        "2.x",
+        "3.x"
+      ],
+      "metadata": {
+        "description": "Wazi Devspaces Version"
+      }
+    },
     "managedIdName": {
       "type": "string",
-      "defaultValue": "[concat('zmodmgdid',substring(uniqueString(resourceGroup().id),1,7))]",
+      "defaultValue": "[format('zmodmgdid{0}', substring(uniqueString(resourceGroup().id), 1, 7))]",
       "metadata": {
         "description": "Name of the managed identity that will run the container (and create storage if necessary)"
       }
@@ -273,7 +332,7 @@
       "sku": "86-gen2",
       "version": "latest"
     },
-    "bootstrapHostname": "bootstrap",
+    "bootstrapHostnameName": "bootstrap",
     "role": "bootstrap",
     "bootstrapDiskSize": 100,
     "bootstrapDiskType": "StandardSSD_LRS",
@@ -281,7 +340,6 @@
     "computeSecurityGroupName": "compute-nsg",
     "controlplaneSecurityGroupName": "controlplane-nsg",
     "bootstrapSecurityGroupName": "bootstrap-nsg",
-    "bootstrapDataDiskSize": 100,
     "controlplaneSubnetName": "controlplaneSubnet",
     "computeSubnetName": "computeSubnet",
     "bootstrapSubnetName": "bootstrapSubnet",
@@ -291,9 +349,9 @@
     "outboundType": "Loadbalancer",
     "privateOrPublicEndpoints": "public",
     "vTrue": true,
-    "bootstrapPublicIpDnsLabel": "[concat('bootstrapdns', uniqueString(resourceGroup().id))]",
-    "sshKeyPath": "[concat('/home/', parameters('bootstrapAdminUsername'), '/.ssh/authorized_keys')]",
-    "bootstrapScriptUrl": "https://raw.githubusercontent.com/IBM/zmodstack-deploy/main/azure/scripts/bash/bootstrap.sh",
+    "bootstrapPublicIpDnsLabelName": "[format('bootstrapdns{0}', uniqueString(resourceGroup().id))]",
+    "sshKeyPath": "[format('/home/{0}/.ssh/authorized_keys', parameters('bootstrapAdminUsername'))]",
+    "bootstrapScriptUrl": "https://raw.githubusercontent.com/IBM/zmodstack-deploy/release-2023.4.1/azure/scripts/bash/bootstrap.sh",
     "bootstrapScriptFileName": "bootstrap.sh",
     "subscriptionId": "[subscription().subscriptionId]",
     "tenantId": "[subscription().tenantId]",
@@ -303,18 +361,17 @@
     "serviceNetworkCidr": "172.30.0.0/16",
     "privateOrPublic": "[if(equals(variables('privateOrPublicEndpoints'), 'private'), 'Internal', 'External')]",
     "publicIpId": {
-      "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('bootstrapPublicIpDnsLabel'))]"
+      "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('bootstrapPublicIpDnsLabelName'))]"
     },
-    "openshiftConsoleURL": "[uri(concat('https://console-openshift-console.apps.', parameters('clusterName'), '.', parameters('dnsZoneName')),'/')]",
+    "openshiftConsoleURL": "[uri(format('https://console-openshift-console.apps.{0}.{1}', parameters('clusterName'), parameters('dnsZoneName')), '/')]",
     "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-    "roleDefinitionName": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName')), variables('roleDefinitionId'), resourceGroup().id)]",
-    "verboseOutput": false
+    "roleDefinitionName": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName')), variables('roleDefinitionId'), resourceGroup().id)]"
   },
   "resources": [
     {
       "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'new')]",
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2021-08-01",
+      "apiVersion": "2022-09-01",
       "name": "[parameters('virtualNetworkName')]",
       "location": "[parameters('location')]",
       "tags": {
@@ -335,7 +392,7 @@
             "properties": {
               "addressPrefix": "[parameters('bootstrapSubnetCIDR')]",
               "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('bootstrapSecurityGroupName'))]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bootstrapSecurityGroupName'))]"
               }
             }
           },
@@ -344,7 +401,7 @@
             "properties": {
               "addressPrefix": "[parameters('controlplaneSubnetCIDR')]",
               "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('controlplaneSecurityGroupName'))]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('controlplaneSecurityGroupName'))]"
               }
             }
           },
@@ -353,23 +410,23 @@
             "properties": {
               "addressPrefix": "[parameters('computeSubnetCIDR')]",
               "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('computeSecurityGroupName'))]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('computeSecurityGroupName'))]"
               }
             }
           }
         ]
       },
       "dependsOn": [
-        "[variables('bootstrapSecurityGroupName')]",
-        "[variables('controlplaneSecurityGroupName')]",
-        "[variables('computeSecurityGroupName')]"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bootstrapSecurityGroupName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('computeSecurityGroupName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('controlplaneSecurityGroupName'))]"
       ]
     },
     {
       "condition": "[equals(variables('publicBootstrapIP'), variables('vTrue'))]",
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2021-08-01",
-      "name": "[variables('bootstrapPublicIpDnsLabel')]",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('bootstrapPublicIpDnsLabelName')]",
       "location": "[parameters('location')]",
       "sku": {
         "name": "Standard"
@@ -383,20 +440,15 @@
       "properties": {
         "publicIPAllocationMethod": "Static",
         "dnsSettings": {
-          "domainNameLabel": "[variables('bootstrapPublicIpDnsLabel')]"
+          "domainNameLabel": "[variables('bootstrapPublicIpDnsLabelName')]"
         }
       }
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2021-08-01",
-      "name": "[concat(variables('bootstrapHostname'), '-nic')]",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}-nic', variables('bootstrapHostnameName'))]",
       "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('bootstrapSecurityGroupName'))]",
-        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('bootstrapPublicIpDnsLabel'))]"
-      ],
       "tags": {
         "displayName": "BootstrapNetworkInterface",
         "app": "[variables('redHatTags').app]",
@@ -406,24 +458,29 @@
       "properties": {
         "ipConfigurations": [
           {
-            "name": "[concat(variables('bootstrapHostname'), 'ipconfig')]",
+            "name": "[format('{0}ipconfig', variables('bootstrapHostnameName'))]",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[resourceId(variables('networkResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('bootstrapSubnetName'))]"
               },
-              "publicIPAddress": "[if(equals(variables('publicBootstrapIP'), variables('vTrue')), variables('publicIpId'), json('null'))]"
+              "publicIPAddress": "[if(equals(variables('publicBootstrapIP'), variables('vTrue')), variables('publicIpId'), null())]"
             }
           }
         ],
         "networkSecurityGroup": {
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bootstrapSecurityGroupName'))]"
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('bootstrapPublicIpDnsLabelName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bootstrapSecurityGroupName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+      ]
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2021-08-01",
+      "apiVersion": "2022-09-01",
       "name": "[variables('bootstrapSecurityGroupName')]",
       "location": "[parameters('location')]",
       "tags": {
@@ -461,28 +518,24 @@
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2022-04-01",
       "name": "[variables('roleDefinitionName')]",
-      "dependsOn": [
-        "[parameters('managedIdName')]"
-      ],
       "properties": {
         "roleDefinitionId": "[variables('roleDefinitionId')]",
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities',parameters('managedIdName')), '2018-11-30').principalId]",
-        "scope": "[resourceGroup().id]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName')), '2018-11-30').principalId]",
         "principalType": "ServicePrincipal"
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName'))]"
+      ]
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[variables('bootstrapHostname')]",
+      "apiVersion": "2022-11-01",
+      "name": "[variables('bootstrapHostnameName')]",
       "location": "[parameters('location')]",
-      "apiVersion": "2021-11-01",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('bootstrapHostname'), '-nic'))]"
-      ],
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName'))]": {}
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName')))]": {}
         }
       },
       "tags": {
@@ -497,7 +550,7 @@
           "vmSize": "[parameters('bootstrapVmSize')]"
         },
         "osProfile": {
-          "computerName": "[variables('bootstrapHostname')]",
+          "computerName": "[variables('bootstrapHostnameName')]",
           "adminUsername": "[parameters('bootstrapAdminUsername')]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": true,
@@ -514,7 +567,7 @@
         "storageProfile": {
           "imageReference": "[variables('imageReference')]",
           "osDisk": {
-            "name": "[concat(variables('bootstrapHostname'), '-osDisk')]",
+            "name": "[format('{0}-osDisk', variables('bootstrapHostnameName'))]",
             "managedDisk": {
               "storageAccountType": "[variables('bootstrapDiskType')]"
             },
@@ -522,21 +575,24 @@
             "createOption": "FromImage",
             "diskSizeGB": "[variables('bootstrapDiskSize')]",
             "osType": "Linux"
-          },
-          "dataDisks": "[if(equals(variables('bootstrapHostname'), 'bootstrap'), json('null'), variables('bootstrapDataDiskSize'))]"
+          }
         },
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('bootstrapHostname'), '-nic'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', variables('bootstrapHostnameName')))]"
             }
           ]
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', variables('bootstrapHostnameName')))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName'))]"
+      ]
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2021-08-01",
+      "apiVersion": "2022-09-01",
       "name": "[variables('controlplaneSecurityGroupName')]",
       "location": "[parameters('location')]",
       "tags": {
@@ -566,7 +622,7 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2021-08-01",
+      "apiVersion": "2022-09-01",
       "name": "[variables('computeSecurityGroupName')]",
       "location": "[parameters('location')]",
       "tags": {
@@ -611,12 +667,9 @@
     {
       "condition": "[equals(parameters('zModStackLicenseAgreement'), 'accept')]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('bootstrapHostname'), '/bootstrap.sh')]",
-      "location": "[parameters('location')]",
       "apiVersion": "2022-11-01",
-      "dependsOn": [
-        "[variables('bootstrapHostname')]"
-      ],
+      "name": "[format('{0}/{1}', variables('bootstrapHostnameName'), 'bootstrap.sh')]",
+      "location": "[parameters('location')]",
       "tags": {
         "displayName": "OpenShift",
         "app": "[variables('redHatTags').app]",
@@ -634,19 +687,22 @@
           ]
         },
         "protectedSettings": {
-          "commandToExecute": "[concat('bash ', variables('bootstrapScriptFileName'))]"
+          "commandToExecute": "[format('bash {0}', variables('bootstrapScriptFileName'))]"
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', variables('bootstrapHostnameName'))]"
+      ]
     },
     {
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2022-07-01",
-      "name": "[parameters('clusterName')]",
+      "name": "[parameters('keyVaultName')]",
       "location": "[parameters('location')]",
       "properties": {
         "accessPolicies": [
           {
-            "objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities',parameters('managedIdName')), '2018-11-30').principalId]",
+            "objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName')), '2018-11-30').principalId]",
             "permissions": {
               "secrets": [
                 "get"
@@ -671,188 +727,196 @@
         },
         "softDeleteRetentionInDays": 30,
         "tenantId": "[subscription().tenantId]"
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName'))]"
+      ]
     },
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2022-07-01",
-      "name": "[format('{0}/{1}', parameters('clusterName'), 'pullSecret')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
-      ],
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'pullSecret')]",
       "properties": {
         "contentType": "string",
         "value": "[parameters('pullSecret')]"
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
     },
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2022-07-01",
-      "name": "[format('{0}/{1}', parameters('clusterName'), 'openshiftPassword')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
-      ],
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'openshiftPassword')]",
       "properties": {
         "contentType": "string",
         "value": "[parameters('openshiftPassword')]"
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
     },
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2022-07-01",
-      "name": "[format('{0}/{1}', parameters('clusterName'), 'apiKey')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
-      ],
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'apiKey')]",
       "properties": {
         "contentType": "string",
         "value": "[parameters('apiKey')]"
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
     },
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2022-07-01",
-      "name": "[format('{0}/{1}', parameters('clusterName'), 'aadApplicationSecret')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', parameters('clusterName'))]"
-      ],
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'aadApplicationSecret')]",
       "properties": {
         "contentType": "string",
         "value": "[parameters('aadApplicationSecret')]"
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2022-07-01",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), 'bootstrapSshPublicKey')]",
+      "properties": {
+        "contentType": "string",
+        "value": "[parameters('bootstrapSshPublicKey')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
     }
   ],
   "outputs": {
-    "bootstrap Public IP": {
+    "bootstrap_Public_IP": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('bootstrapPublicIpDnsLabel'))).IpAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('bootstrapPublicIpDnsLabelName')), '2022-09-01').ipAddress]"
     },
-    "bootstrap Username": {
+    "bootstrap_Username": {
       "type": "string",
       "value": "[parameters('bootstrapAdminUsername')]"
     },
-    "openshift Console URL": {
+    "openshift_Console_URL": {
       "type": "string",
       "value": "[variables('openshiftConsoleURL')]"
     },
-    "openshift Console Username": {
+    "openshift_Console_Username": {
       "type": "string",
       "value": "[parameters('openshiftUsername')]"
     },
-    "aad Application Id": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "aad_Application_Id": {
       "type": "string",
       "value": "[parameters('aadApplicationId')]"
     },
-    "controlplane Instance Count": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
-      "type": "string",
+    "controlplane_Instance_Count": {
+      "type": "int",
       "value": "[parameters('controlplaneInstanceCount')]"
     },
-    "controlplane Vm Size": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "controlplane_Vm_Size": {
       "type": "string",
       "value": "[parameters('controlplaneVmSize')]"
     },
-    "controlplane Disk Size": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
-      "type": "string",
+    "controlplane_Disk_Size": {
+      "type": "int",
       "value": "[parameters('controlplaneDiskSize')]"
     },
-    "controlplane Disk Type": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "controlplane_Disk_Type": {
       "type": "string",
       "value": "[parameters('controlplaneDiskType')]"
     },
-    "compute Instance Count": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
-      "type": "string",
+    "compute_Instance_Count": {
+      "type": "int",
       "value": "[parameters('computeInstanceCount')]"
     },
-    "compute Vm Size": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "compute_Vm_Size": {
       "type": "string",
       "value": "[parameters('computeVmSize')]"
     },
-    "compute Disk Size": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
-      "type": "string",
+    "compute_Disk_Size": {
+      "type": "int",
       "value": "[parameters('computeDiskSize')]"
     },
-    "compute Disk Type": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "compute_Disk_Type": {
       "type": "string",
       "value": "[parameters('computeDiskType')]"
     },
-    "single Zone Or Multi Zone": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "single_Zone_Or_Multi_Zone": {
       "type": "string",
       "value": "[parameters('singleZoneOrMultiZone')]"
     },
-    "dns Zone Resource Group": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "dns_Zone_Resource_Group": {
       "type": "string",
       "value": "[parameters('dnsZoneResourceGroup')]"
     },
-    "cluster Resource Group Name": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "cluster_Resource_Group_Name": {
       "type": "string",
       "value": "[parameters('clusterResourceGroupName')]"
     },
-    "openshift Version": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "openshift_Version": {
       "type": "string",
       "value": "[parameters('openshiftVersion')]"
     },
-    "enable Fips": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
-      "type": "string",
+    "enable_Fips": {
+      "type": "bool",
       "value": "[variables('enableFips')]"
     },
-    "enable Autoscaler": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
-      "type": "string",
+    "enable_Autoscaler": {
+      "type": "bool",
       "value": "[variables('enableAutoscaler')]"
     },
-    "outbound Type": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "outbound_Type": {
       "type": "string",
       "value": "[variables('outboundType')]"
     },
-    "subscription Id": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "subscription_Id": {
       "type": "string",
       "value": "[variables('subscriptionId')]"
     },
-    "tenant Id": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "tenant_Id": {
       "type": "string",
       "value": "[variables('tenantId')]"
     },
-    "resource Group Name": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "resource_Group_Name": {
       "type": "string",
       "value": "[variables('resourceGroupName')]"
     },
-    "cluster Network Cidr": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "cluster_Network_Cidr": {
       "type": "string",
       "value": "[variables('clusterNetworkCidr')]"
     },
-    "host Address Prefix": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
-      "type": "string",
+    "host_Address_Prefix": {
+      "type": "int",
       "value": "[variables('hostAddressPrefix')]"
     },
-    "service Network Cidr": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "service_Network_Cidr": {
       "type": "string",
       "value": "[variables('serviceNetworkCidr')]"
     },
-    "private Or Public": {
-      "condition": "[equals(variables('verboseOutput'), 'true')]",
+    "private_Or_Public": {
       "type": "string",
       "value": "[variables('privateOrPublic')]"
+    },
+    "zos_Cloud_Broker_Install": {
+      "type": "bool",
+      "value": "[parameters('zosCloudBrokerInstall')]"
+    },
+    "zos_Connect_Install": {
+      "type": "bool",
+      "value": "[parameters('zosConnectInstall')]"
+    },
+    "wazi_Devspaces_Install": {
+      "type": "bool",
+      "value": "[parameters('waziDevspacesInstall')]"
+    },
+    "wazi_Devspaces_Version": {
+      "type": "string",
+      "value": "[parameters('waziDevspacesVersion')]"
     }
   }
 }

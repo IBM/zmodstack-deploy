@@ -1,0 +1,11 @@
+---
+kind: Subscription
+apiVersion: "operators.coreos.com/v1alpha1"
+metadata:
+  name: "ibm-zcon-zosconnect"
+spec:
+  channel: "v1.0"
+  installPlanApproval: "Automatic"
+  name: "ibm-zcon-zosconnect"
+  source: "ibm-operator-catalog"
+  sourceNamespace: "openshift-marketplace"

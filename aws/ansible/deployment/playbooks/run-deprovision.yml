@@ -1,0 +1,20 @@
+---
+- name: Delete OCP Cluster
+  hosts: localhost
+  collections:
+    - amazon.aws
+  vars:
+    region: us-east-1
+  tasks: 
+    - name: Delete cloudformation stack
+      amazon.aws.cloudformation:
+        stack_name: "{{ stack_name }}"
+        state: absent
+        region: "{{ region }}"
+      register: cfn_delete
+      tags: cfn-delete
+
+    - name: Display information about CFN stack creation
+      ansible.builtin.debug:
+        var: cfn_delete
+      tags: cfn-delete

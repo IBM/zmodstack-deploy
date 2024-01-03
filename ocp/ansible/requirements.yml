@@ -1,0 +1,12 @@
+---
+collections:
+  - name: kubernetes.core
+    version: 2.3.2
+  - name: community.general
+    version: 6.3.0
+  - name: community.okd
+    version: 2.2.0
+  - name: containers.podman
+    version: 1.10.2
+  - name: ibm.cloudcollection
+  - name: community.crypto

@@ -43,6 +43,13 @@ Metadata:
           - OpenshiftVersion
           - OpenshiftUsername
           - OpenshiftPassword
+      - Label:
+          default: IBM Z and Cloud Modernization Stack resources
+        Parameters:
+          - ZosCloudBroker
+          - ZosConnect
+          - WaziDevspaces
+          - WaziDevspacesVersion
       
     ParameterLabels:
       PrivateSubnet1ID:
@@ -95,6 +102,14 @@ Metadata:
         default: License agreement
       APIKey:
         default: IBM Container Registry API or Entitlement Key
+      ZosCloudBroker:
+        default: Install IBM z/OS Cloud Broker
+      ZosConnect:
+        default: Install IBM z/OS Connect
+      WaziDevspaces:
+        default: Install IBM Wazi DevSpaces
+      WaziDevspacesVersion:
+        default: Version of IBM Wazi DevSpaces 
 
 Parameters:
   APIKey:
@@ -217,6 +232,28 @@ Parameters:
     Description: Password to be used to login to Openshift Console
     Type: String
     NoEcho: 'true'
+  ZosCloudBroker:
+    Description: Install IBM z/OS Cloud Broker
+    Default: true
+    Type: String
+    AllowedValues: [true, false]
+  ZosConnect:
+    Description: Install IBM z/OS Connect
+    Default: true
+    Type: String
+    AllowedValues: [true, false]
+  WaziDevspaces:
+    Description: Install IBM Wazi DevSpaces
+    Default: true
+    Type: String
+    AllowedValues: [true, false]
+  WaziDevspacesVersion:
+    Description: Version of IBM Wazi DevSpaces
+    Type: String
+    Default: "3.x"
+    AllowedValues:
+      - "3.x"
+      - "2.x"
   LicenseAgreement:
     Description: >-
       I have read and agreed to the license terms for IBM Z and Cloud Modernization Stack that were provided to me at time of purchase.
@@ -264,6 +301,7 @@ Rules:
 Conditions:
   3AZConditionCheck: !Equals [!Ref NumberOfAZs, '3']
   AcceptLicense: !Equals [!Ref LicenseAgreement, 'I agree']
+  WaziDevspacesCheck: !Equals [true, !Ref WaziDevspaces]
 
 Resources:
   KeyPairName:
@@ -385,6 +423,14 @@ Resources:
       Type: String
       Value: !Sub "https://console-openshift-console.apps.${ClusterName}.${DomainName}"
 
+  WaziDevspacesURL:
+    Type: AWS::SSM::Parameter
+    Condition: WaziDevspacesCheck
+    Properties:
+      Name: !Sub "${AWS::StackName}-WaziDevspacesURL"
+      Type: String
+      Value: !Sub "https://eclipse-che.apps.${ClusterName}.${DomainName}"
+
   BootnodeInstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
     Properties:
@@ -400,6 +446,10 @@ Resources:
       - IpProtocol: tcp
         FromPort: 22
         ToPort: 22
+        CidrIp: !Ref BootNodeAccessCIDR
+      - IpProtocol: tcp
+        FromPort: 9443
+        ToPort: 9443
         CidrIp: !Ref BootNodeAccessCIDR
       SecurityGroupEgress:
       - IpProtocol: "-1"
@@ -422,11 +472,10 @@ Resources:
             - StackPropertiesFile
         StackPropertiesFile:
           files:
-            /home/ec2-user/destroy.sh:
+            /mnt/destroy.sh:
               content: |
                 echo "$1 - Destroy"
-                cd /home/ec2-user/zmodstack/aws/terraform
-                sudo terraform destroy --var-file=terraform.tfvars --auto-approve | tee terraform_destroy.log
+                /mnt/openshift/zmodstack-deploy/ocp/ansible/playbooks/installer-workspace/openshift-install destroy cluster --dir=/mnt/openshift/zmodstack-deploy/ocp/ansible/playbooks/installer-workspace --log-level=debug
                 aws ssm put-parameter --name $1"_CleanupStatus" --type "String" --value "READY" --overwrite
               mode: '000777'
             /root/.aws/config:
@@ -503,72 +552,72 @@ Resources:
             AWS_INSTANCE_ID=$(curl http://169.254.169.254/latest/meta-data/instance-id)
             ROOT_VOLUME_IDS=$(aws ec2 describe-instances --region $AWS_REGION --instance-id $AWS_INSTANCE_ID --output text --query Reservations[0].Instances[0].BlockDeviceMappings[0].Ebs.VolumeId)
             aws ec2 create-tags --resources $ROOT_VOLUME_IDS --region $AWS_REGION --tags Key=Name,Value=\"${AWS::StackName}-bootnode-volume\"           
- 
+            
+            # Prepareing for workspace
+            export INSTALLER_HOME=/mnt/openshift
+            mkdir -p $INSTALLER_HOME
+            export GIT_CLONE_DIR=$INSTALLER_HOME/zmodstack-deploy
+            mkdir -p $GIT_CLONE_DIR
+
             # Clone git repo containing automation scripts for AWS
-            git clone --no-checkout https://github.com/IBM/zmodstack-deploy.git /home/ec2-user/zmodstack
-            cd /home/ec2-user/zmodstack && git sparse-checkout set aws && git checkout @
-            chown -fR ec2-user:ec2-user /home/ec2-user/zmodstack
-            source /home/ec2-user/zmodstack/aws/scripts/bootnode-bootstrap.sh
+            git clone --no-checkout -b release-2023.4.1 https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
+            cd $GIT_CLONE_DIR && git sparse-checkout set aws ocp && git checkout @
+            source $GIT_CLONE_DIR/aws/scripts/bootnode-bootstrap.sh
 
-            # Begin Terraform execution
-            cd /home/ec2-user/zmodstack/aws/terraform
-            aws s3 cp s3://${S3BucketName}/zmodstack/ocp/pull-secret.json ./pull-secret
-            
-            echo "Creating terraform variables file"
-            echo "openshift_pull_secret_file_path=\"./pull-secret\"" > terraform.tfvars
-            echo "access_key_id=\"${IAMUserAccessKey}\"" >> terraform.tfvars
-            echo "secret_access_key=\"${IAMUserSecret}\"" >> terraform.tfvars
-            echo "region=\"${AWS::Region}\"" >> terraform.tfvars
-            echo "stack_name=\"${AWS::StackName}\"" >> terraform.tfvars
-            echo "az=\"${AZ}\"" >> terraform.tfvars
-            echo "private_cluster=\"${PrivateCluster}\"" >> terraform.tfvars
-            echo "public_ssh_key=\"`cat /home/ec2-user/.ssh/id_rsa.pub`\"" >> terraform.tfvars
-            echo "base_domain=\"${DomainName}\"" >> terraform.tfvars
-            echo "cluster_name=\"${ClusterName}\"" | tr '[:upper:]' '[:lower:]' >> terraform.tfvars
-            echo "openshift_version=\"${OpenshiftVersion}\"" >> terraform.tfvars
-            echo "openshift_username=\"${OpenshiftUsername}\"" >> terraform.tfvars
-            echo "openshift_password=\"${OpenshiftPassword}\"" >> terraform.tfvars
-            echo "external_registry_password=\"${APIKey}\"" >> terraform.tfvars
-            echo "accept_license=\"${LicenseAgreement}\"" >> terraform.tfvars
-            echo "new_or_existing_vpc_subnet=\"exist\"" >> terraform.tfvars
-            echo "vpc_id=\"${VPCID}\"" >> terraform.tfvars
-            echo "control_plane_node_subnet1_id=\"${PublicSubnet1ID}\"" >> terraform.tfvars
-            echo "control_plane_node_subnet2_id=\"${PublicSubnet2ID}\"" >> terraform.tfvars
-            echo "control_plane_node_subnet3_id=\"${PublicSubnet3ID}\"" >> terraform.tfvars
-            echo "computenode_subnet1_id=\"${PrivateSubnet1ID}\"" >> terraform.tfvars
-            echo "computenode_subnet2_id=\"${PrivateSubnet2ID}\"" >> terraform.tfvars
-            echo "computenode_subnet3_id=\"${PrivateSubnet3ID}\"" >> terraform.tfvars
-            echo "vpc_cidr=\"${VPCCIDR}\"" >> terraform.tfvars
-            echo "availability_zone1=\"${AvailabilityZone1}\"" >> terraform.tfvars
-            echo "availability_zone2=\"${AvailabilityZone2}\"" >> terraform.tfvars
-            echo "availability_zone3=\"${AvailabilityZone3}\"" >> terraform.tfvars
-            echo "control_plane_node_instance_type=\"${ControlPlaneNodeInstanceType}\"" >> terraform.tfvars
-            echo "control_plane_node_replica_count=${NumberOfControlPlaneNode}" >> terraform.tfvars
-            echo "computenode_instance_type=\"${ComputeInstanceType}\"" >> terraform.tfvars
-            echo "computenode_replica_count=${NumberOfCompute}" >> terraform.tfvars
-            echo "enable_permission_quota_check=\"false\"" >> terraform.tfvars
+            # Begin OCP cluster Installation
+            cd $GIT_CLONE_DIR/ocp/ansible/
+            aws s3 cp s3://${S3BucketName}/zmodstack/ocp/pull-secret.json ./playbooks/pull-secret
+            clustername_lower=$(echo ${ClusterName} | tr '[:upper:]' '[:lower:]')
+            JSON_STRING=$(jq -n \
+            --arg access_key_id "${IAMUserAccessKey}" \
+            --arg secret_access_key "${IAMUserSecret}" \
+            --arg region "${AWS::Region}" \
+            --arg stack_name "${AWS::StackName}" \
+            --arg az "${AZ}" \
+            --arg private_cluster "${PrivateCluster}" \
+            --arg public_ssh_key "`cat /mnt/.ssh/id_rsa.pub`" \
+            --arg base_domain "${DomainName}" \
+            --arg cluster_name "$clustername_lower" \
+            --arg openshift_version "${OpenshiftVersion}" \
+            --arg openshift_username "${OpenshiftUsername}" \
+            --arg openshift_password "${OpenshiftPassword}" \
+            --arg external_registry_password "${APIKey}" \
+            --arg accept_license "${LicenseAgreement}" \
+            --arg vpc_id "${VPCID}" \
+            --arg machine_network_cidr "${VPCCIDR}" \
+            --arg control_plane_node_subnet1_id "${PublicSubnet1ID}" \
+            --arg control_plane_node_subnet2_id "${PublicSubnet2ID}" \
+            --arg control_plane_node_subnet3_id "${PublicSubnet3ID}" \
+            --arg computenode_subnet1_id "${PrivateSubnet1ID}" \
+            --arg computenode_subnet2_id "${PrivateSubnet2ID}" \
+            --arg computenode_subnet3_id "${PrivateSubnet3ID}" \
+            --arg vpc_cidr "${VPCCIDR}" \
+            --arg availability_zone1 "${AvailabilityZone1}" \
+            --arg availability_zone2 "${AvailabilityZone2}" \
+            --arg availability_zone3 "${AvailabilityZone3}" \
+            --arg control_plane_node_instance_type "${ControlPlaneNodeInstanceType}" \
+            --arg control_plane_node_replica_count ${NumberOfControlPlaneNode} \
+            --arg computenode_instance_type "${ComputeInstanceType}" \
+            --arg computenode_replica_count ${NumberOfCompute} \
+            --arg autoscaler "false" \
+            --arg zoscb ${ZosCloudBroker} \
+            --arg zosconnect ${ZosConnect} \
+            --arg wazidevspaces ${WaziDevspaces} \
+            --arg wazidevspacesversion ${WaziDevspacesVersion} \
+            '{ access_key_id: $access_key_id, secret_access_key: $secret_access_key, region: $region, stack_name: $stack_name, az: $az, machine_network_cidr: $machine_network_cidr, private_cluster: $private_cluster, public_ssh_key: $public_ssh_key, base_domain: $base_domain, cluster_name: $cluster_name, openshift_version: $openshift_version, openshift_username: $openshift_username, openshift_password: $openshift_password, external_registry_password: $external_registry_password, accept_license: $accept_license, vpc_id: $vpc_id, control_plane_node_subnet1_id: $control_plane_node_subnet1_id, control_plane_node_subnet2_id: $control_plane_node_subnet2_id, control_plane_node_subnet3_id: $control_plane_node_subnet3_id, computenode_subnet1_id: $computenode_subnet1_id, computenode_subnet2_id: $computenode_subnet2_id, computenode_subnet3_id: $computenode_subnet3_id, vpc_cidr: $vpc_cidr, availability_zone1: $availability_zone1, availability_zone2: $availability_zone2, availability_zone3: $availability_zone3, control_plane_node_instance_type: $control_plane_node_instance_type, control_plane_node_replica_count: $control_plane_node_replica_count, computenode_instance_type: $computenode_instance_type, computenode_replica_count: $computenode_replica_count, autoscaler: $autoscaler, zoscb: $zoscb, zosconnect: $zosconnect, wazidevspaces: $wazidevspaces, wazidevspacesversion: $wazidevspacesversion }')
+            printf '%s\n' "$JSON_STRING" > $GIT_CLONE_DIR/ocp/ansible/extravars.json
+            pip3 install --user -r $GIT_CLONE_DIR/ocp/ansible/requirements.txt            
 
-            export TF_LOG=DEBUG
-            export TF_LOG_PATH=/home/ec2-user/zmodstack/aws/terraform/tf-trace.log
-            terraform init -input=false
-            terraform plan -out=tfplan -input=false
-            terraform apply -input=false tfplan
-
-            # Retreieve terraform exit code
+            # Run ansible playbooks to install OCP and set cloudformation ecode
+            ansible-galaxy collection install -r $GIT_CLONE_DIR/ocp/ansible/requirements.yml
+            cd $GIT_CLONE_DIR/ocp/ansible && ansible-playbook playbooks/ocp-install.yaml --extra-vars "@extravars.json" 
             ecode=$?
-            
-            # Setup kubeconfig for ec2-user
-            mkdir -p /home/ec2-user/.kube/
-            cp /home/ec2-user/zmodstack/aws/terraform/installer-files/auth/kubeconfig /home/ec2-user/.kube/
-            mv /home/ec2-user/.kube/kubeconfig /home/ec2-user/.kube/config
-            export KUBECONFIG=$KUBECONFIG:/home/ec2-user/.kube/config
-            echo 'export KUBECONFIG=$KUBECONFIG:/home/ec2-user/.kube/config' >> ~/.bash_profile
-            chown -R ec2-user:ec2-user /home/ec2-user/.kube
+
+            # Run ansible playbooks to install IBM Z & Cloud Modernization Stack component/product Operators
+            cd $GIT_CLONE_DIR/ocp/ansible && ansible-playbook playbooks/main.yaml --extra-vars "@extravars.json" 
 
             # Copy values logs to S3
             aws s3 cp /var/log/cloud-init-output.log s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_cloud-init-output.log
-            aws s3 cp /home/ec2-user/zmodstack/aws/terraform/tf-trace.log s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_tf-trace.log
-            aws s3 cp /home/ec2-user/zmodstack/aws/terraform/terraform.tfstate s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_terraform.tfstate
             
             # send completion signal
             ln -s /aws-cfn-bootstrap-2.0/cfnbootstrap /usr/lib/python3.8/site-packages/cfnbootstrap
@@ -606,9 +655,9 @@ Resources:
                     print(instanceID)
                     response = ssm.send_command(Targets=[{"Key":"instanceids","Values":[instanceID]}],
                             DocumentName="AWS-RunShellScript",
-                            Parameters={"commands":["/home/ec2-user/destroy.sh %s" %(stackname)],
+                            Parameters={"commands":["/mnt/destroy.sh %s" %(stackname)],
                                         "executionTimeout":["1200"],
-                                        "workingDirectory":["/home/ec2-user"]},
+                                        "workingDirectory":["/mnt"]},
                             Comment="Execute script in uninstall openshift",
                             TimeoutSeconds=120)
                     print(response)
@@ -678,3 +727,8 @@ Outputs:
   OpenshiftPassword:
     Description: OpenShift password secret.
     Value: !Ref OpenshiftSecret
+
+  WaziDevspacesConsole:
+    Description: The URL for the Wazi Devspaces UI.
+    Condition: WaziDevspacesCheck
+    Value: !GetAtt WaziDevspacesURL.Value

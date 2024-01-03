@@ -1,0 +1,35 @@
+---
+- name: Deploy and configure an e2e zmodstack demo environment
+  hosts: localhost
+  # gather_facts: false
+  tasks:
+    - name: Check for and create Secret if necessary
+      ansible.builtin.import_role:
+        name: ocp
+      tags:
+        - ssh
+
+    - name: Run the Wazi-aaS role to create an instance
+      ansible.builtin.import_role:
+        name: "wazi-aas"
+      vars:
+        action: create
+      tags:
+        - create
+
+    - name: Run the Wazi-aaS role to delete an instance
+      ansible.builtin.import_role:
+        name: "wazi-aas"
+      vars:
+        action: delete
+      tags:
+        - delete
+
+    # - name: Create z/OS Cloud Broker ZosEndpoint CR
+    #   ansible.builtin.include_role:
+    #     name: "zoscb"
+    #     tasks_from: zosendpoint
+    #   vars:
+    #     # noqa: var-naming[no-role-prefix]
+    #     zvsi_host: "{{ fip.address }}"
+    #     action: create

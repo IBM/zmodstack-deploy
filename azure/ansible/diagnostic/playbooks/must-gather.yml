@@ -1,0 +1,60 @@
+---
+- name: Gather IBM Z and Cloud Modernization Stack deployment logs
+  hosts: all
+  gather_facts: true
+  vars:
+    - timestamp: "{{ ansible_date_time.epoch }}"
+    # NOTE: Using ~ will cause steps that use 'become: true' to attempt to write to the root home dir
+    - dir_mg: "/home/{{ ansible_user }}/zmodstack/must-gather"
+    - dir_mgts: "{{ dir_mg }}/{{ ansible_date_time.epoch }}"
+    - dir_out: ~/Downloads
+    - file_archive: "zmodstack-{{ timestamp }}.tar.bz2"
+  tasks:
+    - name: "Create must-gather directory: {{ dir_mgts }}"
+      ansible.builtin.file:
+        path: "{{ dir_mgts }}"
+        state: directory
+        mode: '750'
+    - name: Gather OpenShift install log
+      ansible.builtin.copy:
+        src: /mnt/openshift/openshiftfourx/.openshift_install.log
+        dest: "{{ dir_mgts }}/openshift_install.log"
+        remote_src: "{{ remote_host }}"
+        mode: '400'
+      ignore_errors: true
+      register: ignore_errors_register
+    - name: Gather bootstrap script handler log
+      ansible.builtin.copy:
+        src: /var/log/azure/custom-script/handler.log
+        dest: "{{ dir_mgts }}/handler.log"
+        remote_src: "{{ remote_host }}"
+        mode: "400"
+      ignore_errors: true
+      register: ignore_errors_register
+    - name: Gather bootstrap script files
+      ansible.builtin.copy:
+        src: "/var/lib/waagent/custom-script/download/0/"
+        dest: "{{ dir_mgts }}/."
+        # Note: remote_src is purposefully hardcoded to true, see https://superuser.com/a/1805812/239541
+        remote_src: true
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "750"
+      become: true
+    - name: Create an archive of all data gathered
+      community.general.archive:
+        path:
+          - "{{ dir_mgts }}/*"
+        dest: "{{ dir_mgts }}/{{ file_archive }}"
+        format: bz2
+        mode: "400"
+    - name: Fetch archive from Bootstrap VM to local system
+      ansible.builtin.fetch:
+        src: "{{ dir_mgts }}/{{ file_archive }}"
+        dest: "{{ dir_out }}/{{ file_archive }}"
+        flat: true
+    - name: Prints folder in local system where logs are copied
+      ansible.builtin.debug:
+        msg: >-
+          IBM Z and Cloud Modernization Stack must-gather data has been copied to {{ dir_out }}/{{ file_archive }}.
+          Logs may contain sensitive information, limit access and sanitize data as necessary.

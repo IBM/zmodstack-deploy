@@ -1,0 +1,75 @@
+---
+- include_vars: autoscaler.yml
+
+- name: Query MachineSet
+  kubernetes.core.k8s_info:
+    api_version: machine.openshift.io/v1beta1
+    kind: MachineSet
+    namespace: openshift-machine-api
+  register: machineset
+
+- name: Get ClusterID 
+  ansible.builtin.command: oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.labels.machine\.openshift\.io/cluster-api-cluster}'
+  register: clusterid_output
+
+- name: Set clusterID as fact
+  ansible.builtin.set_fact:
+    clusterid: "{{ clusterid_output.stdout }}"
+
+- name: debug
+  ansible.builtin.debug:
+    var: clusterid
+
+- name: Execute Cluster Autoscaler
+  kubernetes.core.k8s:
+    state: present
+    src: files/cluster-autoscaler.yaml
+
+- name: Jinja Conversion for Machine Autoscaler Yaml 
+  ansible.builtin.template:
+    src: files/machine-autoscaler1z.yaml
+    dest: "{{ playbook_dir }}/installer-workspace/machine-autoscaler1z.yaml"
+    mode: '0644'
+
+- name: Execute Machine Autoscaler for availability_zone1
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/installer-workspace/machine-autoscaler1z.yaml"
+
+- name: Jinja Conversion for Machine Autoscaler Yaml
+  ansible.builtin.template:
+    src: files/machine-autoscaler3z.yaml
+    dest: "{{ playbook_dir }}/installer-workspace/machine-autoscaler3z.yaml"
+    mode: '0644'
+  when: az == "multi_zone"
+
+- name: Execute Machine Autoscaler for availability_zone2 and availability_zone3
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/installer-workspace/machine-autoscaler3z.yaml"
+  when: az == "multi_zone"
+
+- name: Jinja Conversion for Machine Health Check Yaml
+  ansible.builtin.template:
+    src: files/machine-health-check1z.yaml
+    dest: "{{ playbook_dir }}/installer-workspace/machine-health-check1z.yaml"
+    mode: '0644'
+
+- name: Execute Machine Health Check availability_zone1
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/installer-workspace/machine-health-check1z.yaml"
+
+- name: Jinja Conversion for Machine Health Check Yaml
+  ansible.builtin.template:
+    src: files/machine-health-check3z.yaml
+    dest: "{{ playbook_dir }}/installer-workspace/machine-health-check3z.yaml"
+    mode: '0644'
+  when: az == "multi_zone"
+
+- name: Execute Machine Health Check availability_zone2 and availability_zone3
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/installer-workspace/machine-health-check3z.yaml"
+  when: az == "multi_zone"
+  
