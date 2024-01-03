@@ -37,7 +37,7 @@ platform:
     userTags:
       "zmodstack:provisioner": openshift-install
       "zmodstack:cfn-stack-name": {{ cluster_name }}
-publish: {% if private_cluster=='true' %}"Internal"{% else %}"External"{% endif %}
+publish: "External"
 pullSecret: '{{ lookup('file', '{{ playbook_dir }}/pull-secret') }}'
 sshKey: {{ public_ssh_key }}
 fips: {{ enable_fips }}

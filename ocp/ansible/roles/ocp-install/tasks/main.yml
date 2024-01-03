@@ -58,7 +58,7 @@
 
 - name: Jinja Conversion for Install Config yaml
   ansible.builtin.template:
-    src: "files/aws-install-config.yaml"
+    src: "files/aws-sno-install-config.yaml"
     dest: "{{ playbook_dir }}/installer-workspace/install-config.yaml"
     mode: '0644'
 
