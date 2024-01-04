@@ -18,7 +18,7 @@
   become_user: "{{ bootstrap_admin_username }}"
 - name: Jinja Conversion for Machine Autoscaler Yaml
   ansible.builtin.template:
-    src: files/machine-autoscaler.yaml.j2
+    src: templates/machine-autoscaler.yaml.j2
     dest: "{{ git_clone_dir }}/azure/scripts/ansible/playbooks/roles/autoscaler/files/machine-autoscaler.yaml"
     mode: '0644'
 - name: Execute Machine Autoscaler
@@ -29,7 +29,7 @@
   become_user: "{{ bootstrap_admin_username }}"
 - name: Jinja Conversion for Machine Health Check Yaml
   ansible.builtin.template:
-    src: files/machine-health-check.yaml.j2
+    src: templates/machine-health-check.yaml.j2
     dest: "{{ git_clone_dir }}/azure/scripts/ansible/playbooks/roles/autoscaler/files/machine-health-check.yaml"
     mode: '0644'
 - name: Execute Machine Health Check
