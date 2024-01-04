@@ -112,12 +112,6 @@
   become_user: "{{ bootstrap_admin_username }}"
   register: command_output
   changed_when: true
-- name: Install IBM Operator Catalogue
-  kubernetes.core.k8s:
-    state: present
-    src: files/ibm-operator-catalog.yaml
-  become: true
-  become_user: "{{ bootstrap_admin_username }}"
 - name: Create a directory kube for root user
   ansible.builtin.file:
     path: "~/.kube"
