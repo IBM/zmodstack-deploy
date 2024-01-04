@@ -1,0 +1,5 @@
+---
+- name: "Install Red Hat OpenShift Pipelines"
+  kubernetes.core.k8s:
+    state: present
+    src: "files/pipeline-subscription.yaml"
