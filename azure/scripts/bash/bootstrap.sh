@@ -163,11 +163,6 @@ ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/deploy.yaml \
   -e subscription_id=$SUBSCRIPTION_ID \
   -e tenant_id=$TENANT_ID
 
-# Execute Ansible playbook to deploy IBM Z and Cloud Modernization Stack
+# Execute Ansible playbook to Install Operators
 cd $GIT_CLONE_DIR/ocp/ansible
-ansible-playbook playbooks/main.yaml \
-  -e zoscb=$ZOS_CLOUD_BROKER_INSTALL \
-  -e zosconnect=$ZOS_CONNECT_INSTALL \
-  -e wazidevspaces=$WAZI_DEVSPACES_INSTALL \
-  -e wazidevspacesversion=$WAZI_DEVSPACES_VERSION \
-  -e openshift_username=$OPENSHIFT_USERNAME
+ansible-playbook playbooks/op-install.yaml
