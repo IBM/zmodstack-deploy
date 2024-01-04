@@ -1,2 +1,5 @@
 ---
-# tasks file for ibm-op-cat
+- name: Install IBM Operator Catalogue
+  kubernetes.core.k8s:
+    state: present
+    src: files/ibm-operator-catalog.yaml
