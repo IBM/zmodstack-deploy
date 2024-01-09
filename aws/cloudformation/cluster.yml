@@ -613,8 +613,8 @@ Resources:
             cd $GIT_CLONE_DIR/ocp/ansible && ansible-playbook playbooks/ocp-install.yaml --extra-vars "@extravars.json" 
             ecode=$?
 
-            # Run ansible playbooks to install IBM Z & Cloud Modernization Stack component/product Operators
-            cd $GIT_CLONE_DIR/ocp/ansible && ansible-playbook playbooks/main.yaml --extra-vars "@extravars.json" 
+            # Run ansible playbooks to install Operators
+            cd $GIT_CLONE_DIR/ocp/ansible && ansible-playbook playbooks/op-install.yaml --extra-vars "@extravars.json" 
 
             # Copy values logs to S3
             aws s3 cp /var/log/cloud-init-output.log s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_cloud-init-output.log
