@@ -560,7 +560,7 @@ Resources:
             mkdir -p $GIT_CLONE_DIR
 
             # Clone git repo containing automation scripts for AWS
-            git clone --no-checkout -b release-2023.4.1 https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
+            git clone --no-checkout -b main https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
             cd $GIT_CLONE_DIR && git sparse-checkout set aws ocp && git checkout @
             source $GIT_CLONE_DIR/aws/scripts/bootnode-bootstrap.sh
 
