@@ -560,7 +560,7 @@ Resources:
             mkdir -p $GIT_CLONE_DIR
 
             # Clone git repo containing automation scripts for AWS
-            git clone --no-checkout -b release-2023.4.1 https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
+            git clone --no-checkout -b main https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
             cd $GIT_CLONE_DIR && git sparse-checkout set aws ocp && git checkout @
             source $GIT_CLONE_DIR/aws/scripts/bootnode-bootstrap.sh
 
@@ -613,8 +613,8 @@ Resources:
             cd $GIT_CLONE_DIR/ocp/ansible && ansible-playbook playbooks/ocp-install.yaml --extra-vars "@extravars.json" 
             ecode=$?
 
-            # Run ansible playbooks to install IBM Z & Cloud Modernization Stack component/product Operators
-            cd $GIT_CLONE_DIR/ocp/ansible && ansible-playbook playbooks/main.yaml --extra-vars "@extravars.json" 
+            # Run ansible playbooks to install Operators
+            cd $GIT_CLONE_DIR/ocp/ansible && ansible-playbook playbooks/op-install.yaml --extra-vars "@extravars.json" 
 
             # Copy values logs to S3
             aws s3 cp /var/log/cloud-init-output.log s3://${S3BucketName}/zmodstack/logs/${AWS::StackName}_cloud-init-output.log

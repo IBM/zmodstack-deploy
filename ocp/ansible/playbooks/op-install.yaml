@@ -1,0 +1,33 @@
+---
+- name: Install Operators
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Section for IBM Operator Catalog role
+      block:
+        - name: Execution of role
+          ansible.builtin.include_role:
+            name: ibm-op-cat
+      rescue:
+        - name: Error in role execution
+          ansible.builtin.debug:
+            msg: "Error in ibm-op-cat role run"
+      always:
+        - name: End of role execution
+          ansible.builtin.debug:
+            msg: "End of ibm-op-cat role run"
+
+    - name: Section for OpenShift Pipelines role
+      block:
+        - name: Execution of role
+          ansible.builtin.include_role:
+            name: ocp-pipelines
+      rescue:
+        - name: Error in role execution
+          ansible.builtin.debug:
+            msg: "Error in ocp-pipelines role run"
+      always:
+        - name: End of role execution
+          ansible.builtin.debug:
+            msg: "End of ocp-pipelines role run"

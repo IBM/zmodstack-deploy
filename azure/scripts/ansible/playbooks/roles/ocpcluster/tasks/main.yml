@@ -38,14 +38,14 @@
     mode: '0775'
 - name: Jinja conversion for Service Principal json
   ansible.builtin.template:
-    src: files/service-principal.json.j2
+    src: templates/service-principal.json.j2
     dest: "/home/{{ bootstrap_admin_username }}/.azure/osServicePrincipal.json"
     owner: "{{ bootstrap_admin_username }}"
     group: "{{ bootstrap_admin_username }}"
     mode: '0644'
 - name: Jinja Conversion for Install Config yaml
   ansible.builtin.template:
-    src: files/install-config.yaml.j2
+    src: templates/install-config.yaml.j2
     dest: "{{ git_clone_dir }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/install-config.yaml"
     mode: '0644'
 - name: Create a directory for OpenShift installation
@@ -112,12 +112,6 @@
   become_user: "{{ bootstrap_admin_username }}"
   register: command_output
   changed_when: true
-- name: Install IBM Operator Catalogue
-  kubernetes.core.k8s:
-    state: present
-    src: files/ibm-operator-catalog.yaml
-  become: true
-  become_user: "{{ bootstrap_admin_username }}"
 - name: Create a directory kube for root user
   ansible.builtin.file:
     path: "~/.kube"

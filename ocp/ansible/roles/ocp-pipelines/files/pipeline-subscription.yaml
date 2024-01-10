@@ -1,0 +1,10 @@
+---
+kind: Subscription
+apiVersion: operators.coreos.com/v1alpha1
+metadata:
+  name: openshift-pipelines-operator
+  namespace: openshift-operators
+spec:
+  name: openshift-pipelines-operator-rh
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace

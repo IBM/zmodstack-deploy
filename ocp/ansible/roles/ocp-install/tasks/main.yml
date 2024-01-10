@@ -128,11 +128,6 @@
   pause:
     seconds: 300
 
-- name: Install IBM Operator Catalogue
-  kubernetes.core.k8s:
-    state: present
-    src: "files/ibm-operator-catalog.yaml"
-
 - name: Retrieve the default storage class
   ansible.builtin.command: oc get sc
   register: storage_class_output
