@@ -8,7 +8,6 @@
   kubernetes.core.k8s_info:
     namespace: "{{ pipelines_subscription.namespace }}"
     kind: "{{ pipelines_subscription.kind }}"
-    name: "{{ pipelines_subscription.name }}"
     api_version: "{{ pipelines_subscription.apiVersion }}"
   register: pipelines_info
   until:
