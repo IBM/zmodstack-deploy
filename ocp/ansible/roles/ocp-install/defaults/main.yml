@@ -33,7 +33,7 @@ computenode_instance_volume_type: "gp2"
 control_plane_node_instance_type: "m5.2xlarge"
 control_plane_node_instance_volume_size: 150
 control_plane_node_instance_volume_type: "gp2"
-cluster_network_cidr: "172.20.0.0/14"
+cluster_network_cidr: "10.128.0.0/14"
 cluster_network_host_prefix: 23
 service_network_cidr: "172.30.0.0/16"
 private_cluster: false
