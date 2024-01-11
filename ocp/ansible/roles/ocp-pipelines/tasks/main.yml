@@ -3,3 +3,33 @@
   kubernetes.core.k8s:
     state: present
     src: "files/pipeline-subscription.yaml"
+
+- name: "Verify Red Hat OpenShift Pipelines Subscription Info"
+  kubernetes.core.k8s_info:
+    namespace: "{{ pipelines_subscription.namespace }}"
+    kind: "{{ pipelines_subscription.kind }}"
+    name: "{{ pipelines_subscription.name }}"
+    api_version: "{{ pipelines_subscription.apiVersion }}"
+  register: pipelines_info
+  until:
+    - "pipelines_info.resources is defined and pipelines_info.resources | length > 0"
+    - "'phase' in pipelines_info.resources[0].status and pipelines_info.resources[0].status.phase == 'Succeeded'"
+  retries: 30
+  delay: 10
+
+- name: "Create project with Native YAML API for OCP Pipelines"
+  kubernetes.core.k8s:
+    state: present
+    src: "files/pipeline-project.yaml"
+
+- name: "Deploy Ansible Task"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ pipelines.namespace }}"
+    src: "files/ansible.yaml"
+
+- name: "Install OCP Pipeline for z/OS Cloud Broker"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ pipelines.namespace }}"
+    src: "files/zoscb-install-pipeline.yaml"
