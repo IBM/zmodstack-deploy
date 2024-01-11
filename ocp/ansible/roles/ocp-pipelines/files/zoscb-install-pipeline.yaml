@@ -10,7 +10,7 @@ spec:
         - name: url
           value: 'https://github.com/IBM/zmodstack-deploy.git'
         - name: revision
-          value: pipelines
+          value: issue-97
       taskRef:
         kind: ClusterTask
         name: git-clone
