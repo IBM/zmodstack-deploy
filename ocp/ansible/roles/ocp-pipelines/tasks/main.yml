@@ -27,6 +27,26 @@
     namespace: "{{ pipelines.namespace }}"
     src: "files/ansible.yaml"
 
+- name: "Create Roles"
+  kubernetes.core.k8s:
+    state: present
+    src: "files/roles.yaml"
+
+- name: "Create Role Bindings"
+  kubernetes.core.k8s:
+    state: present
+    src: "files/role-bindings.yaml"
+
+- name: "Create Cluster Roles"
+  kubernetes.core.k8s:
+    state: present
+    src: "files/cluster-roles.yaml"
+
+- name: "Create Cluster Role Bindings"
+  kubernetes.core.k8s:
+    state: present
+    src: "files/cluster-role-bindings.yaml"
+
 - name: "Install OCP Pipeline for z/OS Cloud Broker"
   kubernetes.core.k8s:
     state: present
