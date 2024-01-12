@@ -1,0 +1,43 @@
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ibm-zmodstack-deploy-role-1
+  namespace: openshift-operators
+rules:
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - subscriptions
+    verbs:
+      - get
+      - patch
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ibm-zmodstack-deploy-role-2
+  namespace: ibm-zmodstack-cloudbroker
+rules:
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - operatorgroups
+    verbs:
+      - create
+      - patch
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ibm-zmodstack-deploy-role-3
+  namespace: ibm-zmodstack-cloudbroker
+rules:
+  - apiGroups:
+      - zoscb.ibm.com
+    resources:
+      - zoscloudbrokers
+    verbs:
+      - get

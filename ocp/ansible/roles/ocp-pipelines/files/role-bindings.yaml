@@ -1,0 +1,44 @@
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ibm-zmodstack-deploy-role-binding-1
+  namespace: openshift-operators
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: ibm-zmodstack-pipelines
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ibm-zmodstack-deploy-role-1
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ibm-zmodstack-deploy-role-binding-2
+  namespace: ibm-zmodstack-cloudbroker
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: ibm-zmodstack-pipelines
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ibm-zmodstack-deploy-role-2
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ibm-zmodstack-deploy-role-binding-3
+  namespace: ibm-zmodstack-cloudbroker
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: ibm-zmodstack-pipelines
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ibm-zmodstack-deploy-role-3
