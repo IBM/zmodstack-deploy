@@ -16,7 +16,8 @@
   kubernetes.core.k8s:
     state: present
     src: "files/project.yaml"
-    apply: yes
+  register: create_project
+  failed_when: create_project.status != 409
   tags: project  
 
 - name: List all storage classes to capture default storage class name
