@@ -7,7 +7,7 @@
     namespace: "openshift-operators"
     src: "files/foundational-services.yaml"
 
-- name: Create OCP project for IBM z/OS Cloud Broker
+- name: Create workspace directory for IBM z/OS Cloud Broker
   ansible.builtin.file:
     path: "{{ playbook_dir }}/ansible-workspace/zoscb"
     state: directory
@@ -16,6 +16,7 @@
   kubernetes.core.k8s:
     state: present
     src: "files/project.yaml"
+    apply: yes
   tags: project  
 
 - name: List all storage classes to capture default storage class name
