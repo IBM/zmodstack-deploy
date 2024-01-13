@@ -163,6 +163,6 @@ ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/deploy.yaml \
   -e subscription_id=$SUBSCRIPTION_ID \
   -e tenant_id=$TENANT_ID
 
-# Execute Ansible playbook to Install Operators
+# Execute Ansible playbook to Install IBM Operator Catlog and OpenShift Pipelines
 cd $GIT_CLONE_DIR/ocp/ansible
-ansible-playbook playbooks/op-install.yaml
+ansible-playbook playbooks/op-install.yaml --tags "project, pipelines"

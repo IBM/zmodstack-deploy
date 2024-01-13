@@ -16,6 +16,7 @@
   kubernetes.core.k8s:
     state: present
     src: "files/project.yaml"
+  tags: project  
 
 - name: List all storage classes to capture default storage class name
   kubernetes.core.k8s_info:

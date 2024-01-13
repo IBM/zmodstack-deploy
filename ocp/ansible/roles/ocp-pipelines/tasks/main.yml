@@ -4,15 +4,12 @@
     state: present
     src: "files/pipeline-subscription.yaml"
 
-- name: "Verify Red Hat OpenShift Pipelines Subscription Info"
-  kubernetes.core.k8s_info:
-    namespace: "{{ pipelines_subscription.namespace }}"
-    kind: "{{ pipelines_subscription.kind }}"
-    api_version: "{{ pipelines_subscription.apiVersion }}"
-  register: pipelines_info
+- name: "Verify Red Hat OpenShift Pipelines Operator is installed successfully"
+  ansible.builtin.command: oc get tektonconfig config
+  register: pipelines_status
+  changed_when: false
   until:
-    - "pipelines_info.resources is defined and pipelines_info.resources | length > 0"
-    - "'phase' in pipelines_info.resources[0].status and pipelines_info.resources[0].status.phase == 'Succeeded'"
+    - "'True' in pipelines_status.stdout"
   retries: 30
   delay: 10
 
