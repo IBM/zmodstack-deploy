@@ -20,16 +20,9 @@
 
     - name: Section for OpenShift Pipelines role
       block:
-        - name: Execution of zoscb role
-          ansible.builtin.include_role:
-            name: zoscb
-          tags: project
-        - name: Execution of ocp-pipelines role
+        - name: Execution of role
           ansible.builtin.include_role:
             name: ocp-pipelines
-            apply:
-              tags: pipelines
-          tags: pipelines
       rescue:
         - name: Error in role execution
           ansible.builtin.debug:

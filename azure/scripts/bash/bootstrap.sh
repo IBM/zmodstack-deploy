@@ -165,4 +165,4 @@ ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/deploy.yaml \
 
 # Execute Ansible playbook to Install IBM Operator Catlog and OpenShift Pipelines
 cd $GIT_CLONE_DIR/ocp/ansible
-ansible-playbook playbooks/op-install.yaml --tags "project, pipelines"
+ansible-playbook playbooks/op-install.yaml
