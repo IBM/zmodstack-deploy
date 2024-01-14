@@ -11,7 +11,7 @@
   until:
     - "'True' in pipelines_status.stdout"
   retries: 30
-  delay: 10
+  delay: 15
 
 - name: "Create project with Native YAML API for OCP Pipelines"
   kubernetes.core.k8s:
