@@ -24,16 +24,6 @@
     namespace: "{{ pipelines.namespace }}"
     src: "files/ansible.yaml"
 
-- name: "Create Roles"
-  kubernetes.core.k8s:
-    state: present
-    src: "files/roles.yaml"
-
-- name: "Create Role Bindings"
-  kubernetes.core.k8s:
-    state: present
-    src: "files/role-bindings.yaml"
-
 - name: "Create Cluster Roles"
   kubernetes.core.k8s:
     state: present
