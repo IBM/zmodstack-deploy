@@ -42,3 +42,33 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: ibm-zmodstack-deploy-role-3
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ibm-zmodstack-deploy-role-binding-4
+  namespace: ibm-zmodstack-cloudbroker
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: ibm-zmodstack-pipelines
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ibm-zmodstack-deploy-role-4
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ibm-zmodstack-deploy-role-binding-5
+  namespace: ibm-zmodstack-cloudbroker
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: ibm-zmodstack-pipelines
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ibm-zmodstack-deploy-role-5
