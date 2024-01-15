@@ -5,13 +5,13 @@
     src: "files/pipeline-subscription.yaml"
 
 - name: "Verify Red Hat OpenShift Pipelines Operator is installed successfully"
-  ansible.builtin.command: oc get tektonconfig config
+  ansible.builtin.command: oc get tektonconfig config --kubeconfig ~/.kube/config
   register: pipelines_status
   changed_when: false
   until:
     - "'True' in pipelines_status.stdout"
   retries: 30
-  delay: 15
+  delay: 30
 
 - name: "Create project with Native YAML API for OCP Pipelines"
   kubernetes.core.k8s:
