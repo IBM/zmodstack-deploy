@@ -1,6 +1,2 @@
 ---
-# *************************************
-# OCP Pipelines Variables
-# *************************************
-pipelines:
-  namespace: ibm-zmodstack-pipelines
+# vars file for ocp-pipelines

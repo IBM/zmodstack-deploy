@@ -330,7 +330,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Condition: AZValidation
     Properties:
-      TemplateURL: https://z-mod-stack-aws-dev.s3.amazonaws.com/branches/issue-97/cloudformation/cluster.yml
+      TemplateURL: https://ibm-zmodstack-public.s3.amazonaws.com/cloudformation/cluster.yml
       Tags:
         - Key: zmodstack:provisioner
           Value: cloudformation

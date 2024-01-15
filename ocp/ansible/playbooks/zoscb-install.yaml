@@ -1,34 +1,16 @@
-###############################################################################
-# © Copyright IBM Corporation 2022
-###############################################################################
-
 ---
 - name: Deploy z/OS Cloud Broker
   hosts: localhost
+  gather_facts: false
   become: false
   collections:
     - ibm.ibm_zos_core
   vars:
     ansible_python_interpreter: /usr/bin/python3
 
-  gather_facts: false
-
   tasks:
-    # ****************************************************************************************************************************
-    # *
-    # *  Playbook section for creating all ZmodSTack resources
-    # *
-    # ****************************************************************************************************************************
-
-    - name: Deploy IBM z/OS Cloud and Modenization Stack - Openshift z/OS Cloud Broker Operator
+    - name: Deploy IBM z/OS Cloud Broker Operator
       block:
-        # ****************************************************************************************************************************
-        # *
-        # Install IBM z/OS Cloud Broker
-        # *
-        # ****************************************************************************************************************************
-
-        # Dynamically INCLUDE ansible role
-        - name: Include z/OS Dev Install role/task tagged for z/OS Cloud Broker
+        - name: Include z/OS Dev Install role for z/OS Cloud Broker
           ansible.builtin.include_role:
             name: "zoscb"

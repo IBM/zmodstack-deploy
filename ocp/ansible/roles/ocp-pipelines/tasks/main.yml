@@ -21,7 +21,7 @@
 - name: "Deploy Ansible Task"
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ pipelines.namespace }}"
+    namespace: "ibm-zmodstack-pipelines"
     src: "files/ansible.yaml"
 
 - name: "Create Cluster Roles"
