@@ -443,7 +443,6 @@ Resources:
                   - logs:FilterLogEvents
                 Resource:
                   - '*'
-
   BootNodeIamRole:
     Type: AWS::IAM::Role
     Properties:
@@ -546,7 +545,7 @@ Resources:
         - {IAMUserAccessKey: !Ref IAMUserAccessKey, IAMUserSecret: !GetAtt [IAMUserAccessKey, SecretAccessKey]}
 
   BootnodeInstance:
-    DependsOn: VPCGatewayAttachment
+    DependsOn: NATGateway1
     Type: AWS::EC2::Instance
     Metadata:
       AWS::CloudFormation::Init:
@@ -702,7 +701,6 @@ Resources:
             AvailabilityZone1: !Select [0, !Ref AvailabilityZones]
   
   CleanUpLambda:
-    DependsOn: VPCGatewayAttachment
     Type: AWS::Lambda::Function
     Properties:
       Code:
