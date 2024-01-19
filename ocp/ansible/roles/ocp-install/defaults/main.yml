@@ -30,7 +30,7 @@ existing_openshift_token: ""
 computenode_instance_type: "m5.4xlarge"
 computenode_instance_volume_size: 150
 computenode_instance_volume_type: "gp2"
-control_plane_node_instance_type: "m5.2xlarge"
+control_plane_node_instance_type: "m5.4xlarge"
 control_plane_node_instance_volume_size: 150
 control_plane_node_instance_volume_type: "gp2"
 cluster_network_cidr: "10.128.0.0/14"
