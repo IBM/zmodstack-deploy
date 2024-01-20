@@ -1,0 +1,28 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: zosconnect-install
+spec:
+  description: Task to install z/OS Cloud Broker
+  params:
+    - default: ocp/ansible
+      description: A directory containing an ansible project with playbooks/roles
+      name: project-dir
+      type: string
+    - default: ansible-playbook playbooks/zosconnect-install.yaml
+      description: The full ansible command to execute from the project-dir
+      name: ansible-command
+      type: string
+  steps:
+    - image: 'icr.io/zmodstack/deploy/tekton-ansible:latest'
+      name: run-ansible
+      resources: {}
+      script: |
+        #!/bin/bash
+        set -ex
+        $(params.ansible-command)
+      workingDir: $(workspaces.ws.path)/$(params.project-dir)
+  workspaces:
+    - description: A workspace containing an ansible project
+      name: ws

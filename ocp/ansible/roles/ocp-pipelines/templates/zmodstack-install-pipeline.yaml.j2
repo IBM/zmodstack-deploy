@@ -1,0 +1,58 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: zmodstack-install-pipeline
+spec:
+  params:
+    - default: '{{ zoscb }}'
+      description: Install z/OS Cloud Broker Operator (true / false)
+      name: zoscb-install
+      type: string
+    - default: '{{ zosconnect }}'
+      description: Install z/OS Connect Operator (true / false)
+      name: zosconnect-install
+      type: string
+  tasks:
+    - name: git-clone-zmodstack
+      params:
+        - name: url
+          value: 'https://github.com/IBM/zmodstack-deploy.git'
+        - name: revision
+          value: trial
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: zmodstack-ws
+    - name: zoscb-install-zmodstack
+      runAfter:
+        - git-clone-zmodstack
+      taskRef:
+        kind: Task
+        name: zoscb-install
+      when:
+        - input: $(params.zoscb-install)
+          operator: in
+          values:
+            - 'true'
+      workspaces:
+        - name: ws
+          workspace: zmodstack-ws
+    - name: zosconnect-install-zmodstack
+      runAfter:
+        - git-clone-zmodstack
+      taskRef:
+        kind: Task
+        name: zosconnect-install
+      when:
+        - input: $(params.zosconnect-install)
+          operator: in
+          values:
+            - 'true'
+      workspaces:
+        - name: ws
+          workspace: zmodstack-ws
+  workspaces:
+    - name: zmodstack-ws

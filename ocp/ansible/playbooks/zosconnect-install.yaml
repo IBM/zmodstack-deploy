@@ -1,0 +1,16 @@
+---
+- name: Deploy z/OS Connect
+  hosts: localhost
+  gather_facts: false
+  become: false
+  collections:
+    - ibm.ibm_zos_core
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  tasks:
+    - name: Deploy IBM z/OS Connect Operator
+      block:
+        - name: Include z/OS Dev Install role for z/OS Connect
+          ansible.builtin.include_role:
+            name: "zosconnect"
