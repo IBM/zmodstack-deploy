@@ -6,6 +6,3 @@ metadata:
   annotations:
     openshift.io/description: "Project containing the OpenShift Pipelines for IBM Z and Cloud Modernization Stack installation"
     openshift.io/display-name: "OpenShift Pipelines"
-spec:
-  finalizers:
-    - kubernetes
