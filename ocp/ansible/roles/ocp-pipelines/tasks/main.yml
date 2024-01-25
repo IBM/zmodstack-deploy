@@ -5,11 +5,14 @@
     src: "files/pipeline-subscription.yaml"
 
 - name: "Verify Red Hat OpenShift Pipelines Operator is installed successfully"
-  ansible.builtin.command: oc get tektonconfig config --kubeconfig ~/.kube/config
+  kubernetes.core.k8s_info:
+    api_version: operator.tekton.dev/v1alpha1
+    kind: TektonConfig
+    name: config
   register: pipelines_status
-  changed_when: false
   until:
-    - "'True' in pipelines_status.stdout"
+    - "pipelines_status.resources[0].status is defined"
+    - "'Ready' in pipelines_status.resources[0].status.conditions[5].type and 'True' in pipelines_status.resources[0].status.conditions[5].status"
   retries: 30
   delay: 30
 
