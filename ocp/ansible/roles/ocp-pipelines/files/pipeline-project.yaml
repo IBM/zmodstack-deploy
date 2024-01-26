@@ -1,0 +1,8 @@
+---
+kind: Project
+apiVersion: "project.openshift.io/v1"
+metadata:
+  name: "ibm-zmodstack-pipelines"
+  annotations:
+    openshift.io/description: "Project containing the OpenShift Pipelines for IBM Z and Cloud Modernization Stack installation"
+    openshift.io/display-name: "OpenShift Pipelines"

@@ -1,0 +1,14 @@
+---
+- name: Deploy z/OS Cloud Broker
+  hosts: localhost
+  gather_facts: false
+  become: false
+  collections:
+    - ibm.ibm_zos_core
+
+  tasks:
+    - name: Deploy IBM z/OS Cloud Broker Operator
+      block:
+        - name: Include z/OS Dev Install role for z/OS Cloud Broker
+          ansible.builtin.include_role:
+            name: "zoscb"

@@ -1,0 +1,20 @@
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ibm-zmodstack-deploy-cluster-role
+rules:
+  - verbs:
+      - get
+      - create
+      - patch
+    apiGroups:
+      - project.openshift.io
+      - operators.coreos.com
+      - zoscb.ibm.com
+    resources:
+      - projectrequests
+      - subscriptions
+      - operatorgroups
+      - zoscloudbrokers
+      - persistentvolumeclaims

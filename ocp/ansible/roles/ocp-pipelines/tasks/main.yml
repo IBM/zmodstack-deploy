@@ -3,3 +3,58 @@
   kubernetes.core.k8s:
     state: present
     src: "files/pipeline-subscription.yaml"
+
+- name: "Verify Red Hat OpenShift Pipelines Operator is installed successfully"
+  kubernetes.core.k8s_info:
+    api_version: operator.tekton.dev/v1alpha1
+    kind: TektonConfig
+    name: config
+  register: pipelines_status
+  until:
+    - "pipelines_status.resources[0].status is defined"
+    - "'Ready' in pipelines_status.resources[0].status.conditions[5].type and 'True' in pipelines_status.resources[0].status.conditions[5].status"
+  retries: 30
+  delay: 30
+
+- name: "Create project with Native YAML API for OCP Pipelines"
+  kubernetes.core.k8s:
+    state: present
+    src: "files/pipeline-project.yaml"
+
+- name: "Deploy z/OS Cloud Broker install Task"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ibm-zmodstack-pipelines"
+    src: "files/zoscb-install-task.yaml"
+
+- name: "Deploy z/OS Connect install Task"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ibm-zmodstack-pipelines"
+    src: "files/zosconnect-install-task.yaml"
+
+- name: "Create Cluster Roles"
+  kubernetes.core.k8s:
+    state: present
+    src: "files/cluster-roles.yaml"
+
+- name: "Create Cluster Role Bindings"
+  kubernetes.core.k8s:
+    state: present
+    src: "files/cluster-role-bindings.yaml"
+
+- name: "Create ansible-workspace directory for OpenShift Pipelines"
+  ansible.builtin.file:
+    path: "{{ playbook_dir }}/ansible-workspace/ocp-pipelines/generated_yamls"
+    state: directory
+
+- name: "Create Pipeline file"
+  ansible.builtin.template:
+    src: templates/zmodstack-install-pipeline.yaml.j2
+    dest: "{{ playbook_dir }}/ansible-workspace/ocp-pipelines/generated_yamls/zmodstack-install-pipeline.yaml"
+
+- name: "Create Pipeline"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "ibm-zmodstack-pipelines"
+    src: "{{ playbook_dir }}/ansible-workspace/ocp-pipelines/generated_yamls/zmodstack-install-pipeline.yaml"

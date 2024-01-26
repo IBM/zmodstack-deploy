@@ -7,7 +7,7 @@
     namespace: "openshift-operators"
     src: "files/foundational-services.yaml"
 
-- name: Create OCP project for IBM z/OS Cloud Broker
+- name: Create workspace directory for IBM z/OS Cloud Broker
   ansible.builtin.file:
     path: "{{ playbook_dir }}/ansible-workspace/zoscb"
     state: directory

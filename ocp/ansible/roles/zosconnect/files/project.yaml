@@ -5,4 +5,4 @@ metadata:
   name: "ibm-zmodstack-zosconnect"
   annotations:
     openshift.io/description: "Project containing the IBM Z and Cloud Modernization Stack z/OS Connect installation"
-    openshift.io/display-name: "IBM z/OS Cloud Broker"
+    openshift.io/display-name: "IBM z/OS Connect"
