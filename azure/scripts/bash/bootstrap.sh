@@ -109,6 +109,7 @@ export ZOS_CLOUD_BROKER_INSTALL=$(armParm zosCloudBrokerInstall)
 export ZOS_CONNECT_INSTALL=$(armParm zosConnectInstall)
 export WAZI_DEVSPACES_INSTALL=$(armParm waziDevspacesInstall)
 export WAZI_DEVSPACES_VERSION=$(armParm waziDevspacesVersion)
+export SNO=$(armVar sno)
 
 # Wait for cloud-init to finish
 count=0
@@ -161,7 +162,8 @@ ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/deploy.yaml \
   -e openshift_username=$OPENSHIFT_USERNAME \
   -e openshift_password=$OPENSHIFT_PASSWORD \
   -e subscription_id=$SUBSCRIPTION_ID \
-  -e tenant_id=$TENANT_ID
+  -e tenant_id=$TENANT_ID \
+  -e sno=$SNO
 
 # Execute Ansible playbook to Install IBM Operator Catlog and OpenShift Pipelines
 cd $GIT_CLONE_DIR/ocp/ansible

@@ -254,13 +254,12 @@
     "bootstrapSubnetName": "bootstrapSubnet",
     "networkResourceGroup": "[parameters('virtualNetworkResourceGroup')]",
     "enableFips": false,
-    "enableAutoscaler": false,
     "outboundType": "Loadbalancer",
     "privateOrPublicEndpoints": "public",
     "vTrue": true,
     "bootstrapPublicIpDnsLabelName": "[format('bootstrapdns{0}', uniqueString(resourceGroup().id))]",
     "sshKeyPath": "[format('/home/{0}/.ssh/authorized_keys', parameters('bootstrapAdminUsername'))]",
-    "bootstrapScriptUrl": "https://raw.githubusercontent.com/IBM/zmodstack-deploy/main/azure/scripts/bash/bootstrap-sno.sh",
+    "bootstrapScriptUrl": "https://raw.githubusercontent.com/IBM/zmodstack-deploy/main/azure/scripts/bash/bootstrap.sh",
     "bootstrapScriptFileName": "bootstrap.sh",
     "subscriptionId": "[subscription().subscriptionId]",
     "tenantId": "[subscription().tenantId]",
@@ -274,7 +273,8 @@
     },
     "openshiftConsoleURL": "[uri(format('https://console-openshift-console.apps.{0}.{1}', parameters('clusterName'), parameters('dnsZoneName')), '/')]",
     "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-    "roleDefinitionName": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName')), variables('roleDefinitionId'), resourceGroup().id)]"
+    "roleDefinitionName": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName')), variables('roleDefinitionId'), resourceGroup().id)]",
+    "sno": true
   },
   "resources": [
     {
@@ -657,10 +657,6 @@
       "type": "bool",
       "value": "[variables('enableFips')]"
     },
-    "enable_Autoscaler": {
-      "type": "bool",
-      "value": "[variables('enableAutoscaler')]"
-    },
     "outbound_Type": {
       "type": "string",
       "value": "[variables('outboundType')]"
@@ -708,6 +704,10 @@
     "wazi_Devspaces_Version": {
       "type": "string",
       "value": "[parameters('waziDevspacesVersion')]"
+    },
+     "sno": {
+      "type": "string",
+      "value": "[variables('sno')]"
     }
   }
 }
