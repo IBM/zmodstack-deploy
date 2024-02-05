@@ -104,13 +104,6 @@
         "description": "VNet Address Prefix. Minimum address prefix is /24"
       }
     },
-    "controlplaneSubnetCIDR": {
-      "type": "string",
-      "defaultValue": "10.0.1.0/24",
-      "metadata": {
-        "description": "Controlplane subnet address prefix"
-      }
-    },
     "bootstrapSubnetCIDR": {
       "type": "string",
       "defaultValue": "10.0.3.0/27",
@@ -281,7 +274,6 @@
     "bootstrapDiskSize": 100,
     "bootstrapDiskType": "StandardSSD_LRS",
     "publicBootstrapIP": true,
-    "controlplaneSecurityGroupName": "controlplane-nsg",
     "bootstrapSecurityGroupName": "bootstrap-nsg",
     "bootstrapSubnetName": "bootstrapSubnet",
     "networkResourceGroup": "[parameters('virtualNetworkResourceGroup')]",
@@ -310,7 +302,7 @@
   },
   "resources": [
     {
-      "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'new')]",
+      "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'existing')]",
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2022-09-01",
       "name": "[parameters('virtualNetworkName')]",
@@ -336,21 +328,11 @@
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bootstrapSecurityGroupName'))]"
               }
             }
-          },
-          {
-            "name": "[variables('controlplaneSubnetName')]",
-            "properties": {
-              "addressPrefix": "[parameters('controlplaneSubnetCIDR')]",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('controlplaneSecurityGroupName'))]"
-              }
-            }
           }
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bootstrapSecurityGroupName'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('controlplaneSecurityGroupName'))]"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bootstrapSecurityGroupName'))]"
       ]
     },
     {
@@ -520,36 +502,6 @@
         "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', variables('bootstrapHostnameName')))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName'))]"
       ]
-    },
-    {
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2022-09-01",
-      "name": "[variables('controlplaneSecurityGroupName')]",
-      "location": "[parameters('location')]",
-      "tags": {
-        "displayName": "ControlplaneNSG",
-        "app": "[variables('redHatTags').app]",
-        "version": "[variables('redHatTags').version]",
-        "platform": "[variables('redHatTags').platform]"
-      },
-      "properties": {
-        "securityRules": [
-          {
-            "name": "allowHTTPS_all",
-            "properties": {
-              "description": "Allow HTTPS connections from all locations",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "6443",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 200,
-              "direction": "Inbound"
-            }
-          }
-        ]
-      }
     },
     {
       "condition": "[equals(parameters('zModStackLicenseAgreement'), 'accept')]",
@@ -782,7 +734,7 @@
       "value": "[parameters('waziDevspacesVersion')]"
     },
      "sno": {
-      "type": "string",
+      "type": "bool",
       "value": "[variables('sno')]"
     }
   }

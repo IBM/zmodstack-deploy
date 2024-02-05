@@ -365,7 +365,8 @@
     },
     "openshiftConsoleURL": "[uri(format('https://console-openshift-console.apps.{0}.{1}', parameters('clusterName'), parameters('dnsZoneName')), '/')]",
     "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-    "roleDefinitionName": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName')), variables('roleDefinitionId'), resourceGroup().id)]"
+    "roleDefinitionName": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName')), variables('roleDefinitionId'), resourceGroup().id)]",
+    "sno": false
   },
   "resources": [
     {
@@ -917,6 +918,10 @@
     "wazi_Devspaces_Version": {
       "type": "string",
       "value": "[parameters('waziDevspacesVersion')]"
+    },
+    "sno": {
+      "type": "bool",
+      "value": "[variables('sno')]"
     }
   }
 }
