@@ -733,7 +733,7 @@
       "type": "string",
       "value": "[parameters('waziDevspacesVersion')]"
     },
-     "sno": {
+    "sno": {
       "type": "bool",
       "value": "[variables('sno')]"
     }
