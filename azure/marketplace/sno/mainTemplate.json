@@ -72,6 +72,17 @@
         "description": "Controlplane Host VM storage"
       }
     },
+    "virtualNetworkNewOrExisting": {
+      "type": "string",
+      "defaultValue": "existing",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "Deploy in new Virtual Network or in existing cluster. If existing Virtual Network, make sure the new resources are in the same zone."
+      }
+    },
     "virtualNetworkResourceGroup": {
       "type": "string",
       "defaultValue": "[resourceGroup().name]",
@@ -84,6 +95,27 @@
       "defaultValue": "myVNet",
       "metadata": {
         "description": "Name of new or existing Virtual Network"
+      }
+    },
+    "virtualNetworkCIDR": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "VNet Address Prefix. Minimum address prefix is /24"
+      }
+    },
+    "controlplaneSubnetCIDR": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24",
+      "metadata": {
+        "description": "Controlplane subnet address prefix"
+      }
+    },
+    "bootstrapSubnetCIDR": {
+      "type": "string",
+      "defaultValue": "10.0.3.0/27",
+      "metadata": {
+        "description": "Bootstrap subnet address prefix"
       }
     },
     "singleZoneOrMultiZone": {
@@ -277,6 +309,50 @@
     "sno": true
   },
   "resources": [
+    {
+      "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'new')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2022-09-01",
+      "name": "[parameters('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "VirtualNetwork",
+        "app": "[variables('redHatTags').app]",
+        "version": "[variables('redHatTags').version]",
+        "platform": "[variables('redHatTags').platform]"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('virtualNetworkCIDR')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('bootstrapSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('bootstrapSubnetCIDR')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bootstrapSecurityGroupName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('controlplaneSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('controlplaneSubnetCIDR')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('controlplaneSecurityGroupName'))]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bootstrapSecurityGroupName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('controlplaneSecurityGroupName'))]"
+      ]
+    },
     {
       "condition": "[equals(variables('publicBootstrapIP'), variables('vTrue'))]",
       "type": "Microsoft.Network/publicIPAddresses",
