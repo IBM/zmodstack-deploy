@@ -7,13 +7,17 @@ on:
       - 'azure/**'
 
 env:
-  ARM_TEMPLATE_BICEP: ./azure/marketplace/sno/mainTemplate.bicep
-  ARM_TEMPLATE_JSON: ./azure/marketplace/sno/mainTemplate.json
-  ARM_TEMPLATE_BICEP_TO_JSON: ./azure/marketplace/sno/mainTemplateBicepToJson.json
-  WORK_DIR: ./azure/marketplace/sno
+  ARM_TEMPLATE_BICEP: ./azure/marketplace/mainTemplate.bicep
+  ARM_TEMPLATE_JSON: ./azure/marketplace/mainTemplate.json
+  ARM_TEMPLATE_BICEP_TO_JSON: ./azure/marketplace/mainTemplateBicepToJson.json
+  WORK_DIR: ./azure/marketplace
+  ARM_TEMPLATE_BICEP_SNO: ./azure/marketplace/sno/mainTemplate.bicep
+  ARM_TEMPLATE_JSON_SNO: ./azure/marketplace/sno/mainTemplate.json
+  ARM_TEMPLATE_BICEP_TO_JSON_SNO: ./azure/marketplace/sno/mainTemplateBicepToJson.json
+  WORK_DIR_SNO: ./azure/marketplace/sno
 
 jobs: 
-  deploy:
+  test:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repository
@@ -31,3 +35,21 @@ jobs:
       uses: microsoft/action-armttk@v1
       with:
         workdir: ${{ env.WORK_DIR }} 
+  test-sno:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Create ARM Template in JSON from ARM Template in Bicep
+      uses: Azure/bicep-build-action@v1.0.1
+      with:
+        bicepFilePath: ${{ env.ARM_TEMPLATE_BICEP_SNO }}
+        outputFilePath: ${{ env.ARM_TEMPLATE_BICEP_TO_JSON_SNO }} 
+    - name: Check mainTemplate.json is Latest
+      run: diff ${{ env.ARM_TEMPLATE_JSON_SNO }} ${{ env.ARM_TEMPLATE_BICEP_TO_JSON_SNO }}
+      shell: bash
+      continue-on-error: true  
+    - name: Run ARM-TTK
+      uses: microsoft/action-armttk@v1
+      with:
+        workdir: ${{ env.WORK_DIR_SNO }} 

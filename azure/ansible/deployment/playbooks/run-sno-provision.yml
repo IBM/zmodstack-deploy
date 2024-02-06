@@ -1,14 +1,14 @@
 ---
-- name: Create OpenShift Cluster
+- name: Create Single Node OpenShift Cluster
   hosts: localhost
 
   vars:
     resource_group_name: z-mod-stack-dev
     location: eastus
     cluster_resource_group_name: z-mod-stack-ocp-dev
-    deployment_name: OpenShift-Dev
-    arm_template: "{{ lookup('file', '../../../marketplace/mainTemplate.json') }}"
-    arm_parameters: "{{ (lookup('file', '../../../marketplace/mainParameters.json') | from_json).parameters }}"
+    deployment_name: Single-Node-OpenShift-Dev
+    arm_template: "{{ lookup('file', '../../../marketplace/sno/mainTemplate.json') }}"
+    arm_parameters: "{{ (lookup('file', '../../../marketplace/sno/mainParameters.json') | from_json).parameters }}"
 
   tasks:
     - name: Create a Resource Group for Deployment
@@ -16,12 +16,12 @@
         name: "{{ resource_group_name }}"
         location: "{{ location }}"
 
-    - name: Create a Resource Group for OpenShift Cluster
+    - name: Create a Resource Group for Single Node OpenShift Cluster
       azure.azcollection.azure_rm_resourcegroup:
         name: "{{ cluster_resource_group_name }}"
         location: "{{ location }}"
 
-    - name: Deploy OpenShift Cluster
+    - name: Deploy Single Node OpenShift Cluster
       azure.azcollection.azure_rm_deployment:
         name: "{{ deployment_name }}"
         resource_group_name: "{{ resource_group_name }}"
