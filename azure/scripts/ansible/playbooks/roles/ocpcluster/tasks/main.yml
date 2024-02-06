@@ -43,13 +43,13 @@
     owner: "{{ bootstrap_admin_username }}"
     group: "{{ bootstrap_admin_username }}"
     mode: '0644'
-- name: Jinja Conversion for Install Config yaml
+- name: Jinja Conversion of Install Config yaml
   ansible.builtin.template:
     src: templates/install-config.yaml.j2
     dest: "{{ git_clone_dir }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/install-config.yaml"
     mode: '0644'
   when: not sno
-- name: Jinja Conversion for Install Config yaml
+- name: Jinja Conversion of Install Config yaml for Single Node OpenShift
   ansible.builtin.template:
     src: templates/install-config-sno.yaml.j2
     dest: "{{ git_clone_dir }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/install-config.yaml"
