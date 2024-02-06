@@ -37,6 +37,7 @@ jobs:
         #ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_DEPROVISION }}
       shell: bash
   deploy-sno:
+    needs: deploy
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repository
