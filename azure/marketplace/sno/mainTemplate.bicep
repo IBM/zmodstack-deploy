@@ -27,13 +27,6 @@ param controlplaneDiskSize int = 100
 @description('Controlplane Host VM storage')
 param controlplaneDiskType string = 'StandardSSD_LRS'
 
-@description('Deploy in new Virtual Network or in existing cluster. If existing Virtual Network, make sure the new resources are in the same zone.')
-@allowed([
-  'new'
-  'existing'
-])
-param virtualNetworkNewOrExisting string = 'existing'
-
 @description('Resource Group for Virtual Network .')
 param virtualNetworkResourceGroup string = resourceGroup().name
 
@@ -174,7 +167,7 @@ var roleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', 'b2
 var roleDefinitionName = guid(managedId.id, roleDefinitionId, resourceGroup().id)
 var sno = true
 
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-09-01' = if (virtualNetworkNewOrExisting == 'existing') {
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-09-01' = {
   name: virtualNetworkName
   location: location
   tags: {

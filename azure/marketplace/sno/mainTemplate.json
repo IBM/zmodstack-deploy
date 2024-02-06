@@ -72,17 +72,6 @@
         "description": "Controlplane Host VM storage"
       }
     },
-    "virtualNetworkNewOrExisting": {
-      "type": "string",
-      "defaultValue": "existing",
-      "allowedValues": [
-        "new",
-        "existing"
-      ],
-      "metadata": {
-        "description": "Deploy in new Virtual Network or in existing cluster. If existing Virtual Network, make sure the new resources are in the same zone."
-      }
-    },
     "virtualNetworkResourceGroup": {
       "type": "string",
       "defaultValue": "[resourceGroup().name]",
@@ -302,7 +291,6 @@
   },
   "resources": [
     {
-      "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'existing')]",
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2022-09-01",
       "name": "[parameters('virtualNetworkName')]",
