@@ -13,6 +13,7 @@ on:
 
 env:
   ANSIBLE_PLAYBOOK_PROVISION: ./azure/ansible/deployment/playbooks/run-provision.yml
+  ANSIBLE_PLAYBOOK_SNO_PROVISION: ./azure/ansible/deployment/playbooks/run-sno-provision.yml
   ANSIBLE_PLAYBOOK_VALIDATE: ./azure/ansible/deployment/playbooks/run-validate.yml
   ANSIBLE_PLAYBOOK_DEPROVISION: ./azure/ansible/deployment/playbooks/run-deprovision.yml
 
@@ -35,3 +36,21 @@ jobs:
         ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_VALIDATE }} -e ocp_password=${{ secrets.AZURE_OCP_PASSWORD }}
         #ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_DEPROVISION }}
       shell: bash
+  deploy-sno:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2 
+    - name: 'AZ CLI login'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Run Ansible Playbooks
+      run: |
+        ansible-galaxy collection install azure.azcollection --force
+        pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
+        pip install 'ansible[azure]'
+        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_SNO_PROVISION }}
+        ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_VALIDATE }} -e ocp_password=${{ secrets.AZURE_OCP_PASSWORD }}
+        #ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_DEPROVISION }}
+      shell: bashz
