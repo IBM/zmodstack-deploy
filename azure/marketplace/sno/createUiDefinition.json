@@ -370,6 +370,7 @@
       "bootstrapVmSize": "[steps('InfrastructureConfig').bootstrapVmSize]",
       "bootstrapSshPublicKey": "[steps('InfrastructureConfig').SSHCredentials.sshPublicKey]",
       "controlplaneVmSize": "[steps('InfrastructureConfig').controlplaneVmSize]",
+      "virtualNetworkNewOrExisting": "[steps('InfrastructureConfig').virtualNetwork.newOrExisting]",
       "virtualNetworkResourceGroup": "[steps('InfrastructureConfig').virtualNetwork.resourceGroup]",
       "virtualNetworkName": "[steps('InfrastructureConfig').virtualNetwork.name]",
       "virtualNetworkCIDR": "[steps('InfrastructureConfig').virtualNetwork.addressPrefix]",
