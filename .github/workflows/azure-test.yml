@@ -10,7 +10,7 @@ env:
   ARM_TEMPLATE_BICEP: ./azure/marketplace/sno/mainTemplate.bicep
   ARM_TEMPLATE_JSON: ./azure/marketplace/sno/mainTemplate.json
   ARM_TEMPLATE_BICEP_TO_JSON: ./azure/marketplace/sno/mainTemplateBicepToJson.json
-  WORK_DIR: ./azure/marketplace
+  WORK_DIR: ./azure/marketplace/sno
 
 jobs: 
   deploy:
