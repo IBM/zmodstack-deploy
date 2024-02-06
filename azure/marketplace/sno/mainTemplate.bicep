@@ -27,6 +27,13 @@ param controlplaneDiskSize int = 100
 @description('Controlplane Host VM storage')
 param controlplaneDiskType string = 'StandardSSD_LRS'
 
+@description('Deploy in new Virtual Network or in existing cluster. If existing Virtual Network, make sure the new resources are in the same zone.')
+@allowed([
+  'new'
+  'existing'
+])
+param virtualNetworkNewOrExisting string = 'existing'
+
 @description('Resource Group for Virtual Network .')
 param virtualNetworkResourceGroup string = resourceGroup().name
 
@@ -150,7 +157,7 @@ var privateOrPublicEndpoints = 'public'
 var vTrue = true
 var bootstrapPublicIpDnsLabelName = 'bootstrapdns${uniqueString(resourceGroup().id)}'
 var sshKeyPath = '/home/${bootstrapAdminUsername}/.ssh/authorized_keys'
-var bootstrapScriptUrl = 'https://raw.githubusercontent.com/IBM/zmodstack-deploy/main/azure/scripts/bash/bootstrap.sh'
+var bootstrapScriptUrl = 'https://raw.githubusercontent.com/IBM/zmodstack-deploy/sno-azure/azure/scripts/bash/bootstrap.sh'
 var bootstrapScriptFileName = 'bootstrap.sh'
 var subscriptionId = subscription().subscriptionId
 var tenantId = subscription().tenantId
@@ -167,7 +174,7 @@ var roleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', 'b2
 var roleDefinitionName = guid(managedId.id, roleDefinitionId, resourceGroup().id)
 var sno = true
 
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-09-01' = {
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-09-01' = if (virtualNetworkNewOrExisting == 'existing') {
   name: virtualNetworkName
   location: location
   tags: {
