@@ -60,9 +60,17 @@
   ansible.builtin.template:
     src: "files/aws-install-config.yaml"
     dest: "{{ playbook_dir }}/installer-workspace/install-config.yaml"
+    when: not sno | bool
     mode: '0644'
 
-- name: OCP install
+- name: Jinja Conversion for Install Config yaml SNO 
+  ansible.builtin.template:
+    src: "files/sno-install-config.yaml"
+    dest: "{{ playbook_dir }}/installer-workspace/install-config.yaml"
+    when: sno | bool
+    mode: '0644'
+
+- name: OpenShift Cluster installation
   ansible.builtin.command: "{{ playbook_dir }}/installer-workspace/openshift-install create cluster --dir={{ playbook_dir }}/installer-workspace/ --log-level=debug"
   register: command_output
   changed_when: true

@@ -54,3 +54,10 @@ openshift_version: "4.12"
 
 ###########################################################
 autoscaler: false
+
+#####################################
+defaults for sno cluster 
+#####################################
+sno_control_plane_node_instance_volume_size: 200
+sno_control_plane_node_instance_type: 
+
