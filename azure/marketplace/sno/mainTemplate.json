@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "17161476897335131917"
+      "templateHash": "3841431661025229077"
     }
   },
   "parameters": {
@@ -51,20 +51,9 @@
         "description": "SSH public key for all VMs"
       }
     },
-    "controlplaneInstanceCount": {
-      "type": "int",
-      "defaultValue": 3,
-      "allowedValues": [
-        3,
-        5
-      ],
-      "metadata": {
-        "description": "Number of OpenShift Controlplane nodes."
-      }
-    },
     "controlplaneVmSize": {
       "type": "string",
-      "defaultValue": "Standard_D4s_v3",
+      "defaultValue": "Standard_D8s_v3",
       "metadata": {
         "description": "Size of the VM to serve as a Controlplane node"
       }
@@ -83,47 +72,9 @@
         "description": "Controlplane Host VM storage"
       }
     },
-    "computeInstanceCount": {
-      "type": "int",
-      "defaultValue": 3,
-      "allowedValues": [
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10
-      ],
-      "metadata": {
-        "description": "Number of OpenShift Compute nodes"
-      }
-    },
-    "computeVmSize": {
-      "type": "string",
-      "defaultValue": "Standard_D4s_v3",
-      "metadata": {
-        "description": "Size of the VM to serve as a Compute node"
-      }
-    },
-    "computeDiskSize": {
-      "type": "int",
-      "defaultValue": 100,
-      "metadata": {
-        "description": "Size of compute VM OSdisk in GB"
-      }
-    },
-    "computeDiskType": {
-      "type": "string",
-      "defaultValue": "StandardSSD_LRS",
-      "metadata": {
-        "description": "Compute Host VM storage"
-      }
-    },
     "virtualNetworkNewOrExisting": {
       "type": "string",
-      "defaultValue": "new",
+      "defaultValue": "existing",
       "allowedValues": [
         "new",
         "existing"
@@ -151,20 +102,6 @@
       "defaultValue": "10.0.0.0/16",
       "metadata": {
         "description": "VNet Address Prefix. Minimum address prefix is /24"
-      }
-    },
-    "controlplaneSubnetCIDR": {
-      "type": "string",
-      "defaultValue": "10.0.1.0/24",
-      "metadata": {
-        "description": "Controlplane subnet address prefix"
-      }
-    },
-    "computeSubnetCIDR": {
-      "type": "string",
-      "defaultValue": "10.0.2.0/24",
-      "metadata": {
-        "description": "Compute subnet address prefix"
       }
     },
     "bootstrapSubnetCIDR": {
@@ -337,15 +274,10 @@
     "bootstrapDiskSize": 100,
     "bootstrapDiskType": "StandardSSD_LRS",
     "publicBootstrapIP": true,
-    "computeSecurityGroupName": "compute-nsg",
-    "controlplaneSecurityGroupName": "controlplane-nsg",
     "bootstrapSecurityGroupName": "bootstrap-nsg",
-    "controlplaneSubnetName": "controlplaneSubnet",
-    "computeSubnetName": "computeSubnet",
     "bootstrapSubnetName": "bootstrapSubnet",
     "networkResourceGroup": "[parameters('virtualNetworkResourceGroup')]",
     "enableFips": false,
-    "enableAutoscaler": false,
     "outboundType": "Loadbalancer",
     "privateOrPublicEndpoints": "public",
     "vTrue": true,
@@ -366,11 +298,11 @@
     "openshiftConsoleURL": "[uri(format('https://console-openshift-console.apps.{0}.{1}', parameters('clusterName'), parameters('dnsZoneName')), '/')]",
     "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
     "roleDefinitionName": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdName')), variables('roleDefinitionId'), resourceGroup().id)]",
-    "sno": false
+    "sno": true
   },
   "resources": [
     {
-      "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'new')]",
+      "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'existing')]",
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2022-09-01",
       "name": "[parameters('virtualNetworkName')]",
@@ -396,31 +328,11 @@
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bootstrapSecurityGroupName'))]"
               }
             }
-          },
-          {
-            "name": "[variables('controlplaneSubnetName')]",
-            "properties": {
-              "addressPrefix": "[parameters('controlplaneSubnetCIDR')]",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('controlplaneSecurityGroupName'))]"
-              }
-            }
-          },
-          {
-            "name": "[variables('computeSubnetName')]",
-            "properties": {
-              "addressPrefix": "[parameters('computeSubnetCIDR')]",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('computeSecurityGroupName'))]"
-              }
-            }
           }
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bootstrapSecurityGroupName'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('computeSecurityGroupName'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('controlplaneSecurityGroupName'))]"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bootstrapSecurityGroupName'))]"
       ]
     },
     {
@@ -592,80 +504,6 @@
       ]
     },
     {
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2022-09-01",
-      "name": "[variables('controlplaneSecurityGroupName')]",
-      "location": "[parameters('location')]",
-      "tags": {
-        "displayName": "ControlplaneNSG",
-        "app": "[variables('redHatTags').app]",
-        "version": "[variables('redHatTags').version]",
-        "platform": "[variables('redHatTags').platform]"
-      },
-      "properties": {
-        "securityRules": [
-          {
-            "name": "allowHTTPS_all",
-            "properties": {
-              "description": "Allow HTTPS connections from all locations",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "6443",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 200,
-              "direction": "Inbound"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2022-09-01",
-      "name": "[variables('computeSecurityGroupName')]",
-      "location": "[parameters('location')]",
-      "tags": {
-        "displayName": "ComputeNSG",
-        "app": "[variables('redHatTags').app]",
-        "version": "[variables('redHatTags').version]",
-        "platform": "[variables('redHatTags').platform]"
-      },
-      "properties": {
-        "securityRules": [
-          {
-            "name": "allowHTTPS_all",
-            "properties": {
-              "description": "Allow HTTPS connections from all locations",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "443",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 200,
-              "direction": "Inbound"
-            }
-          },
-          {
-            "name": "allowHTTPIn_all",
-            "properties": {
-              "description": "Allow HTTP connections from all locations",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "80",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 300,
-              "direction": "Inbound"
-            }
-          }
-        ]
-      }
-    },
-    {
       "condition": "[equals(parameters('zModStackLicenseAgreement'), 'accept')]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2022-11-01",
@@ -815,10 +653,6 @@
       "type": "string",
       "value": "[parameters('aadApplicationId')]"
     },
-    "controlplane_Instance_Count": {
-      "type": "int",
-      "value": "[parameters('controlplaneInstanceCount')]"
-    },
     "controlplane_Vm_Size": {
       "type": "string",
       "value": "[parameters('controlplaneVmSize')]"
@@ -830,22 +664,6 @@
     "controlplane_Disk_Type": {
       "type": "string",
       "value": "[parameters('controlplaneDiskType')]"
-    },
-    "compute_Instance_Count": {
-      "type": "int",
-      "value": "[parameters('computeInstanceCount')]"
-    },
-    "compute_Vm_Size": {
-      "type": "string",
-      "value": "[parameters('computeVmSize')]"
-    },
-    "compute_Disk_Size": {
-      "type": "int",
-      "value": "[parameters('computeDiskSize')]"
-    },
-    "compute_Disk_Type": {
-      "type": "string",
-      "value": "[parameters('computeDiskType')]"
     },
     "single_Zone_Or_Multi_Zone": {
       "type": "string",
@@ -866,10 +684,6 @@
     "enable_Fips": {
       "type": "bool",
       "value": "[variables('enableFips')]"
-    },
-    "enable_Autoscaler": {
-      "type": "bool",
-      "value": "[variables('enableAutoscaler')]"
     },
     "outbound_Type": {
       "type": "string",

@@ -48,6 +48,13 @@
     src: templates/install-config.yaml.j2
     dest: "{{ git_clone_dir }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/install-config.yaml"
     mode: '0644'
+  when: not sno
+- name: Jinja Conversion for Install Config yaml of Single Node OpenShift
+  ansible.builtin.template:
+    src: templates/install-config-sno.yaml.j2
+    dest: "{{ git_clone_dir }}/azure/scripts/ansible/playbooks/roles/ocpcluster/files/install-config.yaml"
+    mode: '0644'
+  when: sno  
 - name: Create a directory for OpenShift installation
   ansible.builtin.file:
     path: "{{ installer_home }}/openshiftfourx"

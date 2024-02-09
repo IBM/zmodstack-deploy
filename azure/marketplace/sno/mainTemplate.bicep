@@ -18,15 +18,8 @@ param bootstrapVmSize string = 'Standard_D4s_v3'
 @description('SSH public key for all VMs')
 param bootstrapSshPublicKey string = ''
 
-@description('Number of OpenShift Controlplane nodes.')
-@allowed([
-  3
-  5
-])
-param controlplaneInstanceCount int = 3
-
 @description('Size of the VM to serve as a Controlplane node')
-param controlplaneVmSize string = 'Standard_D4s_v3'
+param controlplaneVmSize string = 'Standard_D8s_v3'
 
 @description('Size of controlplane VM OSdisk in GB')
 param controlplaneDiskSize int = 100
@@ -34,34 +27,12 @@ param controlplaneDiskSize int = 100
 @description('Controlplane Host VM storage')
 param controlplaneDiskType string = 'StandardSSD_LRS'
 
-@description('Number of OpenShift Compute nodes')
-@allowed([
-  3
-  4
-  5
-  6
-  7
-  8
-  9
-  10
-])
-param computeInstanceCount int = 3
-
-@description('Size of the VM to serve as a Compute node')
-param computeVmSize string = 'Standard_D4s_v3'
-
-@description('Size of compute VM OSdisk in GB')
-param computeDiskSize int = 100
-
-@description('Compute Host VM storage')
-param computeDiskType string = 'StandardSSD_LRS'
-
 @description('Deploy in new Virtual Network or in existing cluster. If existing Virtual Network, make sure the new resources are in the same zone.')
 @allowed([
   'new'
   'existing'
 ])
-param virtualNetworkNewOrExisting string = 'new'
+param virtualNetworkNewOrExisting string = 'existing'
 
 @description('Resource Group for Virtual Network .')
 param virtualNetworkResourceGroup string = resourceGroup().name
@@ -71,12 +42,6 @@ param virtualNetworkName string = 'myVNet'
 
 @description('VNet Address Prefix. Minimum address prefix is /24')
 param virtualNetworkCIDR string = '10.0.0.0/16'
-
-@description('Controlplane subnet address prefix')
-param controlplaneSubnetCIDR string = '10.0.1.0/24'
-
-@description('Compute subnet address prefix')
-param computeSubnetCIDR string = '10.0.2.0/24'
 
 @description('Bootstrap subnet address prefix')
 param bootstrapSubnetCIDR string = '10.0.3.0/27'
@@ -183,15 +148,10 @@ var role = 'bootstrap'
 var bootstrapDiskSize = 100
 var bootstrapDiskType = 'StandardSSD_LRS'
 var publicBootstrapIP = true
-var computeSecurityGroupName = 'compute-nsg'
-var controlplaneSecurityGroupName = 'controlplane-nsg'
 var bootstrapSecurityGroupName = 'bootstrap-nsg'
-var controlplaneSubnetName = 'controlplaneSubnet'
-var computeSubnetName = 'computeSubnet'
 var bootstrapSubnetName = 'bootstrapSubnet'
 var networkResourceGroup = virtualNetworkResourceGroup
 var enableFips = false
-var enableAutoscaler = false
 var outboundType = 'Loadbalancer'
 var privateOrPublicEndpoints = 'public'
 var vTrue = true
@@ -212,9 +172,9 @@ var publicIpId = {
 var openshiftConsoleURL = uri('https://console-openshift-console.apps.${clusterName}.${dnsZoneName}', '/')
 var roleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
 var roleDefinitionName = guid(managedId.id, roleDefinitionId, resourceGroup().id)
-var sno = false
+var sno = true
 
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-09-01' = if (virtualNetworkNewOrExisting == 'new') {
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-09-01' = if (virtualNetworkNewOrExisting == 'existing') {
   name: virtualNetworkName
   location: location
   tags: {
@@ -236,24 +196,6 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-09-01' = if (vir
           addressPrefix: bootstrapSubnetCIDR
           networkSecurityGroup: {
             id: bootstrapSecurityGroup.id
-          }
-        }
-      }
-      {
-        name: controlplaneSubnetName
-        properties: {
-          addressPrefix: controlplaneSubnetCIDR
-          networkSecurityGroup: {
-            id: controlplaneSecurityGroup.id
-          }
-        }
-      }
-      {
-        name: computeSubnetName
-        properties: {
-          addressPrefix: computeSubnetCIDR
-          networkSecurityGroup: {
-            id: computeSecurityGroup.id
           }
         }
       }
@@ -414,78 +356,6 @@ resource bootstrapHostname 'Microsoft.Compute/virtualMachines@2022-11-01' = {
   }
 }
 
-resource controlplaneSecurityGroup 'Microsoft.Network/networkSecurityGroups@2022-09-01' = {
-  name: controlplaneSecurityGroupName
-  location: location
-  tags: {
-    displayName: 'ControlplaneNSG'
-    app: redHatTags.app
-    version: redHatTags.version
-    platform: redHatTags.platform
-  }
-  properties: {
-    securityRules: [
-      {
-        name: 'allowHTTPS_all'
-        properties: {
-          description: 'Allow HTTPS connections from all locations'
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          destinationPortRange: '6443'
-          sourceAddressPrefix: '*'
-          destinationAddressPrefix: '*'
-          access: 'Allow'
-          priority: 200
-          direction: 'Inbound'
-        }
-      }
-    ]
-  }
-}
-
-resource computeSecurityGroup 'Microsoft.Network/networkSecurityGroups@2022-09-01' = {
-  name: computeSecurityGroupName
-  location: location
-  tags: {
-    displayName: 'ComputeNSG'
-    app: redHatTags.app
-    version: redHatTags.version
-    platform: redHatTags.platform
-  }
-  properties: {
-    securityRules: [
-      {
-        name: 'allowHTTPS_all'
-        properties: {
-          description: 'Allow HTTPS connections from all locations'
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          destinationPortRange: '443'
-          sourceAddressPrefix: '*'
-          destinationAddressPrefix: '*'
-          access: 'Allow'
-          priority: 200
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'allowHTTPIn_all'
-        properties: {
-          description: 'Allow HTTP connections from all locations'
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          destinationPortRange: '80'
-          sourceAddressPrefix: '*'
-          destinationAddressPrefix: '*'
-          access: 'Allow'
-          priority: 300
-          direction: 'Inbound'
-        }
-      }
-    ]
-  }
-}
-
 resource bootstrapHostnameName_bootstrap_sh 'Microsoft.Compute/virtualMachines/extensions@2022-11-01' = if (zModStackLicenseAgreement == 'accept') {
   parent: bootstrapHostname
   name: 'bootstrap.sh'
@@ -596,20 +466,14 @@ output bootstrap_Username string = bootstrapAdminUsername
 output openshift_Console_URL string = openshiftConsoleURL
 output openshift_Console_Username string = openshiftUsername
 output aad_Application_Id string = aadApplicationId
-output controlplane_Instance_Count int = controlplaneInstanceCount
 output controlplane_Vm_Size string = controlplaneVmSize
 output controlplane_Disk_Size int = controlplaneDiskSize
 output controlplane_Disk_Type string = controlplaneDiskType
-output compute_Instance_Count int = computeInstanceCount
-output compute_Vm_Size string = computeVmSize
-output compute_Disk_Size int = computeDiskSize
-output compute_Disk_Type string = computeDiskType
 output single_Zone_Or_Multi_Zone string = singleZoneOrMultiZone
 output dns_Zone_Resource_Group string = dnsZoneResourceGroup
 output cluster_Resource_Group_Name string = clusterResourceGroupName
 output openshift_Version string = openshiftVersion
 output enable_Fips bool = enableFips
-output enable_Autoscaler bool = enableAutoscaler
 output outbound_Type string = outboundType
 output subscription_Id string = subscriptionId
 output tenant_Id string = tenantId
