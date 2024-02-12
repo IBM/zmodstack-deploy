@@ -36,6 +36,7 @@ jobs:
         cfn-lint ./aws/cloudformation/cluster.yml
         cfn-lint ./aws/cloudformation/vpc.yml
         cfn-lint ./aws/cloudformation/main.yml
+        cfn-lint ./aws/cloudformation/sno.yml
 
     - name: 'AWS Configure'
       uses: aws-actions/configure-aws-credentials@v1
@@ -48,4 +49,5 @@ jobs:
       run: |
         aws s3 cp ./aws/cloudformation/cluster.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/cluster.yml
         aws s3 cp ./aws/cloudformation/vpc.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/vpc.yml
-        aws s3 cp ./aws/cloudformation/main.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/main.yml  
+        aws s3 cp ./aws/cloudformation/main.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/main.yml
+        aws s3 cp ./aws/cloudformation/main.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/sno.yml  
