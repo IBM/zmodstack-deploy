@@ -78,6 +78,16 @@
             }
           },
           {
+            "name": "releaseName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "ZModStack Release name",
+            "toolTip": "ZModStack release that should be used for the deployment",
+            "constraints": {
+              "regex": "^[a-zA-Z0-9-._]{1,}$",
+              "required": true
+            }
+          },
+          {
             "name": "zosCloudBrokerInstall",
             "type": "Microsoft.Common.CheckBox",
             "label": "Install z/OS Cloud Broker",
@@ -490,6 +500,7 @@
       "dnsZoneName": "[steps('DnsConfig').dnsZoneName]",
       "dnsZoneResourceGroup": "[steps('DnsConfig').dnsZoneResourceGroup]",
       "pullSecret": "[steps('OpenshiftConfig').pullSecret]",
+      "releaseName": "[steps('zModStackConfig').releaseName]",
       "openshiftUsername": "[steps('OpenshiftConfig').openshiftUsername]",
       "openshiftPassword": "[steps('OpenshiftConfig').openshiftPassword]",
       "openshiftVersion": "[steps('OpenshiftConfig').openshiftVersion]",
