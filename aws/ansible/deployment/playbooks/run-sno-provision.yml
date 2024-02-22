@@ -41,7 +41,6 @@
         disable_rollback: true
         template_url: "https://z-mod-stack-aws-dev.s3.us-east-2.amazonaws.com/branches/{{ branch_name }}/cloudformation/sno.yml"
         template_parameters:
-          NumberOfAZs: 1
           AvailabilityZones: "{{ zones }}"
           VPCCIDR: "{{ subnet }}.0.0/16"
           PrivateSubnet1CIDR: "{{ subnet }}.0.0/19"
@@ -49,7 +48,6 @@
           BootNodeInstanceType: t3.xlarge
           BootNodeAccessCIDR: 0.0.0.0/0
           DomainName: ibmzsoftware.com
-          NumberOfControlPlaneNode: 1
           ControlPlaneNodeInstanceType: m5.4xlarge
           S3BucketName: z-mod-stack-aws-dev
           OpenshiftVersion: "4.13"
