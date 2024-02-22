@@ -30,6 +30,12 @@
         "description": "Azure AD Client Secret"
       }
     },
+    "releaseName": {
+      "type": "string",
+      "metadata": {
+        "description": "Release which is to be installed"
+      }
+    },
     "bootstrapAdminUsername": {
       "type": "string",
       "minLength": 4,

@@ -105,6 +105,9 @@ param keyVaultName string = 'zmodkv${substring(uniqueString(resourceGroup().id),
 @description('Cluster resources prefix')
 param clusterName string = resourceGroup().name
 
+@description('Release to be installed')
+param releaseName string
+
 @description('OpenShift console login Username')
 param openshiftUsername string
 
@@ -594,6 +597,7 @@ resource keyVaultName_bootstrapSshPublicKey 'Microsoft.KeyVault/vaults/secrets@2
 output bootstrap_Public_IP string = reference(bootstrapPublicIpDnsLabel.id, '2022-09-01').ipAddress
 output bootstrap_Username string = bootstrapAdminUsername
 output openshift_Console_URL string = openshiftConsoleURL
+output releaseName string = releaseName
 output openshift_Console_Username string = openshiftUsername
 output aad_Application_Id string = aadApplicationId
 output controlplane_Instance_Count int = controlplaneInstanceCount

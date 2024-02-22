@@ -13,6 +13,7 @@ Metadata:
           - LicenseAgreement
           - APIKey
           - S3BucketName
+          - ReleaseName
       - Label:
           default: DNS configuration
         Parameters:
@@ -102,6 +103,8 @@ Metadata:
         default: Install IBM Wazi DevSpaces
       WaziDevspacesVersion:
         default: Version of IBM Wazi DevSpaces 
+      ReleaseName:
+        default: The release to be Deployed. Default being the latest release.
 
 Parameters:
   NumberOfAZs:
@@ -227,6 +230,10 @@ Parameters:
     Description: The OpenShift password for the OpenShift username created. This password will be used to login to the OpenShift Console.
     Type: String
     NoEcho: 'true'
+  ReleaseName:
+    Description: The release to be deployed.
+    Type: String
+    Default: 'release-2023.4.1'
   LicenseAgreement:
     Description: >-
       I have read and agree to the license terms for IBM Z and Cloud Modernization Stack. (https://ibm.biz/z-and-cloud-modernization-stack-license)
@@ -303,7 +310,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Condition: AZValidation
     Properties:
-      TemplateURL: https://ibm-zmodstack-public.s3.amazonaws.com/cloudformation/vpc.yml
+      TemplateURL: !Sub "https://z-mod-stack-aws-dev.s3.us-east-2.amazonaws.com/branches/${ReleaseName}/cloudformation/vpc.yml"
       Tags:
         - Key: zmodstack:provisioner
           Value: cloudformation
@@ -330,7 +337,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Condition: AZValidation
     Properties:
-      TemplateURL: https://ibm-zmodstack-public.s3.amazonaws.com/cloudformation/cluster.yml
+      TemplateURL: !Sub "https://z-mod-stack-aws-dev.s3.us-east-2.amazonaws.com/branches/${ReleaseName}/cloudformation/cluster.yml"
       Tags:
         - Key: zmodstack:provisioner
           Value: cloudformation
@@ -358,6 +365,7 @@ Resources:
         VPCID: !GetAtt 'VPCStack.Outputs.VPCID'
         DomainName: !Ref 'DomainName'
         LicenseAgreement: !Ref LicenseAgreement
+        ReleaseName: !Ref 'ReleaseName'
         APIKey: !Ref APIKey
         ClusterName: !Sub ${AWS::StackName}
         PrivateCluster: "false"

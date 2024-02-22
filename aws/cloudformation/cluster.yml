@@ -12,6 +12,7 @@ Metadata:
           - LicenseAgreement
           - APIKey
           - S3BucketName
+          - ReleaseName
       - Label:
           default: Network configuration
         Parameters:
@@ -110,6 +111,8 @@ Metadata:
         default: Install IBM Wazi DevSpaces
       WaziDevspacesVersion:
         default: Version of IBM Wazi DevSpaces 
+      ReleaseName: 
+        default: The release to be installed.
 
 Parameters:
   APIKey:
@@ -263,6 +266,10 @@ Parameters:
       - I agree
       - '-'
     ConstraintDescription: must answer 'I agree'
+  ReleaseName:
+    Description: The release that should be installed. By default latest release is selected.
+    Type: String
+    Default: 'release-2023.4.1'
 
 Mappings:
   AWSAMIRegionMap:
@@ -560,7 +567,7 @@ Resources:
             mkdir -p $GIT_CLONE_DIR
 
             # Clone git repo containing automation scripts for AWS
-            git clone --no-checkout -b main https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
+            git clone --no-checkout -b ${ReleaseName} https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
             cd $GIT_CLONE_DIR && git sparse-checkout set aws ocp && git checkout @
             source $GIT_CLONE_DIR/aws/scripts/bootnode-bootstrap.sh
 

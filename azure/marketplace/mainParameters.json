@@ -113,6 +113,9 @@
     },
     "waziDevspacesVersion": {
       "value": "3.x"
+    },
+    "releaseName": {
+      "value": "release-2023.4.1"
     }
   }
 }
