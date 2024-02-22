@@ -57,6 +57,7 @@
           OpenshiftPassword: "{{ OCP_PASSWORD }}"
           LicenseAgreement: I agree
           APIKey: "{{ API_KEY }}"
+          ClusterName: "{{ stack_name }}"
         tags:
           zmodstack:deployer: ansible
           zmodstack:cfn-stack-name: "{{ stack_name }}"

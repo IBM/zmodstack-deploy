@@ -222,7 +222,7 @@ Rules:
           - !ValueOfAll
             - AWS::EC2::Subnet::Id
             - VpcId
-          - !RefAll 'AWS::EC2::VPC::Id'
+          - !RefAll AWS::EC2::VPC::Id
         AssertDescription: All subnets must in the VPC
 
 Conditions:
@@ -244,8 +244,10 @@ Resources:
         - Fn::Sub: "${AWS::Region}.compute.internal"
       DomainNameServers:
       - AmazonProvidedDNS
+
   VPC:
     Type: AWS::EC2::VPC
+    DependsOn: DHCPOptions
     Properties:
       CidrBlock: !Ref VPCCIDR
       InstanceTenancy: default
@@ -254,22 +256,27 @@ Resources:
       Tags:
       - Key: Name
         Value: !Ref "AWS::StackName"
+
   VPCDHCPOptionsAssociation:
     Type: AWS::EC2::VPCDHCPOptionsAssociation
     Properties:
       VpcId: !Ref VPC
       DhcpOptionsId: !Ref DHCPOptions
+
   InternetGateway:
     Type: AWS::EC2::InternetGateway
+    DependsOn: VPC
     Properties:
       Tags:
       - Key: Name
         Value: !Ref "AWS::StackName"
+
   VPCGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
+
   PrivateSubnet1A:
     Type: AWS::EC2::Subnet
     Properties:
@@ -284,6 +291,7 @@ Resources:
         Value: Private subnet 1A
       - Key: Network
         Value: Private
+
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -299,8 +307,10 @@ Resources:
       - Key: Network
         Value: Public
       MapPublicIpOnLaunch: true
+
   PrivateSubnet1ARouteTable:
     Type: AWS::EC2::RouteTable
+    DependsOn: PrivateSubnet1A
     Properties:
       VpcId: !Ref VPC
       Tags:
@@ -308,19 +318,23 @@ Resources:
         Value: Private subnet 1A
       - Key: Network
         Value: Private
+
   PrivateSubnet1ARoute:
     Type: AWS::EC2::Route
     Properties:
       RouteTableId: !Ref PrivateSubnet1ARouteTable
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NATGateway1
+
   PrivateSubnet1ARouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PrivateSubnet1A
       RouteTableId: !Ref PrivateSubnet1ARouteTable
+
   PublicSubnetRouteTable:
     Type: AWS::EC2::RouteTable
+    DependsOn: PublicSubnet1
     Properties:
       VpcId: !Ref VPC
       Tags:
@@ -328,6 +342,7 @@ Resources:
         Value: Public Subnets
       - Key: Network
         Value: Public
+
   PublicSubnetRoute:
     DependsOn: VPCGatewayAttachment
     Type: AWS::EC2::Route
@@ -335,16 +350,19 @@ Resources:
       RouteTableId: !Ref PublicSubnetRouteTable
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref InternetGateway
+
   PublicSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnet1
       RouteTableId: !Ref PublicSubnetRouteTable
+  
   NAT1EIP:
     DependsOn: VPCGatewayAttachment
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
+  
   NATGateway1:
     DependsOn: VPCGatewayAttachment
     Type: AWS::EC2::NatGateway
@@ -354,6 +372,7 @@ Resources:
         - NAT1EIP
         - AllocationId
       SubnetId: !Ref PublicSubnet1
+  
   SecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
@@ -370,6 +389,7 @@ Resources:
           FromPort: -1
           ToPort: -1
           IpProtocol: '-1'
+
   S3VPCEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
@@ -388,20 +408,24 @@ Resources:
 
   KeyPairName:
     Type: 'AWS::EC2::KeyPair'
+    DependsOn: S3VPCEndpoint
     Properties:
       KeyName: !Ref ClusterName
       Tags:
         - Key: Name
           Value: !Ref ClusterName
+  
   IAMUser:
     Type: 'AWS::IAM::User'
     Properties:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
+  
   IAMUserAccessKey:
     Type: 'AWS::IAM::AccessKey'
     Properties:
       UserName: !Ref IAMUser
+  
   OpenshiftSecret:
     Type: "AWS::SecretsManager::Secret"
     Properties:
@@ -443,8 +467,10 @@ Resources:
                   - logs:FilterLogEvents
                 Resource:
                   - '*'
+
   BootNodeIamRole:
     Type: AWS::IAM::Role
+    DependsOn: S3VPCEndpoint
     Properties:
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -545,7 +571,6 @@ Resources:
         - {IAMUserAccessKey: !Ref IAMUserAccessKey, IAMUserSecret: !GetAtt [IAMUserAccessKey, SecretAccessKey]}
 
   BootnodeInstance:
-    DependsOn: NATGateway1
     Type: AWS::EC2::Instance
     Metadata:
       AWS::CloudFormation::Init:
