@@ -24,7 +24,6 @@ env:
 
 jobs:  
   deploy-sno:
-    needs: deploy
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repository
@@ -53,6 +52,7 @@ jobs:
       shell: bash
 
   deploy:
+    needs: deploy-sno
     runs-on: ubuntu-latest
     steps:
     - name: Print branch name

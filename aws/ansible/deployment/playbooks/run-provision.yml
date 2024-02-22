@@ -105,7 +105,7 @@
 
     - name: Check if the Openshift Console returns 200
       uri:
-        url: "{{ stack_zmodstack.cloudformation[stack_name].stack_outputs.OpenShiftConsole }}"
+        url: "{{ stack_zmodstack.cloudformation[stack_name].stack_outputs.OpenshiftConsole }}"
         status_code: 200
         validate_certs: false
       tags: cfn-create
@@ -116,7 +116,7 @@
 
     - name: login to OpenShift Console
       uri:
-        url: "{{ stack_zmodstack.cloudformation[stack_name].stack_outputs.OpenShiftConsole }}"
+        url: "{{ stack_zmodstack.cloudformation[stack_name].stack_outputs.OpenshiftConsole }}"
         user: admin
         password: zmodstack
         force_basic_auth: yes
