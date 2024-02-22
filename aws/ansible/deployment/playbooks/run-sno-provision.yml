@@ -33,7 +33,7 @@
       ansible.builtin.debug:
         var: zones
 
-    - name: Create cloudformation stack
+    - name: Create SNO cloudformation stack
       amazon.aws.cloudformation:
         stack_name: "{{ stack_name }}"
         state: present
