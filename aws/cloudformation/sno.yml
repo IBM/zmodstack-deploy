@@ -20,6 +20,7 @@ Metadata:
       - Label:
           default: OpenShift configuration
         Parameters:
+          - ClusterName
           - OpenshiftVersion
           - OpenshiftUsername
           - OpenshiftPassword
@@ -265,7 +266,7 @@ Resources:
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
-    DependsOn: VPC
+    DependsOn: [VPC, VPCDHCPOptionsAssociation]
     Properties:
       Tags:
       - Key: Name
@@ -293,6 +294,7 @@ Resources:
         Value: Private
 
   PublicSubnet1:
+    DependsOn: VPCGatewayAttachment
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
@@ -321,12 +323,14 @@ Resources:
 
   PrivateSubnet1ARoute:
     Type: AWS::EC2::Route
+    DependsOn: [VPC, PrivateSubnet1A]
     Properties:
       RouteTableId: !Ref PrivateSubnet1ARouteTable
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NATGateway1
 
   PrivateSubnet1ARouteTableAssociation:
+    DependsOn: [PrivateSubnet1ARoute, NATGateway1]
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PrivateSubnet1A
@@ -352,6 +356,7 @@ Resources:
       GatewayId: !Ref InternetGateway
 
   PublicSubnet1RouteTableAssociation:
+    DependsOn: PublicSubnetRoute
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnet1
@@ -374,6 +379,7 @@ Resources:
       SubnetId: !Ref PublicSubnet1
   
   SecurityGroup:
+    DependsOn: [PublicSubnet1RouteTableAssociation, PrivateSubnet1ARouteTableAssociation]
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupName: !Sub "${AWS::StackName}-openshift-vpc"
@@ -391,6 +397,7 @@ Resources:
           IpProtocol: '-1'
 
   S3VPCEndpoint:
+    DependsOn: SecurityGroup
     Type: AWS::EC2::VPCEndpoint
     Properties:
       PolicyDocument:
@@ -790,7 +797,7 @@ Resources:
   Cleanup :
     Type: Custom::Cleanup
     Properties:
-      DependsOn: BootnodeInstance
+      DependsOn: [BootnodeInstance, CleanUpLambda]
       ServiceToken: !GetAtt 'CleanUpLambda.Arn'
 
   InstallCompleteHandle:
