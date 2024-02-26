@@ -50,4 +50,4 @@ jobs:
         aws s3 cp ./aws/cloudformation/cluster.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/cluster.yml
         aws s3 cp ./aws/cloudformation/vpc.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/vpc.yml
         aws s3 cp ./aws/cloudformation/main.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/main.yml
-        aws s3 cp ./aws/cloudformation/main.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/sno.yml  
+        aws s3 cp ./aws/cloudformation/sno.yml s3://z-mod-stack-aws-dev/branches/$BRANCH_NAME/cloudformation/sno.yml  
