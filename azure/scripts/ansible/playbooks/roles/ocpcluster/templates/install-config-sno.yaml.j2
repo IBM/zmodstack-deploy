@@ -1,0 +1,28 @@
+apiVersion: v1
+baseDomain: {{ dns_zone_name }} 
+compute:
+- name: worker
+  replicas: 0 
+controlPlane:
+  name: master
+  platform: 
+    azure:
+      type: {{ control_plane_vm_size }}
+      osDisk:
+        diskSizeGB: {{ control_plane_disk_size }}
+        diskType: {{ control_plane_disk_type }}
+      zones:
+      - '1'
+      - '2'
+      - '3'  
+  replicas: 1 
+metadata:
+  name: {{ cluster_name }}
+platform:
+  azure:
+    baseDomainResourceGroupName: {{ dns_zone_resource_group }}
+    region: {{ location }}
+    resourceGroupName: {{ cluster_resource_group_name }}
+pullSecret: '{{ pull_secret }}' 
+sshKey: |
+  {{ bootstrap_ssh_public_key }}
