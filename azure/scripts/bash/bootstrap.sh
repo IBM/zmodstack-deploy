@@ -1,24 +1,10 @@
 #!/bin/bash
 set -ex
-
-export INSTALLER_HOME=/mnt/openshift
-mkdir -p $INSTALLER_HOME
-
-# Install git
-sudo dnf install -y git
-
-export GIT_CLONE_DIR=$INSTALLER_HOME/zmodstack-deploy
-mkdir -p $GIT_CLONE_DIR
-git clone --branch main https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
-
 # Install Ansible
 sudo dnf install -y python3-pip
 sudo pip3 install --upgrade pip
 pip3 install ansible
 pip3 install ansible[azure]
-
-# Execute Ansible playbook to install dependencies
-ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/predeploy.yaml
 
 echo $(date) " - Azure CLI Login"
 az login --identity
@@ -110,6 +96,20 @@ export ZOS_CONNECT_INSTALL=$(armParm zosConnectInstall)
 export WAZI_DEVSPACES_INSTALL=$(armParm waziDevspacesInstall)
 export WAZI_DEVSPACES_VERSION=$(armParm waziDevspacesVersion)
 export SNO=$(armVar sno)
+export RELEASE_NAME=$(armVar releaseName)
+
+export INSTALLER_HOME=/mnt/openshift
+mkdir -p $INSTALLER_HOME
+
+# Install git
+sudo dnf install -y git
+
+export GIT_CLONE_DIR=$INSTALLER_HOME/zmodstack-deploy
+mkdir -p $GIT_CLONE_DIR
+git clone --branch $RELEASE_NAME https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
+
+# Execute Ansible playbook to install dependencies
+ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/predeploy.yaml
 
 # Wait for cloud-init to finish
 count=0
