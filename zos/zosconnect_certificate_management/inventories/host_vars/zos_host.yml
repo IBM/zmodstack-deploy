@@ -15,7 +15,10 @@
 # Note, PYZ and ZOAU environment variables must be configured.
 ################################################################################
 
+# Uncomment below line for Python path for a WaaS ADCD instance
 PYZ: "/usr/lpp/IBM/cyp/pyz"
+# Uncomment below line for Python path for a WaaS Stock instance
+# PYZ: "/usr/lpp/IBM/cyp/v3r11/pyz" 
 ZOAU: "/usr/lpp/IBM/zoautil"
 
 ################################################################################

@@ -16,4 +16,4 @@ source_system:
       ansible_host: <Hostname or IP Address of z/OS>
       ansible_user: <Username of z/OS>
       # Uncomment and supply value if default SSH key is not configured for the ansible_host
-      # ansible_ssh_private_key_file: <path/to/local/ssh_key>     
+      # ansible_ssh_private_key_file: <path/to/local/ssh_key>   
