@@ -96,7 +96,7 @@ export ZOS_CONNECT_INSTALL=$(armParm zosConnectInstall)
 export WAZI_DEVSPACES_INSTALL=$(armParm waziDevspacesInstall)
 export WAZI_DEVSPACES_VERSION=$(armParm waziDevspacesVersion)
 export SNO=$(armVar sno)
-export RELEASE_NAME=$(armVar releaseName)
+export RELEASE_NAME=$(armParm releaseName)
 
 export INSTALLER_HOME=/mnt/openshift
 mkdir -p $INSTALLER_HOME
