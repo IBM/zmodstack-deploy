@@ -1,0 +1,45 @@
+#jinja2: trim_blocks:False
+apiVersion: v1
+baseDomain: {{ base_domain }}
+controlPlane: 
+  hyperthreading: Enabled
+  name: controlnode
+  platform:
+    aws:
+      rootVolume:
+        size: {{ sno_control_plane_node_instance_volume_size }}
+        type: {{ control_plane_node_instance_volume_type }}
+      type: {{ sno_control_plane_node_instance_type }}
+  replicas: 1
+compute:
+- hyperthreading: Enabled
+  name: worker
+  platform:
+    aws:
+      rootVolume:
+        size: {{ computenode_instance_volume_size }}
+      type: {{ computenode_instance_type }}
+  replicas: 0
+metadata:
+  name: {{ cluster_name }}
+networking:
+  clusterNetwork:
+  - cidr: {{ cluster_network_cidr }}
+    hostPrefix: {{ cluster_network_host_prefix }}
+  machineNetwork:
+  - cidr: {{ machine_network_cidr }}
+  networkType: OpenShiftSDN
+  serviceNetwork:
+  - {{ service_network_cidr }}
+platform:
+  aws:
+    region: {{ region }}
+    subnets:
+     - {{ control_plane_node_subnet1_id }}
+     - {{ computenode_subnet1_id }}
+    userTags:
+      "zmodstack:provisioner": openshift-install
+      "zmodstack:cfn-stack-name": {{ cluster_name }}
+publish: External
+pullSecret: '{{ lookup('file', '{{ playbook_dir }}/pull-secret') }}'
+sshKey: {{ public_ssh_key }}

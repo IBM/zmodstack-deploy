@@ -374,7 +374,7 @@ Outputs:
     Description: The boot node public IP address.
     Condition: AZValidation
     Value: !GetAtt 'ZModStack.Outputs.BootnodePublicIp'
-  OpenShiftConsole:
+  OpenshiftConsole:
     Description: The URL for the OpenShift Console UI.
     Condition: AZValidation
     Value: !GetAtt 'ZModStack.Outputs.OpenshiftConsole'

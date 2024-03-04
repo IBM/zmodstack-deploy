@@ -1,36 +1,24 @@
 ---
-- name: Deploy CloudFormation Template for OpenShift Cluster
+- name: Deploy CloudFormation Template for Single Node Openshift Cluster
   hosts: localhost
   collections:
   - amazon.aws
 
   vars:
     subnet: "10.100"
-    azs: 3
+    azs: 1
     region: us-east-1
     aws_regions:
       us-east-1:
         - us-east-1a
-        - us-east-1b
-        - us-east-1c
-        - us-east-1d
-        - us-east-1f
       us-east-2:
         - us-east-2a
-        - us-east-2b
-        - us-east-2c
       us-west-1:
         - us-west-1a
-        - us-west-1b
       us-west-2:
         - us-west-2a
-        - us-west-2b
-        - us-west-2c
-        - us-west-2d
       eu-west-2:
         - eu-west-2a
-        - eu-west-2b
-        - eu-west-2c
 
   tasks:
     - name: Display list of AZs in selected region
@@ -45,36 +33,29 @@
       ansible.builtin.debug:
         var: zones
 
-    - name: Create cloudformation stack
+    - name: Create SNO cloudformation stack
       amazon.aws.cloudformation:
         stack_name: "{{ stack_name }}"
         state: present
         region: "{{ region }}"
         disable_rollback: true
-        template_url: "https://z-mod-stack-aws-dev.s3.us-east-2.amazonaws.com/branches/{{ branch_name }}/cloudformation/main.yml"
+        template_url: "https://z-mod-stack-aws-dev.s3.us-east-2.amazonaws.com/branches/{{ branch_name }}/cloudformation/sno.yml"
         template_parameters:
-          NumberOfAZs: "{{ azs | int }}"
           AvailabilityZones: "{{ zones }}"
           VPCCIDR: "{{ subnet }}.0.0/16"
           PrivateSubnet1CIDR: "{{ subnet }}.0.0/19"
-          PrivateSubnet2CIDR: "{{ subnet }}.32.0/19"
-          PrivateSubnet3CIDR: "{{ subnet }}.64.0/19"
           PublicSubnet1CIDR: "{{ subnet }}.128.0/20"
-          PublicSubnet2CIDR: "{{ subnet }}.144.0/20"
-          PublicSubnet3CIDR: "{{ subnet }}.160.0/20"
           BootNodeInstanceType: t3.xlarge
           BootNodeAccessCIDR: 0.0.0.0/0
           DomainName: ibmzsoftware.com
-          NumberOfControlPlaneNode: 3
-          NumberOfCompute: 2
-          ControlPlaneNodeInstanceType: m5.xlarge
-          ComputeInstanceType: m5.large
+          ControlPlaneNodeInstanceType: m5.4xlarge
           S3BucketName: z-mod-stack-aws-dev
           OpenshiftVersion: "4.13"
           OpenshiftUsername: admin
           OpenshiftPassword: "{{ OCP_PASSWORD }}"
           LicenseAgreement: I agree
           APIKey: "{{ API_KEY }}"
+          ClusterName: "{{ stack_name }}"
         tags:
           zmodstack:deployer: ansible
           zmodstack:cfn-stack-name: "{{ stack_name }}"
