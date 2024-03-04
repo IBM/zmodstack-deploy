@@ -10,13 +10,16 @@
   vars:
     keyring: 'ZCONNECT'
     owner_id: 'ZOSCSRV'
-    cn: 'ZOSCSRV_ZCONN_Server'
-    o: 'IBM'    
-    ou: 'ZOSVSI'
+    o: 'IBM'
     country: 'US'
-    cert_label: 'ZCONN_Server'
-    sign_label: 'ADCD_COMMON'
-    expiry_date: '2024-11-30'
+    cert_type: 'USER' # Value should be either USER or CERTAUTH
+    cn_user: 'ZOSCSRV_ZCONN_Server'
+    ou_user: 'ZOSVSI'
+    cert_label_user: 'ZCONN_Server'
+    cn_ca: 'ADCD_SELFCA_CUSTCERT'
+    ou_ca: 'ADCD'
+    cert_label_ca: 'ADCD_COMMON' # Value should be ' ' for a self-signed USER cert
+    expiry_date: '2025-12-31'
 
   tasks:
     - include_role:
@@ -30,20 +33,55 @@
     - include_role:
         name: issue_racf_cmd
       vars:
-        task_description: 'Create new local-CA-signed USER cert and connect to keyring'
+        task_description: 'Create new self-signed USER cert and connect to keyring'
         command:
           - >
-            RACDCERT GENCERT ID({{owner_id}}) SUBJECTSDN(CN('{{cn}}') +
-              O('{{o}}') OU('{{ou}}') C('{{country}}')) WITHLABEL('{{cert_label}}') +
-              SIGNWITH(CERTAUTH LABEL('{{sign_label}}')) +
+            RACDCERT GENCERT ID({{owner_id}}) SUBJECTSDN(CN('{{cn_user}}') +
+              O('{{o}}') OU('{{ou_user}}') C('{{country}}')) WITHLABEL('{{cert_label_user}}') +
               NOTAFTER(DATE({{expiry_date}}))
           - >
-            RACDCERT ID({{owner_id}}) CONNECT(LABEL('{{cert_label}}') +
+            RACDCERT ID({{owner_id}}) CONNECT(LABEL('{{cert_label_user}}') +
               RING({{keyring}}) DEFAULT)
           - >
             RACDCERT LISTRING({{keyring}}) ID({{owner_id}})
           - >
-            RACDCERT LISTCHAIN (LABEL('{{cert_label}}')) ID({{owner_id}})
+            RACDCERT LISTCHAIN (LABEL('{{cert_label_user}}')) ID({{owner_id}})
+      when: cert_type == 'USER' and cert_label_ca == ' '
+
+    - include_role:
+        name: issue_racf_cmd
+      vars:
+        task_description: 'Create new local-CA-signed USER cert and connect to keyring'
+        command:
+          - >
+            RACDCERT GENCERT ID({{owner_id}}) SUBJECTSDN(CN('{{cn_user}}') +
+              O('{{o}}') OU('{{ou_user}}') C('{{country}}')) WITHLABEL('{{cert_label_user}}') +
+              SIGNWITH(CERTAUTH LABEL('{{cert_label_ca}}')) +
+              NOTAFTER(DATE({{expiry_date}}))
+          - >
+            RACDCERT ID({{owner_id}}) CONNECT(LABEL('{{cert_label_user}}') +
+              RING({{keyring}}) DEFAULT)
+          - >
+            RACDCERT LISTRING({{keyring}}) ID({{owner_id}})
+          - >
+            RACDCERT LISTCHAIN (LABEL('{{cert_label_user}}')) ID({{owner_id}})
+      when: cert_type == 'USER' and not cert_label_ca == ' '
+
+    - include_role:
+        name: issue_racf_cmd
+      vars:
+        task_description: 'Create new CA cert and connect to keyring'
+        command:
+          - >
+            RACDCERT GENCERT CERTAUTH KEYUSAGE(CERTSIGN) +
+               SUBJECTSDN(CN('{{cn_ca}}') O('{{o}}') OU('{{ou_ca}}') +
+               C('{{country}}')) WITHLABEL('{{cert_label_ca}}') +
+               NOTAFTER(DATE({{expiry_date}}))
+          - >
+            RACDCERT ID({{owner_id}}) +
+               CONNECT(CERTAUTH LABEL('{{cert_label_ca}}') +
+               RING({{keyring}}))
+      when: cert_type == 'CERTAUTH'
 
     - include_role:
         name: issue_operator_cmd
