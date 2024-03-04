@@ -9,13 +9,25 @@
   environment: "{{ environment_vars }}"
   vars:
     owner_id: 'ZOSCSRV'
-    cert_label: 'ZCONN_Server'
+    cert_type: 'USER' # Value should be either USER or CERTAUTH
+    cert_label_user: 'ZCONN_Server'
+    cert_label_ca: 'ADCD_COMMON'
 
   tasks:
     - include_role:
         name: issue_racf_cmd
       vars:
-        task_description: 'Delete cert {{cert_label}}'
+        task_description: 'Delete USER cert {{cert_label_user}}'
         command:
-          - RACDCERT ID({{ owner_id}}) DELETE(LABEL('{{cert_label}}'))
-          - RACDCERT ID({{ owner_id}}) LIST(LABEL('{{cert_label}}'))
+          - RACDCERT ID({{owner_id}}) DELETE(LABEL('{{cert_label_user}}'))
+          - RACDCERT ID({{owner_id}}) LIST(LABEL('{{cert_label_user}}'))
+      when: cert_type == 'USER'
+
+    - include_role:
+        name: issue_racf_cmd
+      vars:
+        task_description: 'Delete CA cert {{cert_label_ca}}'
+        command:
+          - RACDCERT CERTAUTH DELETE(LABEL('{{cert_label_ca}}'))
+          - RACDCERT CERTAUTH LIST(LABEL('{{cert_label_ca}}'))
+      when: cert_type == 'CERTAUTH'
