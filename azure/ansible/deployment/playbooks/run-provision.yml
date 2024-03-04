@@ -28,5 +28,3 @@
         location: "{{ location }}"
         template: "{{ arm_template }}"
         parameters: "{{ arm_parameters }}"
-        variables:
-          releaseName: "{{ branch_name }}"
