@@ -36,7 +36,7 @@ jobs:
         ansible-galaxy collection install azure.azcollection --force
         pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
         pip install 'ansible[azure]'
-        echo $(jq --arg a "${{ env.BRANCH_NAME }}" '.parameters.releaseName = ($a)' ${{ env.MAIN_PARAMETERS_JSON }}) > ${{ env.MAIN_PARAMETERS_JSON }}
+        echo $(jq --arg a "${{ env.BRANCH_NAME }}" '.parameters.releaseName.value = ($a)' ${{ env.MAIN_PARAMETERS_JSON }}) > ${{ env.MAIN_PARAMETERS_JSON }}
         ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_PROVISION }} --extra-vars "branch_name=${{ env.BRANCH_NAME }}"
         ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_VALIDATE }} -e ocp_password=${{ secrets.AZURE_OCP_PASSWORD }}
         ansible-playbook ${{ env.ANSIBLE_PLAYBOOK_DEPROVISION }}
