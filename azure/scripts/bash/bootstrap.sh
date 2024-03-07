@@ -1,10 +1,18 @@
 #!/bin/bash
 set -ex
-# Install Ansible
-sudo dnf install -y python3-pip
+
+# Pre Deploy Installations
+##########################
+# Import Microsoft key
+rpm --import https://packages.microsoft.com/keys/microsoft.asc
+# Import packages-microsoft-prod package
+dnf install -y https://packages.microsoft.com/config/rhel/8/packages-microsoft-prod.rpm
+# Install Azure CLI, jq, podman, and httpd-tools
+dnf install -y azure-cli jq podman httpd-tools python3-pip
 sudo pip3 install --upgrade pip
-pip3 install ansible
-pip3 install ansible[azure]
+# Install PyYAML, kubernetes, openshift, jmespath and ansible.
+pip3 install --ignore-installed PyYAML kubernetes openshift jmespath ansible ansible[azure]
+
 
 echo $(date) " - Azure CLI Login"
 az login --identity
@@ -104,12 +112,10 @@ mkdir -p $INSTALLER_HOME
 # Install git
 sudo dnf install -y git
 
+echo $
 export GIT_CLONE_DIR=$INSTALLER_HOME/zmodstack-deploy
 mkdir -p $GIT_CLONE_DIR
 git clone --branch $RELEASE_NAME https://github.com/IBM/zmodstack-deploy.git $GIT_CLONE_DIR
-
-# Execute Ansible playbook to install dependencies
-ansible-playbook $GIT_CLONE_DIR/azure/scripts/ansible/playbooks/predeploy.yaml
 
 # Wait for cloud-init to finish
 count=0
