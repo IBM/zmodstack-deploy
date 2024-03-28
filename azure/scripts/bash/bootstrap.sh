@@ -112,6 +112,7 @@ mkdir -p $INSTALLER_HOME
 # Install git
 sudo dnf install -y git
 
+#Clone the repository
 echo $
 export GIT_CLONE_DIR=$INSTALLER_HOME/zmodstack-deploy
 mkdir -p $GIT_CLONE_DIR
