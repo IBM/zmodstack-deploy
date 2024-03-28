@@ -74,6 +74,7 @@
           OpenshiftUsername: admin
           OpenshiftPassword: "{{ OCP_PASSWORD }}"
           LicenseAgreement: I agree
+          ReleaseName: "{{ branch_name }}"
           APIKey: "{{ API_KEY }}"
         tags:
           zmodstack:deployer: ansible

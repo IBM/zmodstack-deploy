@@ -30,6 +30,12 @@
         "description": "Azure AD Client Secret"
       }
     },
+    "releaseName": {
+      "type": "string",
+      "metadata": {
+        "description": "Release which is to be installed"
+      }
+    },
     "bootstrapAdminUsername": {
       "type": "string",
       "minLength": 4,
@@ -351,7 +357,7 @@
     "vTrue": true,
     "bootstrapPublicIpDnsLabelName": "[format('bootstrapdns{0}', uniqueString(resourceGroup().id))]",
     "sshKeyPath": "[format('/home/{0}/.ssh/authorized_keys', parameters('bootstrapAdminUsername'))]",
-    "bootstrapScriptUrl": "https://raw.githubusercontent.com/IBM/zmodstack-deploy/main/azure/scripts/bash/bootstrap.sh",
+    "bootstrapScriptUrl": "[uri('https://raw.githubusercontent.com/IBM/zmodstack-deploy/', concat(parameters('releaseName'), '/azure/scripts/bash/bootstrap.sh'))]",
     "bootstrapScriptFileName": "bootstrap.sh",
     "subscriptionId": "[subscription().subscriptionId]",
     "tenantId": "[subscription().tenantId]",
@@ -922,6 +928,10 @@
     "sno": {
       "type": "bool",
       "value": "[variables('sno')]"
+    },
+    "releaseName": {
+      "type": "string",
+      "value": "[parameters('releaseName')]"
     }
   }
 }

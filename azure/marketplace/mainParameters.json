@@ -1,118 +1,121 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "location": {
-      "value": "eastus"
-    },
-    "aadApplicationId": {
-      "value": "977157b0-2a6f-47ea-9b15-5b770b170a15"
-    },
-    "aadApplicationSecret": {
-      "reference": {
-        "keyVault": {
-          "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
-        },
-        "secretName": "aadApplicationSecret"
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "location": {
+        "value": "eastus"
+      },
+      "aadApplicationId": {
+        "value": "977157b0-2a6f-47ea-9b15-5b770b170a15"
+      },
+      "aadApplicationSecret": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
+          },
+          "secretName": "aadApplicationSecret"
+        }
+      },
+      "bootstrapAdminUsername": {
+        "value": "vmadmin"
+      },
+      "bootstrapVmSize": {
+        "value": "Standard_D4s_v3"
+      },
+      "bootstrapSshPublicKey": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
+          },
+          "secretName": "bootstrapSshPublicKey"
+        }
+      },
+      "controlplaneInstanceCount": {
+        "value": 3
+      },
+      "controlplaneVmSize": {
+        "value": "Standard_D4s_v3"
+      },
+      "computeInstanceCount": {
+        "value": 3
+      },
+      "computeVmSize": {
+        "value": "Standard_D4s_v3"
+      },
+      "virtualNetworkName": {
+        "value": "openshift-vnet"
+      },
+      "virtualNetworkCIDR": {
+        "value": "10.0.0.0/16"
+      },
+      "controlplaneSubnetCIDR": {
+        "value": "10.0.1.0/24"
+      },
+      "computeSubnetCIDR": {
+        "value": "10.0.2.0/24"
+      },
+      "bootstrapSubnetCIDR": {
+        "value": "10.0.3.0/27"
+      },
+      "singleZoneOrMultiZone": {
+        "value": "az"
+      },
+      "dnsZoneName": {
+        "value": "ibmzsw.com"
+      },
+      "dnsZoneResourceGroup": {
+        "value": "z-mod-stack-rg"
+      },
+      "pullSecret": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
+          },
+          "secretName": "pullSecret"
+        }
+      },
+      "openshiftUsername": {
+        "value": "ocpadmin"
+      },
+      "openshiftPassword": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
+          },
+          "secretName": "openshiftPassword"
+        }
+      },
+      "clusterResourceGroupName": {
+        "value": "z-mod-stack-ocp-dev"
+      },
+      "apiKey": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
+          },
+          "secretName": "apiKey"
+        }
+      },
+      "openshiftVersion": {
+        "value": "4.13"
+      },
+      "zModStackLicenseAgreement": {
+        "value": "accept"
+      },
+      "zosCloudBrokerInstall": {
+        "value": true
+      },
+      "zosConnectInstall": {
+        "value": true
+      },
+      "waziDevspacesInstall": {
+        "value": true
+      },
+      "waziDevspacesVersion": {
+        "value": "3.x"
+      },
+      "releaseName": {
+        "value": "release-2023.4.1"
       }
-    },
-    "bootstrapAdminUsername": {
-      "value": "vmadmin"
-    },
-    "bootstrapVmSize": {
-      "value": "Standard_D4s_v3"
-    },
-    "bootstrapSshPublicKey": {
-      "reference": {
-        "keyVault": {
-          "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
-        },
-        "secretName": "bootstrapSshPublicKey"
-      }
-    },
-    "controlplaneInstanceCount": {
-      "value": 3
-    },
-    "controlplaneVmSize": {
-      "value": "Standard_D4s_v3"
-    },
-    "computeInstanceCount": {
-      "value": 3
-    },
-    "computeVmSize": {
-      "value": "Standard_D4s_v3"
-    },
-    "virtualNetworkName": {
-      "value": "openshift-vnet"
-    },
-    "virtualNetworkCIDR": {
-      "value": "10.0.0.0/16"
-    },
-    "controlplaneSubnetCIDR": {
-      "value": "10.0.1.0/24"
-    },
-    "computeSubnetCIDR": {
-      "value": "10.0.2.0/24"
-    },
-    "bootstrapSubnetCIDR": {
-      "value": "10.0.3.0/27"
-    },
-    "singleZoneOrMultiZone": {
-      "value": "az"
-    },
-    "dnsZoneName": {
-      "value": "ibmzsw.com"
-    },
-    "dnsZoneResourceGroup": {
-      "value": "z-mod-stack-rg"
-    },
-    "pullSecret": {
-      "reference": {
-        "keyVault": {
-          "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
-        },
-        "secretName": "pullSecret"
-      }
-    },
-    "openshiftUsername": {
-      "value": "ocpadmin"
-    },
-    "openshiftPassword": {
-      "reference": {
-        "keyVault": {
-          "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
-        },
-        "secretName": "openshiftPassword"
-      }
-    },
-    "clusterResourceGroupName": {
-      "value": "z-mod-stack-ocp-dev"
-    },
-    "apiKey": {
-      "reference": {
-        "keyVault": {
-          "id": "/subscriptions/60088d66-faba-486b-b703-276fcdd23696/resourceGroups/z-mod-stack-rg/providers/Microsoft.KeyVault/vaults/z-mod-stack-kv"
-        },
-        "secretName": "apiKey"
-      }
-    },
-    "openshiftVersion": {
-      "value": "4.13"
-    },
-    "zModStackLicenseAgreement": {
-      "value": "accept"
-    },
-    "zosCloudBrokerInstall": {
-      "value": true
-    },
-    "zosConnectInstall": {
-      "value": true
-    },
-    "waziDevspacesInstall": {
-      "value": true
-    },
-    "waziDevspacesVersion": {
-      "value": "3.x"
     }
   }
-}
